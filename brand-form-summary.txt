@@ -1,0 +1,15 @@
+﻿python : Traceback (most recent call last):
+At C:\Users\AmirRezaTM\AppData\Local\Temp\ps-script-11720ff1-e58d-4da5-807e-9b38d95521e3.ps1:105 char:1
++ python -c "
++ ~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Traceback (most recent call last)::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  File "<string>", line 6, in <module>
+    print('SHEET', repr(name), 'rows', len(rows), 'cols', max(len(r) for r in rows) if rows else 0)
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 1-4: character maps to <undefined>
+SHEET 

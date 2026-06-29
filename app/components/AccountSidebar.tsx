@@ -1,6 +1,6 @@
 "use client";
 
-import { navItems, type NavItem } from "../lib/surveys";
+import { navItems, surveyMap, type NavItem } from "../lib/surveys";
 
 type AccountSidebarProps = {
   activeSection: string;
@@ -9,7 +9,11 @@ type AccountSidebarProps = {
   onSubmenuToggle: (id: string | null) => void;
 };
 
-const surveySections = new Set(["branding", "seo", "profile", "dashboard"]);
+const availableSections = new Set(Object.keys(surveyMap));
+
+function hasSurvey(id: string): boolean {
+  return availableSections.has(id);
+}
 
 export default function AccountSidebar({
   activeSection,
@@ -19,28 +23,34 @@ export default function AccountSidebar({
 }: AccountSidebarProps) {
   function handleItemClick(item: NavItem) {
     if (item.children) {
+      const surveyChild = item.children.find((child) => hasSurvey(child.id));
+      if (surveyChild) {
+        onSectionChange(surveyChild.id);
+        onSubmenuToggle(item.id);
+        return;
+      }
       onSubmenuToggle(openSubmenu === item.id ? null : item.id);
       return;
     }
-    if (surveySections.has(item.id)) {
+    if (hasSurvey(item.id)) {
       onSectionChange(item.id);
     }
   }
 
   function handleChildClick(childId: string) {
-    if (surveySections.has(childId)) {
+    if (hasSurvey(childId)) {
       onSectionChange(childId);
     }
   }
 
   function isActive(item: NavItem): boolean {
     if (item.id === activeSection) return true;
-    return item.children?.some((c) => c.id === activeSection) ?? false;
+    return item.children?.some((child) => child.id === activeSection) ?? false;
   }
 
   return (
     <aside className="account-sidebar" aria-label="حساب کاربری من">
-      <div className="account-sidebar-title">حساب کاربری من</div>
+      <div className="text-black account-sidebar-title">حساب کاربری من</div>
       <nav className="account-sidebar-nav">
         {navItems.map((item) => (
           <div key={item.id} className="account-sidebar-group">
@@ -65,8 +75,9 @@ export default function AccountSidebar({
                       <button
                         key={child.id}
                         type="button"
-                        className={`account-sidebar-item account-submenu-item ${activeSection === child.id ? "active" : ""}`}
+                        className={`account-sidebar-item account-submenu-item ${activeSection === child.id ? "active" : ""} ${!hasSurvey(child.id) ? "disabled" : ""}`}
                         onClick={() => handleChildClick(child.id)}
+                        disabled={!hasSurvey(child.id)}
                       >
                         {child.label}
                       </button>
