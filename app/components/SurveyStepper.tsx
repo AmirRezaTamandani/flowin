@@ -101,7 +101,7 @@ function StepField({
             value={typeof field.value === "string" ? field.value : ""}
             placeholder={step.placeholder || ""}
             aria-invalid={hasError}
-            className={cn("h-11 text-base", errorClass)}
+            className={cn("h-11 text-base text-foreground bg-white", errorClass)}
           />
         )}
       />
@@ -120,7 +120,7 @@ function StepField({
             placeholder={step.placeholder || ""}
             rows={5}
             aria-invalid={hasError}
-            className={cn("min-h-[120px] text-base", errorClass)}
+            className={cn("min-h-[120px] text-base text-foreground bg-white", errorClass)}
           />
         )}
       />
@@ -171,7 +171,7 @@ function StepField({
                 className="flex cursor-pointer items-start gap-3 rounded-lg border border-transparent p-2 hover:bg-muted/50 has-data-checked:border-primary/30 has-data-checked:bg-primary/5"
               >
                 <RadioGroupItem value={option} className="mt-0.5" />
-                <span className="text-sm leading-6">{option}</span>
+                <span className="radio-label text-sm leading-6 text-foreground">{option}</span>
               </Label>
             ))}
           </RadioGroup>
@@ -213,7 +213,7 @@ function StepField({
                     }}
                     className="mt-0.5"
                   />
-                  <span className="text-sm leading-6">{option}</span>
+                  <span className="checkbox-label text-sm leading-6 text-foreground">{option}</span>
                 </Label>
               );
             })}
@@ -400,9 +400,9 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
         {!isFinished && currentIndex > 0 && (
           <Button
             type="button"
-            variant="secondary"
+            variant="outline"
             onClick={goPrev}
-            className="btn-prev h-10 min-w-28 rounded-xl"
+            className="btn-prev h-10 min-w-28 rounded-xl font-semibold"
           >
             قبلی
           </Button>
@@ -411,7 +411,7 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
           <Button
             type="button"
             onClick={goNext}
-            className="btn-next h-10 min-w-28 rounded-xl bg-[var(--btn-dark)] text-white hover:bg-[var(--btn-dark)]/90"
+            className="btn-next h-10 min-w-28 rounded-xl font-semibold"
           >
             {currentIndex === visibleSteps.length - 1 ? "پایان" : "بعدی"}
           </Button>
@@ -419,19 +419,19 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
           <>
             <Button
               type="button"
-              variant="secondary"
+              variant="outline"
               onClick={() => {
                 setIsFinished(false);
                 setCurrentStepId(visibleSteps[0]?.id ?? 1);
               }}
-              className="btn-prev h-10 min-w-28 rounded-xl"
+              className="btn-prev h-10 min-w-28 rounded-xl font-semibold"
             >
               ویرایش پاسخ‌ها
             </Button>
             <Button
               type="button"
               onClick={() => completeSurvey(form.getValues())}
-              className="btn-next h-10 min-w-28 rounded-xl bg-[var(--btn-dark)] text-white hover:bg-[var(--btn-dark)]/90"
+              className="btn-next h-10 min-w-28 rounded-xl font-semibold"
             >
               ذخیره تغییرات
             </Button>
