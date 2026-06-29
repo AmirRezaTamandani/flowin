@@ -1,16 +1,25 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f4f7fb;
-  --surface: #ffffff;
-  --surface-alt: #eef4ff;
-  --foreground: #0f172a;
-  --muted: #475569;
-  --border: #dbe3f0;
-  --primary: #2563eb;
-  --primary-dark: #1d4ed8;
-  --accent: #0f766e;
-  --shadow: rgba(15, 23, 42, 0.08);
+  --background: var(--e-global-color-7851794, #f2f2f2);
+  --surface: var(--e-global-color-83e0fa2, #ffffff);
+  --surface-alt: color-mix(
+    in srgb,
+    var(--e-global-color-primary, #77e0dd) 14%,
+    white
+  );
+  --foreground: var(--e-global-color-text, #333333);
+  --muted: #5f626a;
+  --border: color-mix(
+    in srgb,
+    var(--e-global-color-primary, #77e0dd) 30%,
+    white
+  );
+  --primary: var(--e-global-color-primary, #77e0dd);
+  --primary-dark: var(--e-global-color-secondary, #2b9e9b);
+  --accent: var(--e-global-color-accent, #eac37f);
+  --shadow: rgba(43, 158, 155, 0.14);
+  --font-primary: "Modam", "Segoe UI", Tahoma, Arial, sans-serif;
 }
 
 @theme inline {
@@ -20,11 +29,31 @@
   --font-mono: var(--font-geist-mono);
 }
 
+@font-face {
+  font-family: "Modam";
+  src: url("https://felowin.ir/wp-content/uploads/2025/12/Modam-Light-b.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Modam";
+  src: url("https://felowin.ir/wp-content/uploads/2025/12/Modam-Black-b.woff2")
+    format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-primary);
   margin: 0;
+  direction: rtl;
+  text-align: right;
 }
 
 .page-root {
@@ -140,12 +169,13 @@ body {
   color: var(--foreground);
   font-size: 14px;
   padding: 8px 10px;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
   text-align: right;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
   transition:
     background 0.2s ease,
     color 0.2s ease;
@@ -182,7 +212,7 @@ body {
   color: var(--foreground);
   font-size: 13px;
   padding: 8px 10px;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
   text-align: right;
   transition:
@@ -208,8 +238,12 @@ body {
 /* Layout for profile and stats */
 .profile-card {
   width: 280px;
-  background: var(--surface);
-  border-radius: 14px;
+  background: linear-gradient(
+    135deg,
+    var(--surface) 0%,
+    color-mix(in srgb, var(--primary) 10%, white) 100%
+  );
+  border-radius: 16px;
   padding: 18px;
   border: 1px solid var(--border);
   box-shadow: 0 8px 18px var(--shadow);
@@ -223,8 +257,12 @@ body {
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: #e2ecff;
-  color: var(--primary-dark);
+  background: linear-gradient(
+    135deg,
+    var(--primary) 0%,
+    var(--primary-dark) 100%
+  );
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -241,7 +279,7 @@ body {
 }
 .edit-btn {
   margin-top: 8px;
-  background: var(--primary);
+  background: var(--primary-dark);
   border: none;
   padding: 8px 10px;
   border-radius: 10px;
@@ -285,6 +323,7 @@ body {
 }
 .survey-head {
   margin-bottom: 14px;
+  padding: 4px 2px;
 }
 .survey-title {
   font-size: 18px;
@@ -335,9 +374,10 @@ body {
   padding: 12px;
   border-radius: 10px;
   border: 1px solid var(--border);
-  background: #fbfdff;
+  background: #fcfefe;
   color: var(--foreground);
   box-sizing: border-box;
+  font-family: var(--font-primary);
 }
 .options {
   display: flex;
@@ -375,7 +415,11 @@ body {
   color: var(--foreground);
 }
 .btn.primary {
-  background: var(--primary);
+  background: linear-gradient(
+    135deg,
+    var(--primary) 0%,
+    var(--primary-dark) 100%
+  );
   color: #fff;
 }
 
