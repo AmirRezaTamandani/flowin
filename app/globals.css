@@ -100,8 +100,9 @@
 
 @font-face {
   font-family: "Modam";
-  src: url("https://felowin.ir/wp-content/uploads/2025/12/Modam-Light-b.woff2")
-    format("woff2");
+  src:
+    url("/fonts/modam/Modam-Light-b.woff2") format("woff2"),
+    url("/fonts/modam/Modam-Light-b.woff") format("woff");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -109,9 +110,20 @@
 
 @font-face {
   font-family: "Modam";
-  src: url("https://felowin.ir/wp-content/uploads/2025/12/Modam-Black-b.woff2")
-    format("woff2");
+  src:
+    url("/fonts/modam/Modam-Black-b.woff2") format("woff2"),
+    url("/fonts/modam/Modam-Black-b.woff") format("woff");
   font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Modam";
+  src:
+    url("/fonts/modam/Modam-Black-b.woff2") format("woff2"),
+    url("/fonts/modam/Modam-Black-b.woff") format("woff");
+  font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
@@ -120,9 +132,15 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-primary);
+  font-weight: 400;
   margin: 0;
   direction: rtl;
   text-align: right;
+}
+
+strong,
+b {
+  font-weight: 600;
 }
 
 /* ── Page shell ── */
