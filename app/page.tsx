@@ -174,18 +174,18 @@ export default function Home() {
             <main className="main-panel">
               <div className="section-header">
                 <p className="section-eyebrow">بخش جاری</p>
-                <h1 className="section-title">{activeSurvey.title}</h1>
+                {/* <h1 className="section-title">{activeSurvey.title}</h1>
                 <p className="section-description">
                   {activeSurvey.description}
-                </p>
+                </p> */}
               </div>
 
-              <StatsCards />
+              {/* <StatsCards /> */}
               <SurveyStepper survey={activeSurvey} />
             </main>
 
             <div className="side-column">
-              <ProfileCard />
+              {/* <ProfileCard /> */}
 
               <aside className="sidebar" aria-label="منوی کناری">
                 <div className="sidebar-title">منو</div>
@@ -234,7 +234,7 @@ export default function Home() {
                 ))}
               </aside>
 
-              <div className="side-placeholder">حساب کاربری من</div>
+              {/* <div className="side-placeholder">حساب کاربری من</div> */}
             </div>
           </div>
         </div>
