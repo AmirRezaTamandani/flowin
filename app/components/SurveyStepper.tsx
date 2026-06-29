@@ -1,26 +1,12 @@
 "use client";
-import React, { useEffect, useState } from "react";
-
-type SurveyStep = {
-  id: number;
-  question: string;
-  type: "text" | "radio" | "select";
-  placeholder?: string;
-  options?: string[];
-};
-
-type SurveyConfig = {
-  id: string;
-  label: string;
-  title: string;
-  description: string;
-  steps: SurveyStep[];
-};
+import React, { useEffect, useRef, useState } from "react";
+import type { SurveyConfig } from "../lib/surveys";
 
 export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [isFinished, setIsFinished] = useState(false);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     setIndex(0);
@@ -42,16 +28,25 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
   }
 
   function next() {
+    const currentStep = survey.steps[index];
+    const currentStepId = String(currentStep.id);
+    const currentValue =
+      currentStep.type === "text"
+        ? (inputRef.current?.value ?? answers[currentStepId] ?? "")
+        : (answers[currentStepId] ?? "");
+    const updatedAnswers = {
+      ...answers,
+      [currentStepId]: currentValue,
+    };
+
+    setAnswers(updatedAnswers);
+
     if (index < survey.steps.length - 1) {
       setIndex(index + 1);
       return;
     }
 
-    const currentStepId = String(survey.steps[index].id);
-    completeSurvey({
-      ...answers,
-      [currentStepId]: answers[currentStepId] || "",
-    });
+    completeSurvey(updatedAnswers);
   }
 
   function prev() {
@@ -59,7 +54,8 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
   }
 
   function onChange(value: string) {
-    setAnswers({ ...answers, [String(survey.steps[index].id)]: value });
+    const currentStepId = String(survey.steps[index].id);
+    setAnswers((prev) => ({ ...prev, [currentStepId]: value }));
   }
 
   function handleKeyDown(
@@ -98,20 +94,18 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
 
   return (
     <section className="survey-wrap">
-      <div className="survey-head">
-        <div className="survey-title">{survey.title}</div>
-        <div className="survey-description">{survey.description}</div>
-      </div>
-
-      <div className="progress">
-        {survey.steps.map((step, stepIndex) => (
-          <div
-            key={step.id}
-            className={`dot ${stepIndex <= index ? "active" : ""}`}
-          >
-            {step.id}
-          </div>
-        ))}
+      <div className="progress-track">
+        <div className="progress-line" aria-hidden="true" />
+        <div className="progress-steps">
+          {survey.steps.map((step, stepIndex) => (
+            <div
+              key={step.id}
+              className={`progress-step ${stepIndex <= index ? "active" : ""} ${stepIndex === index ? "current" : ""}`}
+            >
+              {step.id}
+            </div>
+          ))}
+        </div>
       </div>
 
       <div
@@ -120,11 +114,15 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
       >
         {survey.steps.map((step) => (
           <div key={step.id} className="survey-step">
-            <label className="question">{step.question}</label>
+            <label className="question">
+              {step.question}
+              {step.required && <span className="required-mark"> *</span>}
+            </label>
             {step.type === "text" && (
               <input
+                ref={step.id === survey.steps[index].id ? inputRef : undefined}
                 className="input"
-                placeholder={step.placeholder || "پاسخ شما"}
+                placeholder={step.placeholder || ""}
                 value={answers[String(step.id)] || ""}
                 onChange={(event) => onChange(event.target.value)}
                 onKeyDown={handleKeyDown}
@@ -150,15 +148,21 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
               </select>
             )}
             {step.type === "radio" && (
-              <div className="options">
+              <div className="radio-list">
                 {step.options?.map((option) => (
-                  <button
+                  <label
                     key={option}
-                    className={`opt ${answers[String(step.id)] === option ? "sel" : ""}`}
-                    onClick={() => handleChoice(option)}
+                    className={`radio-item ${answers[String(step.id)] === option ? "selected" : ""}`}
                   >
-                    {option}
-                  </button>
+                    <input
+                      type="radio"
+                      name={`step-${step.id}`}
+                      value={option}
+                      checked={answers[String(step.id)] === option}
+                      onChange={() => handleChoice(option)}
+                    />
+                    <span className="radio-label">{option}</span>
+                  </label>
                 ))}
               </div>
             )}
@@ -167,30 +171,41 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
       </div>
 
       <div className="survey-actions">
-        <button
-          onClick={prev}
-          disabled={index === 0 && !isFinished}
-          className="btn muted"
-        >
-          {isFinished ? "ویرایش پاسخ‌ها" : "قبلی"}
-        </button>
+        {!isFinished && index > 0 && (
+          <button type="button" onClick={prev} className="btn btn-prev">
+            قبلی
+          </button>
+        )}
         {!isFinished ? (
-          <button onClick={next} className="btn primary">
+          <button type="button" onClick={next} className="btn btn-next">
             {index === survey.steps.length - 1 ? "پایان" : "بعدی"}
           </button>
         ) : (
-          <button
-            onClick={() => {
-              const currentStepId = String(survey.steps[index].id);
-              completeSurvey({
-                ...answers,
-                [currentStepId]: answers[currentStepId] || "",
-              });
-            }}
-            className="btn primary"
-          >
-            ذخیره تغییرات
-          </button>
+          <>
+            <button
+              type="button"
+              onClick={() => {
+                setIsFinished(false);
+                setIndex(0);
+              }}
+              className="btn btn-prev"
+            >
+              ویرایش پاسخ‌ها
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const currentStepId = String(survey.steps[index].id);
+                completeSurvey({
+                  ...answers,
+                  [currentStepId]: answers[currentStepId] || "",
+                });
+              }}
+              className="btn btn-next"
+            >
+              ذخیره تغییرات
+            </button>
+          </>
         )}
       </div>
     </section>
