@@ -31,6 +31,13 @@ import {
 } from "../lib/personaFields";
 import PersonaFieldsInput from "./PersonaFieldsInput";
 import {
+  createEmptyPercentageAllocation,
+  isPercentageAllocationEmpty,
+  parsePercentageAllocationValue,
+  serializePercentageAllocationValue,
+} from "../lib/percentageAllocation";
+import PercentageAllocationInput from "./PercentageAllocationInput";
+import {
   EMPTY_CHECKBOX_WITH_OTHER,
   getCheckboxSelections,
   isCheckboxStepEmpty,
@@ -166,6 +173,10 @@ function buildDefaultValues(steps: SurveyStep[]): FormValues {
       });
     } else if (step.type === "personaFields") {
       values[fieldName(step.id)] = serializePersonaFieldsValue(EMPTY_PERSONA_FIELDS);
+    } else if (step.type === "percentageAllocation") {
+      values[fieldName(step.id)] = serializePercentageAllocationValue(
+        createEmptyPercentageAllocation(step.options),
+      );
     } else {
       values[fieldName(step.id)] = "";
     }
@@ -230,6 +241,12 @@ function isStepEmpty(
   }
   if (step.type === "personaFields") {
     return isPersonaFieldsEmpty(parsePersonaFieldsValue(value));
+  }
+  if (step.type === "percentageAllocation") {
+    return isPercentageAllocationEmpty(
+      parsePercentageAllocationValue(value, step.options),
+      step.options,
+    );
   }
   if (step.type === "namedShamsiDates") {
     const parsed = parseNamedShamsiDatesValue(value);
@@ -491,6 +508,25 @@ function StepField({
           <PersonaFieldsInput
             value={parsePersonaFieldsValue(field.value)}
             onChange={(next) => field.onChange(serializePersonaFieldsValue(next))}
+            hasError={hasError}
+          />
+        )}
+      />
+    );
+  }
+
+  if (step.type === "percentageAllocation") {
+    return (
+      <Controller
+        name={name}
+        control={control}
+        render={({ field }) => (
+          <PercentageAllocationInput
+            options={step.options}
+            value={parsePercentageAllocationValue(field.value, step.options)}
+            onChange={(next) =>
+              field.onChange(serializePercentageAllocationValue(next))
+            }
             hasError={hasError}
           />
         )}

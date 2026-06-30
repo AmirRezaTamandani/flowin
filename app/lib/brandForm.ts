@@ -432,7 +432,7 @@ export const brandFormSurvey: SurveyConfig = {
       id: 23,
       page: 3,
       question: "آرکی‌تایپ یا شخصیت اصلی برند شما چیست؟",
-      type: "checkbox",
+      type: "percentageAllocation",
       options: [
         "1. معصوم | Innocent",
         "ساده، خوش‌بین، پاک، امن",

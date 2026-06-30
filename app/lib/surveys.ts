@@ -11,7 +11,7 @@ export type SurveyStep = {
   id: number;
   page?: number;
   question: string;
-  type: "text" | "textarea" | "radio" | "select" | "checkbox" | "brandVisualIdentity" | "personaFields" | "shamsiDate" | "namedShamsiDates" | "number" | "url";
+  type: "text" | "textarea" | "radio" | "select" | "checkbox" | "brandVisualIdentity" | "personaFields" | "percentageAllocation" | "shamsiDate" | "namedShamsiDates" | "number" | "url";
   placeholder?: string;
   options?: string[];
   /** Suffix shown beside numeric input, e.g. "%" */
