@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Progress, ProgressLabel, ProgressValue } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
@@ -734,8 +735,25 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
     if (!currentStep) return [];
     return getDirectChildSteps(currentStep, survey.steps, watchedValues ?? {});
   }, [currentStep, survey.steps, watchedValues]);
-  const currentPage = currentStep?.page ?? 1;
-  const pageCount = survey.pageCount ?? 1;
+
+  const lastStepId = survey.steps[survey.steps.length - 1]?.id ?? 1;
+  const progressValue = isFinished
+    ? 100
+    : Math.min(100, Math.round((currentStep.id / lastStepId) * 100));
+
+  const activeFieldError = useMemo(() => {
+    if (!fieldError || fieldErrorStepId === null) {
+      return { message: null as string | null, stepId: null as number | null };
+    }
+    const errorStep = survey.steps.find((step) => step.id === fieldErrorStepId);
+    if (!errorStep) {
+      return { message: null, stepId: null };
+    }
+    if (isStepAnswerValid(errorStep, watchedValues ?? {}, survey.steps)) {
+      return { message: null, stepId: null };
+    }
+    return { message: fieldError, stepId: fieldErrorStepId };
+  }, [fieldError, fieldErrorStepId, watchedValues, survey.steps]);
 
   useEffect(() => {
     form.reset(buildDefaultValues(survey.steps));
@@ -751,16 +769,6 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
       setCurrentStepId(visibleSteps[0].id);
     }
   }, [visibleSteps, currentStepId]);
-
-  useEffect(() => {
-    if (!fieldError || !fieldErrorStepId) return;
-    const errorStep = survey.steps.find((step) => step.id === fieldErrorStepId);
-    if (!errorStep) return;
-    if (isStepAnswerValid(errorStep, watchedValues ?? {}, survey.steps)) {
-      setFieldError(null);
-      setFieldErrorStepId(null);
-    }
-  }, [watchedValues, fieldError, fieldErrorStepId, survey.steps]);
 
   function validateCurrentStep(values: FormValues): boolean {
     if (!currentStep) return false;
@@ -877,27 +885,12 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
     <section className="survey-wrap" onKeyDown={handleEnterKey}>
       <h2 className="survey-section-title">{survey.label}</h2>
 
-      <div className="progress-track">
-        <div className="progress-line" aria-hidden="true" />
-        <div className="progress-steps">
-          {Array.from({ length: pageCount }, (_, pageIndex) => {
-            const pageNumber = pageIndex + 1;
-            return (
-              <div
-                key={pageNumber}
-                className={cn(
-                  "progress-step",
-                  pageNumber <= currentPage && "active",
-                  pageNumber === currentPage && "current",
-                )}
-                title={survey.pageLabels?.[pageIndex]}
-              >
-                {pageNumber}
-              </div>
-            );
-          })}
+      <Progress value={progressValue} className="mb-8">
+        <div className="flex w-full items-center justify-between gap-3">
+          <ProgressLabel>سوال {currentStep.id}</ProgressLabel>
+          <ProgressValue />
         </div>
-      </div>
+      </Progress>
 
       <div className="survey-step-panel">
         <Label className="question mb-3 block text-base font-semibold">
@@ -910,7 +903,7 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
           step={currentStep}
           steps={survey.steps}
           control={form.control}
-          hasError={fieldErrorStepId === currentStep.id}
+          hasError={activeFieldError.stepId === currentStep.id}
         />
         {inlineChildSteps.map((childStep) => (
           <div key={childStep.id} className="mt-6 border-t border-border pt-6">
@@ -924,13 +917,13 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
               step={childStep}
               steps={survey.steps}
               control={form.control}
-              hasError={fieldErrorStepId === childStep.id}
+              hasError={activeFieldError.stepId === childStep.id}
             />
           </div>
         ))}
-        {fieldError && (
+        {activeFieldError.message && (
           <p className="field-error" role="alert">
-            {fieldError}
+            {activeFieldError.message}
           </p>
         )}
       </div>

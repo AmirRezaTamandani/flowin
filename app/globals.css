@@ -464,58 +464,6 @@ b {
   font-size: 15px;
 }
 
-.progress-track {
-  position: relative;
-  margin-bottom: 36px;
-  padding: 0 8px;
-}
-
-.progress-line {
-  position: absolute;
-  top: 50%;
-  left: 8px;
-  right: 8px;
-  height: 2px;
-  background: #333;
-  transform: translateY(-50%);
-  z-index: 0;
-}
-
-.progress-steps {
-  display: flex;
-  justify-content: space-between;
-  position: relative;
-  z-index: 1;
-  direction: ltr;
-}
-
-.progress-step {
-  width: 36px;
-  height: 36px;
-  border-radius: 6px;
-  border: 2px solid #333;
-  background: var(--surface);
-  color: var(--foreground);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  font-weight: 600;
-  flex-shrink: 0;
-}
-
-.progress-step.active {
-  background: var(--primary-dark);
-  border-color: var(--primary-dark);
-  color: #fff;
-}
-
-.progress-step.current {
-  background: var(--primary-dark);
-  border-color: var(--primary-dark);
-  color: #fff;
-}
-
 .survey-step-panel {
   padding: 4px 2px 8px;
   min-height: 200px;
@@ -867,12 +815,6 @@ b {
 
   .main-panel {
     padding: 20px 16px;
-  }
-
-  .progress-step {
-    width: 28px;
-    height: 28px;
-    font-size: 12px;
   }
 }
 
