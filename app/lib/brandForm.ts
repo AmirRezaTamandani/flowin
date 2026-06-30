@@ -489,31 +489,30 @@ export const brandFormSurvey: SurveyConfig = {
     {
       id: 26,
       page: 4,
-      question: "مصرف‌کننده نهایی محصول یا خدمت شما چه کسی است؟",
+      question: "مصرف کننده نهایی محصول / خدمت شما چه کسی است؟",
       type: "radio",
       options: ["خود خریدار", "شخص دیگری"],
     },
     {
       id: 27,
       page: 4,
-      question: "مصرف کننده محصول / خدمت شما چه کسی است؟",
-      type: "textarea",
+      question: "پرسونای خریدار/مصرف کننده شما چیست؟",
+      type: "personaFields",
       showIf: {
-        parentQuestion: "مصرف‌کننده نهایی محصول یا خدمت شما چه کسی است؟",
+        parentQuestion: "مصرف کننده نهایی محصول / خدمت شما چه کسی است؟",
         equals: "خود خریدار",
       },
     },
-    {
-      id: 28,
-      page: 4,
-      question:
-        "مخاطبان هدف شما چه کسانی هستند؟ (سن، جنسیت، موقعیت جغرافیایی، شغل، سطح درآمد)",
-      type: "textarea",
-      showIf: {
-        parentQuestion: "مصرف‌کننده نهایی محصول یا خدمت شما چه کسی است؟",
-        equals: "شخص دیگری",
-      },
-    },
+    // {
+    //   id: 28,
+    //   page: 4,
+    //   question: "پرسونای مخاطب محتوا/تبلیغات شما چیست؟",
+    //   type: "personaFields",
+    //   showIf: {
+    //     parentQuestion: "مصرف کننده نهایی محصول / خدمت شما چه کسی است؟",
+    //     equals: "شخص دیگری",
+    //   },
+    // },
     {
       id: 29,
       page: 4,

@@ -1,4 +1,5 @@
 import { brandFormSurvey } from "./brandForm";
+import { campaignFormSurvey } from "./campaignForm";
 
 export type ShowIfCondition = {
   parentQuestion: string;
@@ -10,7 +11,7 @@ export type SurveyStep = {
   id: number;
   page?: number;
   question: string;
-  type: "text" | "textarea" | "radio" | "select" | "checkbox" | "brandVisualIdentity" | "shamsiDate" | "namedShamsiDates" | "number" | "url";
+  type: "text" | "textarea" | "radio" | "select" | "checkbox" | "brandVisualIdentity" | "personaFields" | "shamsiDate" | "namedShamsiDates" | "number" | "url";
   placeholder?: string;
   options?: string[];
   /** Suffix shown beside numeric input, e.g. "%" */
@@ -29,6 +30,11 @@ export type SurveyStep = {
     label?: string;
     options: string[];
   };
+  /** Dynamic checkbox options based on a parent step answer. */
+  optionsFromParent?: {
+    parentQuestion: string;
+    optionMap: Record<string, string[]>;
+  };
   /** When true, the user may leave this answer empty. Defaults to false (required). */
   isAllowedEmpty?: boolean;
   showIf?: ShowIfCondition;
@@ -46,6 +52,7 @@ export type SurveyConfig = {
 
 export const surveyMap: Record<string, SurveyConfig> = {
   branding: brandFormSurvey,
+  campaign: campaignFormSurvey,
 };
 
 export type NavItem = {
@@ -56,6 +63,7 @@ export type NavItem = {
 
 export const navItems: NavItem[] = [
   { id: "branding", label: "افزودن اطلاعات برند" },
+  { id: "campaign", label: "فرم کمپین" },
   // {
   //   id: "content",
   //   label: "محتوا",

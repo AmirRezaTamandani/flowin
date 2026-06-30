@@ -23,6 +23,13 @@ import {
   serializeBrandVisualIdentityValue,
 } from "../lib/brandVisualIdentity";
 import {
+  EMPTY_PERSONA_FIELDS,
+  isPersonaFieldsEmpty,
+  parsePersonaFieldsValue,
+  serializePersonaFieldsValue,
+} from "../lib/personaFields";
+import PersonaFieldsInput from "./PersonaFieldsInput";
+import {
   EMPTY_CHECKBOX_WITH_OTHER,
   getCheckboxSelections,
   isCheckboxStepEmpty,
@@ -93,6 +100,47 @@ function isStepVisible(
   return true;
 }
 
+function getDirectChildSteps(
+  parent: SurveyStep,
+  steps: SurveyStep[],
+  values: FormValues,
+): SurveyStep[] {
+  return steps.filter(
+    (step) =>
+      step.showIf?.parentQuestion === parent.question &&
+      isStepVisible(step, steps, values),
+  );
+}
+
+function isInlineChildStep(
+  step: SurveyStep,
+  steps: SurveyStep[],
+  values: FormValues,
+): boolean {
+  if (!step.showIf?.parentQuestion) return false;
+  const parent = steps.find((item) => item.question === step.showIf!.parentQuestion);
+  if (!parent || !isStepVisible(parent, steps, values)) return false;
+  return isStepVisible(step, steps, values);
+}
+
+function getParentStepForInlineChild(
+  step: SurveyStep,
+  steps: SurveyStep[],
+): SurveyStep | undefined {
+  if (!step.showIf?.parentQuestion) return undefined;
+  return steps.find((item) => item.question === step.showIf!.parentQuestion);
+}
+
+function getNavigableSteps(steps: SurveyStep[], values: FormValues): SurveyStep[] {
+  return steps.filter(
+    (step) => isStepVisible(step, steps, values) && !isInlineChildStep(step, steps, values),
+  );
+}
+
+function getAllVisibleSteps(steps: SurveyStep[], values: FormValues): SurveyStep[] {
+  return steps.filter((step) => isStepVisible(step, steps, values));
+}
+
 function buildDefaultValues(steps: SurveyStep[]): FormValues {
   const values: FormValues = {};
   for (const step of steps) {
@@ -115,6 +163,8 @@ function buildDefaultValues(steps: SurveyStep[]): FormValues {
         colors: [],
         font: null,
       });
+    } else if (step.type === "personaFields") {
+      values[fieldName(step.id)] = serializePersonaFieldsValue(EMPTY_PERSONA_FIELDS);
     } else {
       values[fieldName(step.id)] = "";
     }
@@ -122,8 +172,49 @@ function buildDefaultValues(steps: SurveyStep[]): FormValues {
   return values;
 }
 
-function isStepEmpty(step: SurveyStep, value: string | string[] | undefined): boolean {
+function getAnswerByQuestion(
+  steps: SurveyStep[],
+  values: FormValues,
+  question: string,
+): string {
+  const parent = steps.find((item) => item.question === question);
+  if (!parent) return "";
+  const value = values[fieldName(parent.id)];
+  return typeof value === "string" ? value : "";
+}
+
+function getCheckboxOptionsForStep(
+  step: SurveyStep,
+  steps: SurveyStep[],
+  values: FormValues,
+): string[] {
+  if (step.optionsFromParent) {
+    const parentAnswer = getAnswerByQuestion(
+      steps,
+      values,
+      step.optionsFromParent.parentQuestion,
+    );
+    return step.optionsFromParent.optionMap[parentAnswer] ?? [];
+  }
+  return step.options ?? [];
+}
+
+function isStepEmpty(
+  step: SurveyStep,
+  value: string | string[] | undefined,
+  steps: SurveyStep[] = [],
+  values: FormValues = {},
+): boolean {
   if (step.type === "checkbox") {
+    if (step.optionsFromParent) {
+      const options = getCheckboxOptionsForStep(step, steps, values);
+      if (!getAnswerByQuestion(steps, values, step.optionsFromParent.parentQuestion)) {
+        return true;
+      }
+      if (options.length === 0) return false;
+      const selected = getCheckboxSelectionsForStep(step, value);
+      return selected.length === 0;
+    }
     if (stepHasCheckboxSubOptions(step)) {
       const parsed = parseCheckboxStepValueWithSubs(step, value);
       if (Array.isArray(parsed)) return true;
@@ -135,6 +226,9 @@ function isStepEmpty(step: SurveyStep, value: string | string[] | undefined): bo
   }
   if (step.type === "brandVisualIdentity") {
     return isBrandVisualIdentityEmpty(parseBrandVisualIdentityValue(value));
+  }
+  if (step.type === "personaFields") {
+    return isPersonaFieldsEmpty(parsePersonaFieldsValue(value));
   }
   if (step.type === "namedShamsiDates") {
     const parsed = parseNamedShamsiDatesValue(value);
@@ -150,30 +244,55 @@ function isStepEmpty(step: SurveyStep, value: string | string[] | undefined): bo
 function getStepValidationError(
   step: SurveyStep,
   value: string | string[] | undefined,
+  values?: FormValues,
+  steps?: SurveyStep[],
 ): string | null {
-  if (step.isAllowedEmpty && isStepEmpty(step, value)) return null;
-  if (isStepEmpty(step, value)) return EMPTY_ANSWER_MESSAGE;
+  if (
+    step.type === "checkbox" &&
+    step.optionsFromParent &&
+    values &&
+    steps
+  ) {
+    const parentAnswer = getAnswerByQuestion(
+      steps,
+      values,
+      step.optionsFromParent.parentQuestion,
+    );
+    const options = step.optionsFromParent.optionMap[parentAnswer] ?? [];
+    if (!options.length) return null;
+    if (!parentAnswer) return EMPTY_ANSWER_MESSAGE;
+  }
+
+  if (step.isAllowedEmpty && isStepEmpty(step, value, steps ?? [], values ?? {})) return null;
+  if (isStepEmpty(step, value, steps ?? [], values ?? {})) return EMPTY_ANSWER_MESSAGE;
   if (step.type === "url" && !isWebsiteUrlStepValueValid(value)) {
     return INVALID_WEBSITE_URL_MESSAGE;
   }
   return null;
 }
 
-function isStepAnswerValid(step: SurveyStep, values: FormValues): boolean {
-  return getStepValidationError(step, values[fieldName(step.id)]) === null;
+function isStepAnswerValid(
+  step: SurveyStep,
+  values: FormValues,
+  steps: SurveyStep[],
+): boolean {
+  return getStepValidationError(step, values[fieldName(step.id)], values, steps) === null;
 }
 
 const EMPTY_ANSWER_MESSAGE = "لطفاً این سوال را پاسخ دهید.";
 
 function StepField({
   step,
+  steps,
   control,
   hasError,
 }: {
   step: SurveyStep;
+  steps: SurveyStep[];
   control: ReturnType<typeof useForm<FormValues>>["control"];
   hasError?: boolean;
 }) {
+  const watchedValues = useWatch({ control }) as FormValues;
   const name = fieldName(step.id);
   const errorClass = hasError
     ? "border-destructive ring-destructive/20 aria-invalid:border-destructive"
@@ -362,6 +481,22 @@ function StepField({
     );
   }
 
+  if (step.type === "personaFields") {
+    return (
+      <Controller
+        name={name}
+        control={control}
+        render={({ field }) => (
+          <PersonaFieldsInput
+            value={parsePersonaFieldsValue(field.value)}
+            onChange={(next) => field.onChange(serializePersonaFieldsValue(next))}
+            hasError={hasError}
+          />
+        )}
+      />
+    );
+  }
+
   return (
     <Controller
       name={name}
@@ -480,6 +615,15 @@ function StepField({
         const selected = Array.isArray(parsed) ? parsed : parsed.selected;
         const otherText = Array.isArray(parsed) ? "" : parsed.other;
         const showOtherInput = stepHasOtherOption(step) && selected.includes(step.otherOption);
+        const parentAnswer = step.optionsFromParent
+          ? getAnswerByQuestion(steps, watchedValues ?? {}, step.optionsFromParent.parentQuestion)
+          : "";
+        const checkboxOptions = step.optionsFromParent
+          ? step.optionsFromParent.optionMap[parentAnswer] ?? []
+          : step.options ?? [];
+        const visibleSelected = step.optionsFromParent
+          ? selected.filter((item) => checkboxOptions.includes(item))
+          : selected;
 
         function updateCheckbox(nextSelected: string[], nextOther = otherText) {
           if (stepHasOtherOption(step)) {
@@ -493,6 +637,22 @@ function StepField({
           field.onChange(nextSelected);
         }
 
+        if (step.optionsFromParent && !parentAnswer) {
+          return (
+            <p className="rounded-lg border border-dashed border-input px-3 py-4 text-sm text-muted-foreground">
+              ابتدا نوع کمپین را در مرحله قبل انتخاب کنید.
+            </p>
+          );
+        }
+
+        if (step.optionsFromParent && checkboxOptions.length === 0) {
+          return (
+            <p className="rounded-lg border border-dashed border-input px-3 py-4 text-sm text-muted-foreground">
+              برای این نوع کمپین هنوز KPI تعریف نشده است.
+            </p>
+          );
+        }
+
         return (
           <div className="flex flex-col gap-3">
             <div
@@ -501,8 +661,8 @@ function StepField({
                 hasError && "border-destructive",
               )}
             >
-              {step.options?.map((option) => {
-                const checked = selected.includes(option);
+              {checkboxOptions.map((option) => {
+                const checked = visibleSelected.includes(option);
                 const isOtherOption = stepHasOtherOption(step) && option === step.otherOption;
 
                 return (
@@ -517,8 +677,8 @@ function StepField({
                         checked={checked}
                         onCheckedChange={(isChecked) => {
                           const next = isChecked
-                            ? [...selected, option]
-                            : selected.filter((item) => item !== option);
+                            ? [...visibleSelected, option]
+                            : visibleSelected.filter((item) => item !== option);
                           updateCheckbox(next, isOtherOption && !isChecked ? "" : otherText);
                         }}
                         className="mt-0.5"
@@ -530,7 +690,7 @@ function StepField({
                       <div className="mr-7 mt-1 mb-2">
                         <Input
                           value={otherText}
-                          onChange={(event) => updateCheckbox(selected, event.target.value)}
+                          onChange={(event) => updateCheckbox(visibleSelected, event.target.value)}
                           placeholder={step.otherPlaceholder || "توضیحات خود را بنویسید"}
                           aria-invalid={hasError}
                           className={cn("h-11 bg-white text-base text-foreground", errorClass)}
@@ -553,6 +713,7 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
   const [currentStepId, setCurrentStepId] = useState(survey.steps[0]?.id ?? 1);
   const [isFinished, setIsFinished] = useState(false);
   const [fieldError, setFieldError] = useState<string | null>(null);
+  const [fieldErrorStepId, setFieldErrorStepId] = useState<number | null>(null);
 
   const form = useForm<FormValues>({
     defaultValues: buildDefaultValues(survey.steps),
@@ -562,24 +723,26 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
   const watchedValues = useWatch({ control: form.control }) as FormValues;
 
   const visibleSteps = useMemo(
-    () =>
-      survey.steps.filter((step) =>
-        isStepVisible(step, survey.steps, watchedValues ?? {}),
-      ),
+    () => getNavigableSteps(survey.steps, watchedValues ?? {}),
     [survey.steps, watchedValues],
   );
 
   const currentIndex = visibleSteps.findIndex((step) => step.id === currentStepId);
   const currentStep = visibleSteps[currentIndex >= 0 ? currentIndex : 0];
+
+  const inlineChildSteps = useMemo(() => {
+    if (!currentStep) return [];
+    return getDirectChildSteps(currentStep, survey.steps, watchedValues ?? {});
+  }, [currentStep, survey.steps, watchedValues]);
   const currentPage = currentStep?.page ?? 1;
   const pageCount = survey.pageCount ?? 1;
-  const currentFieldName = currentStep ? fieldName(currentStep.id) : "";
 
   useEffect(() => {
     form.reset(buildDefaultValues(survey.steps));
     setCurrentStepId(survey.steps[0]?.id ?? 1);
     setIsFinished(false);
     setFieldError(null);
+    setFieldErrorStepId(null);
   }, [survey.id, survey.steps, form]);
 
   useEffect(() => {
@@ -590,33 +753,62 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
   }, [visibleSteps, currentStepId]);
 
   useEffect(() => {
-    if (!fieldError || !currentFieldName) return;
-    if (isStepAnswerValid(currentStep, watchedValues ?? {})) {
+    if (!fieldError || !fieldErrorStepId) return;
+    const errorStep = survey.steps.find((step) => step.id === fieldErrorStepId);
+    if (!errorStep) return;
+    if (isStepAnswerValid(errorStep, watchedValues ?? {}, survey.steps)) {
       setFieldError(null);
+      setFieldErrorStepId(null);
     }
-  }, [watchedValues, currentFieldName, fieldError, currentStep]);
+  }, [watchedValues, fieldError, fieldErrorStepId, survey.steps]);
 
   function validateCurrentStep(values: FormValues): boolean {
     if (!currentStep) return false;
-    const error = getStepValidationError(currentStep, values[fieldName(currentStep.id)]);
-    if (!error) {
-      setFieldError(null);
-      return true;
+    const stepsToValidate = [currentStep, ...inlineChildSteps];
+    for (const step of stepsToValidate) {
+      const error = getStepValidationError(
+        step,
+        values[fieldName(step.id)],
+        values,
+        survey.steps,
+      );
+      if (error) {
+        setFieldError(error);
+        setFieldErrorStepId(step.id);
+        return false;
+      }
     }
-    setFieldError(error);
-    return false;
+    setFieldError(null);
+    setFieldErrorStepId(null);
+    return true;
   }
 
   function validateAllVisibleSteps(values: FormValues): boolean {
-    const invalidStep = visibleSteps.find(
-      (step) => getStepValidationError(step, values[fieldName(step.id)]) !== null,
+    const allVisibleSteps = getAllVisibleSteps(survey.steps, values);
+    const invalidStep = allVisibleSteps.find(
+      (step) =>
+        getStepValidationError(step, values[fieldName(step.id)], values, survey.steps) !==
+        null,
     );
     if (!invalidStep) {
       setFieldError(null);
+      setFieldErrorStepId(null);
       return true;
     }
-    setCurrentStepId(invalidStep.id);
-    setFieldError(getStepValidationError(invalidStep, values[fieldName(invalidStep.id)]));
+    setCurrentStepId(
+      getNavigableSteps(survey.steps, values).find((step) => step.id === invalidStep.id)?.id ??
+        getParentStepForInlineChild(invalidStep, survey.steps)?.id ??
+        invalidStep.id,
+    );
+    setFieldError(
+      getStepValidationError(
+        invalidStep,
+        values[fieldName(invalidStep.id)],
+        values,
+        survey.steps,
+      ),
+    );
+    setFieldErrorStepId(invalidStep.id);
     return false;
   }
 
@@ -651,6 +843,7 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
     if (index < visibleSteps.length - 1) {
       setCurrentStepId(visibleSteps[index + 1].id);
       setFieldError(null);
+      setFieldErrorStepId(null);
       return;
     }
 
@@ -660,6 +853,7 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
   function goPrev() {
     if (!currentStep) return;
     setFieldError(null);
+    setFieldErrorStepId(null);
     const index = visibleSteps.findIndex((step) => step.id === currentStep.id);
     if (index > 0) {
       setCurrentStepId(visibleSteps[index - 1].id);
@@ -714,9 +908,26 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
         </Label>
         <StepField
           step={currentStep}
+          steps={survey.steps}
           control={form.control}
-          hasError={!!fieldError}
+          hasError={fieldErrorStepId === currentStep.id}
         />
+        {inlineChildSteps.map((childStep) => (
+          <div key={childStep.id} className="mt-6 border-t border-border pt-6">
+            <Label className="question mb-3 block text-base font-semibold">
+              {childStep.question}
+              {!childStep.isAllowedEmpty && (
+                <span className="text-destructive"> *</span>
+              )}
+            </Label>
+            <StepField
+              step={childStep}
+              steps={survey.steps}
+              control={form.control}
+              hasError={fieldErrorStepId === childStep.id}
+            />
+          </div>
+        ))}
         {fieldError && (
           <p className="field-error" role="alert">
             {fieldError}
