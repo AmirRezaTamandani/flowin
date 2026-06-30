@@ -23,6 +23,12 @@ export type SurveyStep = {
   /** Checkbox option that reveals a free-text input when selected. */
   otherOption?: string;
   otherPlaceholder?: string;
+  /** Checkbox option that reveals nested checkbox options when selected. */
+  checkboxSubOptions?: {
+    parentOption: string;
+    label?: string;
+    options: string[];
+  };
   /** When true, the user may leave this answer empty. Defaults to false (required). */
   isAllowedEmpty?: boolean;
   showIf?: ShowIfCondition;

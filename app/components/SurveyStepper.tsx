@@ -38,7 +38,26 @@ import {
   parseNamedShamsiDatesValue,
   serializeNamedShamsiDatesValue,
 } from "../lib/namedShamsiDates";
+import {
+  EMPTY_CHECKBOX_WITH_SUB_OPTIONS,
+  getCheckboxSelectionsFromValue,
+  hasInvalidCheckboxSubSelections,
+  parseCheckboxStepValueWithSubs,
+  serializeCheckboxStepValueWithSubs,
+  stepHasCheckboxSubOptions,
+  type CheckboxWithSubOptionsValue,
+} from "../lib/checkboxWithSubOptions";
 import type { ShowIfCondition, SurveyConfig, SurveyStep } from "../lib/surveys";
+
+function getCheckboxSelectionsForStep(
+  step: SurveyStep,
+  value: string | string[] | undefined,
+): string[] {
+  if (stepHasCheckboxSubOptions(step)) {
+    return getCheckboxSelectionsFromValue(step, value);
+  }
+  return getCheckboxSelections(step, value);
+}
 
 type FormValues = Record<string, string | string[]>;
 
@@ -69,7 +88,7 @@ function isStepVisible(
   if (step.showIf.includes !== undefined) {
     const parent = steps.find((item) => item.question === step.showIf!.parentQuestion);
     if (!parent) return false;
-    return getCheckboxSelections(parent, parentValue).includes(step.showIf.includes);
+    return getCheckboxSelectionsForStep(parent, parentValue).includes(step.showIf.includes);
   }
   return true;
 }
@@ -78,9 +97,16 @@ function buildDefaultValues(steps: SurveyStep[]): FormValues {
   const values: FormValues = {};
   for (const step of steps) {
     if (step.type === "checkbox") {
-      values[fieldName(step.id)] = stepHasOtherOption(step)
-        ? serializeCheckboxStepValue(step, EMPTY_CHECKBOX_WITH_OTHER)
-        : [];
+      if (stepHasOtherOption(step)) {
+        values[fieldName(step.id)] = serializeCheckboxStepValue(step, EMPTY_CHECKBOX_WITH_OTHER);
+      } else if (stepHasCheckboxSubOptions(step)) {
+        values[fieldName(step.id)] = serializeCheckboxStepValueWithSubs(
+          step,
+          EMPTY_CHECKBOX_WITH_SUB_OPTIONS,
+        );
+      } else {
+        values[fieldName(step.id)] = [];
+      }
     } else if (step.type === "namedShamsiDates") {
       values[fieldName(step.id)] = serializeNamedShamsiDatesValue(EMPTY_NAMED_SHAMSI_DATES);
     } else if (step.type === "brandVisualIdentity") {
@@ -98,6 +124,13 @@ function buildDefaultValues(steps: SurveyStep[]): FormValues {
 
 function isStepEmpty(step: SurveyStep, value: string | string[] | undefined): boolean {
   if (step.type === "checkbox") {
+    if (stepHasCheckboxSubOptions(step)) {
+      const parsed = parseCheckboxStepValueWithSubs(step, value);
+      if (Array.isArray(parsed)) return true;
+      if (parsed.selected.length === 0) return true;
+      if (hasInvalidCheckboxSubSelections(step, parsed)) return true;
+      return false;
+    }
     return isCheckboxStepEmpty(step, value);
   }
   if (step.type === "brandVisualIdentity") {
@@ -334,6 +367,115 @@ function StepField({
       name={name}
       control={control}
       render={({ field }) => {
+        if (stepHasCheckboxSubOptions(step)) {
+          const parsed = parseCheckboxStepValueWithSubs(step, field.value);
+          const value =
+            Array.isArray(parsed) ? EMPTY_CHECKBOX_WITH_SUB_OPTIONS : parsed;
+          const selected = value.selected;
+          const subConfig = step.checkboxSubOptions;
+          const subSelected = value.subSelections[subConfig.parentOption] ?? [];
+          const showSubOptions = selected.includes(subConfig.parentOption);
+
+          function updateValue(next: CheckboxWithSubOptionsValue) {
+            field.onChange(serializeCheckboxStepValueWithSubs(step, next));
+          }
+
+          function updateSelected(nextSelected: string[]) {
+            const nextSubSelections = { ...value.subSelections };
+            if (!nextSelected.includes(subConfig.parentOption)) {
+              delete nextSubSelections[subConfig.parentOption];
+            }
+            updateValue({ selected: nextSelected, subSelections: nextSubSelections });
+          }
+
+          function updateSubSelected(nextSubSelected: string[]) {
+            updateValue({
+              selected,
+              subSelections: {
+                ...value.subSelections,
+                [subConfig.parentOption]: nextSubSelected,
+              },
+            });
+          }
+
+          return (
+            <div className="flex flex-col gap-3">
+              <div
+                className={cn(
+                  "checkbox-list max-h-80 overflow-y-auto rounded-lg border border-input p-2",
+                  hasError && "border-destructive",
+                )}
+              >
+                {step.options?.map((option) => {
+                  const checked = selected.includes(option);
+                  const isSubParent = option === subConfig.parentOption;
+
+                  return (
+                    <div key={option}>
+                      <Label
+                        className={cn(
+                          "flex cursor-pointer items-start gap-3 rounded-md p-2 hover:bg-muted/50",
+                          checked && "bg-primary/10",
+                        )}
+                      >
+                        <Checkbox
+                          checked={checked}
+                          onCheckedChange={(isChecked) => {
+                            const next = isChecked
+                              ? [...selected, option]
+                              : selected.filter((item) => item !== option);
+                            updateSelected(next);
+                          }}
+                          className="mt-0.5"
+                        />
+                        <span className="checkbox-label text-sm leading-6 text-foreground">
+                          {option}
+                        </span>
+                      </Label>
+
+                      {isSubParent && showSubOptions ? (
+                        <div className="mr-7 mt-1 mb-2 rounded-lg border border-input bg-muted/20 p-3">
+                          <p className="mb-2 text-xs font-semibold text-foreground">
+                            {subConfig.label ?? subConfig.parentOption}
+                          </p>
+                          <div className="flex flex-col gap-1">
+                            {subConfig.options.map((subOption) => {
+                              const subChecked = subSelected.includes(subOption);
+                              return (
+                                <Label
+                                  key={subOption}
+                                  className={cn(
+                                    "flex cursor-pointer items-start gap-3 rounded-md p-2 hover:bg-muted/50",
+                                    subChecked && "bg-primary/10",
+                                  )}
+                                >
+                                  <Checkbox
+                                    checked={subChecked}
+                                    onCheckedChange={(isChecked) => {
+                                      const next = isChecked
+                                        ? [...subSelected, subOption]
+                                        : subSelected.filter((item) => item !== subOption);
+                                      updateSubSelected(next);
+                                    }}
+                                    className="mt-0.5"
+                                  />
+                                  <span className="checkbox-label text-sm leading-6 text-foreground">
+                                    {subOption}
+                                  </span>
+                                </Label>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ) : null}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        }
+
         const parsed = parseCheckboxStepValue(step, field.value);
         const selected = Array.isArray(parsed) ? parsed : parsed.selected;
         const otherText = Array.isArray(parsed) ? "" : parsed.other;
