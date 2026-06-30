@@ -10,9 +10,14 @@ export type SurveyStep = {
   id: number;
   page?: number;
   question: string;
-  type: "text" | "textarea" | "radio" | "select" | "checkbox" | "brandVisualIdentity" | "shamsiDate" | "namedShamsiDates";
+  type: "text" | "textarea" | "radio" | "select" | "checkbox" | "brandVisualIdentity" | "shamsiDate" | "namedShamsiDates" | "number" | "url";
   placeholder?: string;
   options?: string[];
+  /** Suffix shown beside numeric input, e.g. "%" */
+  numberSuffix?: string;
+  numberMin?: number;
+  numberMax?: number;
+  numberAllowDecimal?: boolean;
   /** Shamsi calendar mode for `shamsiDate` steps. Defaults to `date`. */
   shamsiPickerMode?: "year" | "date";
   /** Checkbox option that reveals a free-text input when selected. */

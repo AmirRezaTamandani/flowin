@@ -15,7 +15,13 @@ export const brandFormSurvey: SurveyConfig = {
   ],
   steps: [
     { id: 1, page: 1, question: "نام برند شما چیست؟", type: "text" },
-    { id: 2, page: 1, question: "آدرس سایت خود را وارد کنید.", type: "text" },
+    {
+      id: 2,
+      page: 1,
+      question: "آدرس سایت خود را وارد کنید.",
+      type: "url",
+      placeholder: "https://example.com",
+    },
     {
       id: 3,
       page: 1,
@@ -540,14 +546,22 @@ export const brandFormSurvey: SurveyConfig = {
       page: 4,
       question:
         "به نظر شما، در حال حاضر چند درصد از سهم بازارِ حوزه‌ی کسب‌وکارتان را در اختیار دارید؟",
-      type: "text",
+      type: "number",
+      numberSuffix: "%",
+      numberMin: 0,
+      numberMax: 100,
+      placeholder: "0",
     },
     {
       id: 34,
       page: 4,
       question:
         "فکر می‌کنید در آینده چند درصدِ دیگر از سهم بازار را به دست خواهید آورد؟",
-      type: "text",
+      type: "number",
+      numberSuffix: "%",
+      numberMin: 0,
+      numberMax: 100,
+      placeholder: "0",
     },
     {
       id: 35,
@@ -868,6 +882,8 @@ export const brandFormSurvey: SurveyConfig = {
       question: "روش‌های فروش مدنظر خود را مشخص کنید.",
       type: "checkbox",
       options: ["آنلاین", "آفلاین", "سایر"],
+      otherOption: "سایر",
+      otherPlaceholder: "موضوع مورد نظر خود را بنویسید",
       showIf: {
         parentQuestion:
           "آیا قصد دارید از روش جدیدی برای فروش محصول یا خدمات خود استفاده کنید؟",

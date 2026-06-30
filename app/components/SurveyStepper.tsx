@@ -12,6 +12,11 @@ import { cn } from "@/lib/utils";
 import BrandVisualIdentityInput from "./BrandVisualIdentityInput";
 import ShamsiDateInput from "./ShamsiDateInput";
 import NamedShamsiDatesInput from "./NamedShamsiDatesInput";
+import NumericInput, { isNumericStepValueValid } from "./NumericInput";
+import {
+  INVALID_WEBSITE_URL_MESSAGE,
+  isWebsiteUrlStepValueValid,
+} from "../lib/urlValidation";
 import {
   isBrandVisualIdentityEmpty,
   parseBrandVisualIdentityValue,
@@ -103,12 +108,26 @@ function isStepEmpty(step: SurveyStep, value: string | string[] | undefined): bo
     if (hasIncompleteNamedShamsiDates(parsed)) return true;
     return isNamedShamsiDatesEmpty(parsed);
   }
+  if (step.type === "number") {
+    return !isNumericStepValueValid(value, step.numberMin, step.numberMax);
+  }
   return !value || (typeof value === "string" && !value.trim());
 }
 
+function getStepValidationError(
+  step: SurveyStep,
+  value: string | string[] | undefined,
+): string | null {
+  if (step.isAllowedEmpty && isStepEmpty(step, value)) return null;
+  if (isStepEmpty(step, value)) return EMPTY_ANSWER_MESSAGE;
+  if (step.type === "url" && !isWebsiteUrlStepValueValid(value)) {
+    return INVALID_WEBSITE_URL_MESSAGE;
+  }
+  return null;
+}
+
 function isStepAnswerValid(step: SurveyStep, values: FormValues): boolean {
-  if (step.isAllowedEmpty) return true;
-  return !isStepEmpty(step, values[fieldName(step.id)]);
+  return getStepValidationError(step, values[fieldName(step.id)]) === null;
 }
 
 const EMPTY_ANSWER_MESSAGE = "لطفاً این سوال را پاسخ دهید.";
@@ -139,6 +158,48 @@ function StepField({
             placeholder={step.placeholder || ""}
             aria-invalid={hasError}
             className={cn("h-11 text-base text-foreground bg-white", errorClass)}
+          />
+        )}
+      />
+    );
+  }
+
+  if (step.type === "url") {
+    return (
+      <Controller
+        name={name}
+        control={control}
+        render={({ field }) => (
+          <Input
+            {...field}
+            type="url"
+            inputMode="url"
+            value={typeof field.value === "string" ? field.value : ""}
+            placeholder={step.placeholder || "https://example.com"}
+            aria-invalid={hasError}
+            dir="ltr"
+            className={cn("h-11 bg-white text-base text-foreground text-left", errorClass)}
+          />
+        )}
+      />
+    );
+  }
+
+  if (step.type === "number") {
+    return (
+      <Controller
+        name={name}
+        control={control}
+        render={({ field }) => (
+          <NumericInput
+            value={typeof field.value === "string" ? field.value : ""}
+            onChange={field.onChange}
+            suffix={step.numberSuffix}
+            placeholder={step.placeholder}
+            min={step.numberMin}
+            max={step.numberMax}
+            allowDecimal={step.numberAllowDecimal}
+            hasError={hasError}
           />
         )}
       />
@@ -395,22 +456,25 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
 
   function validateCurrentStep(values: FormValues): boolean {
     if (!currentStep) return false;
-    if (isStepAnswerValid(currentStep, values)) {
+    const error = getStepValidationError(currentStep, values[fieldName(currentStep.id)]);
+    if (!error) {
       setFieldError(null);
       return true;
     }
-    setFieldError(EMPTY_ANSWER_MESSAGE);
+    setFieldError(error);
     return false;
   }
 
   function validateAllVisibleSteps(values: FormValues): boolean {
-    const invalidStep = visibleSteps.find((step) => !isStepAnswerValid(step, values));
+    const invalidStep = visibleSteps.find(
+      (step) => getStepValidationError(step, values[fieldName(step.id)]) !== null,
+    );
     if (!invalidStep) {
       setFieldError(null);
       return true;
     }
     setCurrentStepId(invalidStep.id);
-    setFieldError(EMPTY_ANSWER_MESSAGE);
+    setFieldError(getStepValidationError(invalidStep, values[fieldName(invalidStep.id)]));
     return false;
   }
 
