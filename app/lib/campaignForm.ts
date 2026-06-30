@@ -33,6 +33,7 @@ export const campaignFormSurvey: SurveyConfig = {
     { id: 23, question: "چنل هایی که برای کمپین میخواهید استفاده کنید", type: "checkbox", options: ["Social & Content", "Paid Ads", "Direct Marketing", "Influencer / PR / Partnership", "Marketplace / Classified / Local", "Audio / Webinar", "Offline / OOH"] },
     { id: 24, question: "اگر لندینگ و یا صفحه خاصی از سایت خود را برای کمپین مدنظر دارید لطفا لینک آن را در باکس قرار دهید.", type: "url", placeholder: "https://example.com/landing", isAllowedEmpty: true },
     { id: 25, question: "از نظر شما بد ترین چالش و تجربه منفی در کمپین هایی که داشته اید چه بوده است ؟‌ علت آن را چه می دانید؟", type: "textarea", isAllowedEmpty: true },
-    { id: 26, question: "ایا کمپین مشترک داشتی تا حالا با کی و چطور", type: "textarea", isAllowedEmpty: true },
+    { id: 26, question: "آیا تا به حال تجربه کمپین مشترک با برند دیگری داشتید؟", type: "radio", options: ["بله", "خیر"] },
+    { id: 27, question: "با چه برندی این تجربه را داشتید؟ توضیح دهید.", type: "textarea", showIf: { parentQuestion: "آیا تا به حال تجربه کمپین مشترک با برند دیگری داشتید؟", equals: "بله" } },
   ],
 };

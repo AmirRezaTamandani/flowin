@@ -1,5 +1,11 @@
 import { brandFormSurvey } from "./brandForm";
 import { campaignFormSurvey } from "./campaignForm";
+import { emailFormSurvey } from "./emailForm";
+import { smsFormSurvey } from "./smsForm";
+import { pushFormSurvey } from "./pushForm";
+import { seoFormSurvey } from "./seoForm";
+import { socialCompetitorFormSurvey } from "./socialCompetitorForm";
+import { socialStrategyFormSurvey } from "./socialStrategyForm";
 
 export type ShowIfCondition = {
   parentQuestion: string;
@@ -53,6 +59,12 @@ export type SurveyConfig = {
 export const surveyMap: Record<string, SurveyConfig> = {
   branding: brandFormSurvey,
   campaign: campaignFormSurvey,
+  email: emailFormSurvey,
+  sms: smsFormSurvey,
+  push: pushFormSurvey,
+  seo: seoFormSurvey,
+  "social-competitor": socialCompetitorFormSurvey,
+  "social-strategy": socialStrategyFormSurvey,
 };
 
 export type NavItem = {
@@ -64,52 +76,10 @@ export type NavItem = {
 export const navItems: NavItem[] = [
   { id: "branding", label: "افزودن اطلاعات برند" },
   { id: "campaign", label: "فرم کمپین" },
-  // {
-  //   id: "content",
-  //   label: "محتوا",
-  //   children: [
-  //     { id: "content-blog", label: "بلاگ" },
-  //     { id: "content-social", label: "محتوای شبکه اجتماعی" },
-  //   ],
-  // },
-  // {
-  //   id: "social",
-  //   label: "شبکه‌های اجتماعی",
-  //   children: [
-  //     { id: "social-instagram", label: "اینستاگرام" },
-  //     { id: "social-linkedin", label: "لینکدین" },
-  //   ],
-  // },
-  // {
-  //   id: "seo-menu",
-  //   label: "سئو",
-  //   children: [{ id: "seo", label: "بهینه‌سازی سایت" }],
-  // },
-  // {
-  //   id: "media",
-  //   label: "مدیا",
-  //   children: [
-  //     { id: "media-video", label: "ویدیو" },
-  //     { id: "media-photo", label: "عکاسی" },
-  //   ],
-  // },
-  // {
-  //   id: "campaign",
-  //   label: "کمپین",
-  //   children: [{ id: "campaign-ads", label: "تبلیغات" }],
-  // },
-  // {
-  //   id: "notification",
-  //   label: "اطلاع‌رسانی",
-  //   children: [{ id: "notification-sms", label: "پیامک" }],
-  // },
-  // {
-  //   id: "performance",
-  //   label: "پرفورمنس",
-  //   children: [{ id: "performance-report", label: "گزارش عملکرد" }],
-  // },
-  // { id: "orders", label: "سفارش‌های من" },
-  // { id: "support", label: "پشتیبانی" },
-  // { id: "wallet", label: "کیف پول من" },
-  // { id: "profile", label: "اطلاعات حساب کاربری" },
+  { id: "email", label: "فرم ایمیل" },
+  { id: "sms", label: "فرم پیامک" },
+  { id: "push", label: "فرم پوش" },
+  { id: "seo", label: "فرم سئو" },
+  { id: "social-competitor", label: "تحلیل رقبای سوشال" },
+  { id: "social-strategy", label: "استراتژی و کلندر سوشال" },
 ];

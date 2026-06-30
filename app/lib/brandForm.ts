@@ -506,16 +506,16 @@ export const brandFormSurvey: SurveyConfig = {
         equals: "خود خریدار",
       },
     },
-    // {
-    //   id: 28,
-    //   page: 4,
-    //   question: "پرسونای مخاطب محتوا/تبلیغات شما چیست؟",
-    //   type: "personaFields",
-    //   showIf: {
-    //     parentQuestion: "مصرف کننده نهایی محصول / خدمت شما چه کسی است؟",
-    //     equals: "شخص دیگری",
-    //   },
-    // },
+    {
+      id: 28,
+      page: 4,
+      question: "پرسونای مخاطب محتوا/تبلیغات شما چیست؟",
+      type: "personaFields",
+      showIf: {
+        parentQuestion: "مصرف کننده نهایی محصول / خدمت شما چه کسی است؟",
+        equals: "شخص دیگری",
+      },
+    },
     {
       id: 29,
       page: 4,
