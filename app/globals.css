@@ -538,6 +538,36 @@ b {
   color: var(--foreground);
 }
 
+.shamsi-date-input .rmdp-wrapper,
+.shamsi-date-input .rmdp-calendar {
+  direction: rtl;
+  font-family: var(--font-primary);
+}
+
+.shamsi-date-input .rmdp-day.rmdp-selected span:not(.highlight) {
+  background-color: var(--primary-dark);
+  box-shadow: 0 0 3px var(--primary-dark);
+}
+
+.shamsi-date-input .rmdp-day:not(.rmdp-disabled):not(.rmdp-day-hidden) span:hover {
+  background-color: color-mix(in srgb, var(--primary-dark) 18%, white);
+  color: var(--foreground);
+}
+
+.shamsi-date-input .rmdp-arrow-container:hover {
+  background-color: color-mix(in srgb, var(--primary-dark) 14%, white);
+  box-shadow: 0 0 3px var(--primary-dark);
+}
+
+.shamsi-date-input .rmdp-arrow {
+  border-color: var(--primary-dark);
+}
+
+.shamsi-date-input .rmdp-header-values,
+.shamsi-date-input .rmdp-week-day {
+  color: var(--foreground);
+}
+
 /* removed horizontal slider – one step at a time */
 .survey-slider,
 .survey-step {

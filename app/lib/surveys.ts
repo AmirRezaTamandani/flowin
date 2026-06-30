@@ -10,9 +10,14 @@ export type SurveyStep = {
   id: number;
   page?: number;
   question: string;
-  type: "text" | "textarea" | "radio" | "select" | "checkbox";
+  type: "text" | "textarea" | "radio" | "select" | "checkbox" | "brandVisualIdentity" | "shamsiDate" | "namedShamsiDates";
   placeholder?: string;
   options?: string[];
+  /** Shamsi calendar mode for `shamsiDate` steps. Defaults to `date`. */
+  shamsiPickerMode?: "year" | "date";
+  /** Checkbox option that reveals a free-text input when selected. */
+  otherOption?: string;
+  otherPlaceholder?: string;
   /** When true, the user may leave this answer empty. Defaults to false (required). */
   isAllowedEmpty?: boolean;
   showIf?: ShowIfCondition;

@@ -9,23 +9,36 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import BrandVisualIdentityInput from "./BrandVisualIdentityInput";
+import ShamsiDateInput from "./ShamsiDateInput";
+import NamedShamsiDatesInput from "./NamedShamsiDatesInput";
+import {
+  isBrandVisualIdentityEmpty,
+  parseBrandVisualIdentityValue,
+  serializeBrandVisualIdentityValue,
+} from "../lib/brandVisualIdentity";
+import {
+  EMPTY_CHECKBOX_WITH_OTHER,
+  getCheckboxSelections,
+  isCheckboxStepEmpty,
+  parseCheckboxStepValue,
+  serializeCheckboxStepValue,
+  stepHasOtherOption,
+  type CheckboxWithOtherValue,
+} from "../lib/checkboxWithOther";
+import {
+  EMPTY_NAMED_SHAMSI_DATES,
+  hasIncompleteNamedShamsiDates,
+  isNamedShamsiDatesEmpty,
+  parseNamedShamsiDatesValue,
+  serializeNamedShamsiDatesValue,
+} from "../lib/namedShamsiDates";
 import type { ShowIfCondition, SurveyConfig, SurveyStep } from "../lib/surveys";
 
 type FormValues = Record<string, string | string[]>;
 
 function fieldName(stepId: number) {
   return `step_${stepId}`;
-}
-
-function parseCheckboxValue(value: string | string[] | undefined): string[] {
-  if (Array.isArray(value)) return value;
-  if (!value) return [];
-  try {
-    const parsed = JSON.parse(value);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return value ? [value] : [];
-  }
 }
 
 function getParentValue(
@@ -49,7 +62,9 @@ function isStepVisible(
     return parentValue === step.showIf.equals;
   }
   if (step.showIf.includes !== undefined) {
-    return parseCheckboxValue(parentValue).includes(step.showIf.includes);
+    const parent = steps.find((item) => item.question === step.showIf!.parentQuestion);
+    if (!parent) return false;
+    return getCheckboxSelections(parent, parentValue).includes(step.showIf.includes);
   }
   return true;
 }
@@ -57,14 +72,36 @@ function isStepVisible(
 function buildDefaultValues(steps: SurveyStep[]): FormValues {
   const values: FormValues = {};
   for (const step of steps) {
-    values[fieldName(step.id)] = step.type === "checkbox" ? [] : "";
+    if (step.type === "checkbox") {
+      values[fieldName(step.id)] = stepHasOtherOption(step)
+        ? serializeCheckboxStepValue(step, EMPTY_CHECKBOX_WITH_OTHER)
+        : [];
+    } else if (step.type === "namedShamsiDates") {
+      values[fieldName(step.id)] = serializeNamedShamsiDatesValue(EMPTY_NAMED_SHAMSI_DATES);
+    } else if (step.type === "brandVisualIdentity") {
+      values[fieldName(step.id)] = serializeBrandVisualIdentityValue({
+        logo: null,
+        colors: [],
+        font: null,
+      });
+    } else {
+      values[fieldName(step.id)] = "";
+    }
   }
   return values;
 }
 
 function isStepEmpty(step: SurveyStep, value: string | string[] | undefined): boolean {
   if (step.type === "checkbox") {
-    return parseCheckboxValue(value).length === 0;
+    return isCheckboxStepEmpty(step, value);
+  }
+  if (step.type === "brandVisualIdentity") {
+    return isBrandVisualIdentityEmpty(parseBrandVisualIdentityValue(value));
+  }
+  if (step.type === "namedShamsiDates") {
+    const parsed = parseNamedShamsiDatesValue(value);
+    if (hasIncompleteNamedShamsiDates(parsed)) return true;
+    return isNamedShamsiDatesEmpty(parsed);
   }
   return !value || (typeof value === "string" && !value.trim());
 }
@@ -127,6 +164,41 @@ function StepField({
     );
   }
 
+  if (step.type === "shamsiDate") {
+    return (
+      <Controller
+        name={name}
+        control={control}
+        render={({ field }) => (
+          <ShamsiDateInput
+            value={typeof field.value === "string" ? field.value : ""}
+            onChange={field.onChange}
+            mode={step.shamsiPickerMode ?? "date"}
+            placeholder={step.placeholder}
+            hasError={hasError}
+          />
+        )}
+      />
+    );
+  }
+
+  if (step.type === "namedShamsiDates") {
+    return (
+      <Controller
+        name={name}
+        control={control}
+        render={({ field }) => (
+          <NamedShamsiDatesInput
+            value={parseNamedShamsiDatesValue(field.value)}
+            onChange={(next) => field.onChange(serializeNamedShamsiDatesValue(next))}
+            hasError={hasError}
+            namePlaceholder={step.placeholder}
+          />
+        )}
+      />
+    );
+  }
+
   if (step.type === "select") {
     return (
       <Controller
@@ -180,43 +252,93 @@ function StepField({
     );
   }
 
+  if (step.type === "brandVisualIdentity") {
+    return (
+      <Controller
+        name={name}
+        control={control}
+        render={({ field }) => (
+          <BrandVisualIdentityInput
+            value={parseBrandVisualIdentityValue(field.value)}
+            onChange={(next) => field.onChange(serializeBrandVisualIdentityValue(next))}
+            hasError={hasError}
+          />
+        )}
+      />
+    );
+  }
+
   return (
     <Controller
       name={name}
       control={control}
       render={({ field }) => {
-        const selected = parseCheckboxValue(field.value);
+        const parsed = parseCheckboxStepValue(step, field.value);
+        const selected = Array.isArray(parsed) ? parsed : parsed.selected;
+        const otherText = Array.isArray(parsed) ? "" : parsed.other;
+        const showOtherInput = stepHasOtherOption(step) && selected.includes(step.otherOption);
+
+        function updateCheckbox(nextSelected: string[], nextOther = otherText) {
+          if (stepHasOtherOption(step)) {
+            const value: CheckboxWithOtherValue = {
+              selected: nextSelected,
+              other: nextSelected.includes(step.otherOption) ? nextOther : "",
+            };
+            field.onChange(serializeCheckboxStepValue(step, value));
+            return;
+          }
+          field.onChange(nextSelected);
+        }
+
         return (
-          <div
-            className={cn(
-              "checkbox-list max-h-80 overflow-y-auto rounded-lg border border-input p-2",
-              hasError && "border-destructive",
-            )}
-          >
-            {step.options?.map((option) => {
-              const checked = selected.includes(option);
-              return (
-                <Label
-                  key={option}
-                  className={cn(
-                    "flex cursor-pointer items-start gap-3 rounded-md p-2 hover:bg-muted/50",
-                    checked && "bg-primary/10",
-                  )}
-                >
-                  <Checkbox
-                    checked={checked}
-                    onCheckedChange={(isChecked) => {
-                      const next = isChecked
-                        ? [...selected, option]
-                        : selected.filter((item) => item !== option);
-                      field.onChange(next);
-                    }}
-                    className="mt-0.5"
-                  />
-                  <span className="checkbox-label text-sm leading-6 text-foreground">{option}</span>
-                </Label>
-              );
-            })}
+          <div className="flex flex-col gap-3">
+            <div
+              className={cn(
+                "checkbox-list max-h-80 overflow-y-auto rounded-lg border border-input p-2",
+                hasError && "border-destructive",
+              )}
+            >
+              {step.options?.map((option) => {
+                const checked = selected.includes(option);
+                const isOtherOption = stepHasOtherOption(step) && option === step.otherOption;
+
+                return (
+                  <div key={option}>
+                    <Label
+                      className={cn(
+                        "flex cursor-pointer items-start gap-3 rounded-md p-2 hover:bg-muted/50",
+                        checked && "bg-primary/10",
+                      )}
+                    >
+                      <Checkbox
+                        checked={checked}
+                        onCheckedChange={(isChecked) => {
+                          const next = isChecked
+                            ? [...selected, option]
+                            : selected.filter((item) => item !== option);
+                          updateCheckbox(next, isOtherOption && !isChecked ? "" : otherText);
+                        }}
+                        className="mt-0.5"
+                      />
+                      <span className="checkbox-label text-sm leading-6 text-foreground">{option}</span>
+                    </Label>
+
+                    {isOtherOption && showOtherInput ? (
+                      <div className="mr-7 mt-1 mb-2">
+                        <Input
+                          value={otherText}
+                          onChange={(event) => updateCheckbox(selected, event.target.value)}
+                          placeholder={step.otherPlaceholder || "توضیحات خود را بنویسید"}
+                          aria-invalid={hasError}
+                          className={cn("h-11 bg-white text-base text-foreground", errorClass)}
+                          autoFocus
+                        />
+                      </div>
+                    ) : null}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         );
       }}
