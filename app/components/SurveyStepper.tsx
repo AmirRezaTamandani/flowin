@@ -56,6 +56,7 @@ import {
 import {
   EMPTY_CHECKBOX_WITH_SUB_OPTIONS,
   getCheckboxSelectionsFromValue,
+  getCheckboxSubOptionConfigs,
   hasInvalidCheckboxSubSelections,
   parseCheckboxStepValueWithSubs,
   serializeCheckboxStepValueWithSubs,
@@ -544,9 +545,10 @@ function StepField({
           const value =
             Array.isArray(parsed) ? EMPTY_CHECKBOX_WITH_SUB_OPTIONS : parsed;
           const selected = value.selected;
-          const subConfig = step.checkboxSubOptions;
-          const subSelected = value.subSelections[subConfig.parentOption] ?? [];
-          const showSubOptions = selected.includes(subConfig.parentOption);
+          const subConfigs = getCheckboxSubOptionConfigs(step);
+          const subConfigByParent = Object.fromEntries(
+            subConfigs.map((config) => [config.parentOption, config]),
+          );
 
           function updateValue(next: CheckboxWithSubOptionsValue) {
             field.onChange(serializeCheckboxStepValueWithSubs(step, next));
@@ -554,18 +556,20 @@ function StepField({
 
           function updateSelected(nextSelected: string[]) {
             const nextSubSelections = { ...value.subSelections };
-            if (!nextSelected.includes(subConfig.parentOption)) {
-              delete nextSubSelections[subConfig.parentOption];
+            for (const config of subConfigs) {
+              if (!nextSelected.includes(config.parentOption)) {
+                delete nextSubSelections[config.parentOption];
+              }
             }
             updateValue({ selected: nextSelected, subSelections: nextSubSelections });
           }
 
-          function updateSubSelected(nextSubSelected: string[]) {
+          function updateSubSelected(parentOption: string, nextSubSelected: string[]) {
             updateValue({
               selected,
               subSelections: {
                 ...value.subSelections,
-                [subConfig.parentOption]: nextSubSelected,
+                [parentOption]: nextSubSelected,
               },
             });
           }
@@ -580,7 +584,11 @@ function StepField({
               >
                 {step.options?.map((option) => {
                   const checked = selected.includes(option);
-                  const isSubParent = option === subConfig.parentOption;
+                  const subConfig = subConfigByParent[option];
+                  const subSelected = subConfig
+                    ? (value.subSelections[subConfig.parentOption] ?? [])
+                    : [];
+                  const showSubOptions = Boolean(subConfig && checked);
 
                   return (
                     <div key={option}>
@@ -605,7 +613,7 @@ function StepField({
                         </span>
                       </Label>
 
-                      {isSubParent && showSubOptions ? (
+                      {showSubOptions && subConfig ? (
                         <div className="mr-7 mt-1 mb-2 rounded-lg border border-input bg-muted/20 p-3">
                           <p className="mb-2 text-xs font-semibold text-foreground">
                             {subConfig.label ?? subConfig.parentOption}
@@ -627,7 +635,7 @@ function StepField({
                                       const next = isChecked
                                         ? [...subSelected, subOption]
                                         : subSelected.filter((item) => item !== subOption);
-                                      updateSubSelected(next);
+                                      updateSubSelected(subConfig.parentOption, next);
                                     }}
                                     className="mt-0.5"
                                   />

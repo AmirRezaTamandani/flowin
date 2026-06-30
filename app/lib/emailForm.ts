@@ -21,7 +21,10 @@ export const emailFormSurvey: SurveyConfig = {
     {
       id: 2,
       question: "تعداد ایمیل‌های ارسال شده خود را وارد کنید.",
-      type: "text",
+      type: "number",
+      placeholder: "0",
+      numberSuffix: "تعداد ایمیل",
+      numberMin: 0,
       showIf: {
         parentQuestion: "آیا تا بحال ایمیل ارسال کرده‌اید؟",
         equals: "بله",
@@ -84,13 +87,15 @@ export const emailFormSurvey: SurveyConfig = {
     },
     {
       id: 7,
-      question: "آیا کاربران هنگام ثبت‌نام در سایت شما، مجبور به وارد کردن ایمیل هستند؟",
+      question:
+        "آیا کاربران هنگام ثبت‌نام در سایت شما، مجبور به وارد کردن ایمیل هستند؟",
       type: "radio",
       options: ["بله", "خیر"],
     },
     {
       id: 8,
-      question: "برای ثبت‌نام یا ورود کاربر با ایمیل، گزینه استفاده از Gmail را دارید؟",
+      question:
+        "برای ثبت‌نام یا ورود کاربر با ایمیل، گزینه استفاده از Gmail را دارید؟",
       type: "radio",
       options: ["بله", "خیر"],
       showIf: {
@@ -101,7 +106,8 @@ export const emailFormSurvey: SurveyConfig = {
     },
     {
       id: 9,
-      question: "آیا تا به حال با یک برند، به صورت Co-Branding همکاری داشته‌اید؟",
+      question:
+        "آیا تا به حال با یک برند، به صورت Co-Branding همکاری داشته‌اید؟",
       type: "radio",
       options: ["بله", "خیر"],
     },
@@ -110,7 +116,8 @@ export const emailFormSurvey: SurveyConfig = {
       question: "نام برند را بنویسید.",
       type: "text",
       showIf: {
-        parentQuestion: "آیا تا به حال با یک برند، به صورت Co-Branding همکاری داشته‌اید؟",
+        parentQuestion:
+          "آیا تا به حال با یک برند، به صورت Co-Branding همکاری داشته‌اید؟",
         equals: "بله",
       },
     },
@@ -154,7 +161,8 @@ export const emailFormSurvey: SurveyConfig = {
     },
     {
       id: 15,
-      question: "آیا پس از خرید یا تکمیل فرآیند، به مشتری ایمیل تأیید یا تشکر ارسال می‌شود؟",
+      question:
+        "آیا پس از خرید یا تکمیل فرآیند، به مشتری ایمیل تأیید یا تشکر ارسال می‌شود؟",
       type: "radio",
       options: ["بله", "خیر"],
     },
@@ -169,7 +177,8 @@ export const emailFormSurvey: SurveyConfig = {
       question: "موضوع یا موضوعات خبرنامه را بنویسید.",
       type: "textarea",
       showIf: {
-        parentQuestion: "آیا به‌صورت منظم خبرنامه (هفتگی/ماهانه) ارسال کرده‌اید؟",
+        parentQuestion:
+          "آیا به‌صورت منظم خبرنامه (هفتگی/ماهانه) ارسال کرده‌اید؟",
         equals: "بله",
       },
     },
@@ -181,7 +190,8 @@ export const emailFormSurvey: SurveyConfig = {
     },
     {
       id: 19,
-      question: "کدام مناسبت‌های عمومی باید در برنامه‌ریزی و تقویم محتوایی این کانال پوشش داده شوند؟",
+      question:
+        "کدام مناسبت‌های عمومی باید در برنامه‌ریزی و تقویم محتوایی این کانال پوشش داده شوند؟",
       type: "checkbox",
       options: [...CHANNEL_EVENT_TYPE_OPTIONS],
     },

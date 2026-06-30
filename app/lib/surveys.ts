@@ -1,3 +1,4 @@
+import type { CheckboxSubOptionsConfig } from "./checkboxWithSubOptions";
 import { brandFormSurvey } from "./brandForm";
 import { campaignFormSurvey } from "./campaignForm";
 import { emailFormSurvey } from "./emailForm";
@@ -30,12 +31,8 @@ export type SurveyStep = {
   /** Checkbox option that reveals a free-text input when selected. */
   otherOption?: string;
   otherPlaceholder?: string;
-  /** Checkbox option that reveals nested checkbox options when selected. */
-  checkboxSubOptions?: {
-    parentOption: string;
-    label?: string;
-    options: string[];
-  };
+  /** Checkbox option(s) that reveal nested checkbox options when selected. */
+  checkboxSubOptions?: CheckboxSubOptionsConfig | CheckboxSubOptionsConfig[];
   /** Dynamic checkbox options based on a parent step answer. */
   optionsFromParent?: {
     parentQuestion: string;

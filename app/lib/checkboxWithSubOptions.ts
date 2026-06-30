@@ -27,10 +27,17 @@ function parsePlainCheckboxValue(value: string | string[] | undefined): string[]
   }
 }
 
+export function getCheckboxSubOptionConfigs(step: SurveyStep): CheckboxSubOptionsConfig[] {
+  if (!step.checkboxSubOptions) return [];
+  return Array.isArray(step.checkboxSubOptions)
+    ? step.checkboxSubOptions
+    : [step.checkboxSubOptions];
+}
+
 export function stepHasCheckboxSubOptions(
   step: SurveyStep,
-): step is SurveyStep & { checkboxSubOptions: CheckboxSubOptionsConfig } {
-  return Boolean(step.checkboxSubOptions);
+): step is SurveyStep & { checkboxSubOptions: CheckboxSubOptionsConfig | CheckboxSubOptionsConfig[] } {
+  return getCheckboxSubOptionConfigs(step).length > 0;
 }
 
 export function parseCheckboxStepValueWithSubs(
@@ -82,13 +89,12 @@ export function hasInvalidCheckboxSubSelections(
   step: SurveyStep,
   value: CheckboxWithSubOptionsValue,
 ): boolean {
-  if (!stepHasCheckboxSubOptions(step)) return false;
-
-  const { parentOption } = step.checkboxSubOptions;
-  if (!value.selected.includes(parentOption)) return false;
-
-  const subSelected = value.subSelections[parentOption] ?? [];
-  return subSelected.length === 0;
+  for (const { parentOption } of getCheckboxSubOptionConfigs(step)) {
+    if (!value.selected.includes(parentOption)) continue;
+    const subSelected = value.subSelections[parentOption] ?? [];
+    if (subSelected.length === 0) return true;
+  }
+  return false;
 }
 
 export function getCheckboxSelectionsFromValue(
