@@ -30,6 +30,14 @@ import {
   serializePersonaFieldsValue,
 } from "../lib/personaFields";
 import PersonaFieldsInput from "./PersonaFieldsInput";
+import GeoLocationInput from "./GeoLocationInput";
+import {
+  EMPTY_GEO_LOCATION,
+  hasIncompleteGeoLocationEntries,
+  isGeoLocationEmpty,
+  parseGeoLocationValue,
+  serializeGeoLocationValue,
+} from "../lib/geoLocation";
 import {
   createEmptyPercentageAllocation,
   isPercentageAllocationEmpty,
@@ -174,6 +182,8 @@ function buildDefaultValues(steps: SurveyStep[]): FormValues {
       });
     } else if (step.type === "personaFields") {
       values[fieldName(step.id)] = serializePersonaFieldsValue(EMPTY_PERSONA_FIELDS);
+    } else if (step.type === "geoLocation") {
+      values[fieldName(step.id)] = serializeGeoLocationValue(EMPTY_GEO_LOCATION);
     } else if (step.type === "percentageAllocation") {
       values[fieldName(step.id)] = serializePercentageAllocationValue(
         createEmptyPercentageAllocation(step.options),
@@ -242,6 +252,11 @@ function isStepEmpty(
   }
   if (step.type === "personaFields") {
     return isPersonaFieldsEmpty(parsePersonaFieldsValue(value));
+  }
+  if (step.type === "geoLocation") {
+    const parsed = parseGeoLocationValue(value);
+    if (hasIncompleteGeoLocationEntries(parsed)) return true;
+    return isGeoLocationEmpty(parsed);
   }
   if (step.type === "percentageAllocation") {
     return isPercentageAllocationEmpty(
@@ -509,6 +524,22 @@ function StepField({
           <PersonaFieldsInput
             value={parsePersonaFieldsValue(field.value)}
             onChange={(next) => field.onChange(serializePersonaFieldsValue(next))}
+            hasError={hasError}
+          />
+        )}
+      />
+    );
+  }
+
+  if (step.type === "geoLocation") {
+    return (
+      <Controller
+        name={name}
+        control={control}
+        render={({ field }) => (
+          <GeoLocationInput
+            value={parseGeoLocationValue(field.value)}
+            onChange={(next) => field.onChange(serializeGeoLocationValue(next))}
             hasError={hasError}
           />
         )}
