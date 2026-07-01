@@ -42,41 +42,19 @@ export const seoFormSurvey: SurveyConfig = {
       id: 4,
       question: "هدف اصلی شما از کار کردن تخصصی در حوزه سئو چیست؟",
       type: "checkbox",
-      options: [
-        "افزایش بازدید",
-        "جذب مشتری",
-        "تقویت برند",
-        "مزیت رقابتی",
-      ],
+      options: ["افزایش بازدید", "جذب مشتری", "تقویت برند", "مزیت رقابتی"],
     },
     {
       id: 5,
       question: "مخاطب هدف شما در چه منطقه جغرافیایی است؟",
-      type: "checkbox",
-      otherOption: "سایر",
-      otherPlaceholder: "منطقه جغرافیایی را بنویسید",
-      options: [
-        "ایران (سراسری)",
-        "تهران و کلان‌شهرها",
-        "استان‌ها و شهرهای خاص",
-        "خاورمیانه",
-        "خلیج فارس و کشورهای همسایه",
-        "اروپا",
-        "آمریکای شمالی",
-      ],
+      type: "geoLocation",
     },
     {
       id: 6,
       question: "وب‌سایت شما با چه سیستمی ساخته شده است؟",
       type: "select",
       isAllowedEmpty: true,
-      options: [
-        "وردپرس",
-        "پرستاشاپ",
-        "جوملا",
-        "کدنویسی اختصاصی",
-        "نمی‌دانم",
-      ],
+      options: ["وردپرس", "پرستاشاپ", "جوملا", "کدنویسی اختصاصی", "نمی‌دانم"],
     },
     {
       id: 7,
@@ -99,8 +77,7 @@ export const seoFormSurvey: SurveyConfig = {
     },
     {
       id: 8,
-      question:
-        "آیا برای این مشکلات اقدامی کرده‌اید؟ اگر بله توضیح دهید.",
+      question: "آیا برای این مشکلات اقدامی کرده‌اید؟ اگر بله توضیح دهید.",
       type: "textarea",
       isAllowedEmpty: true,
     },
@@ -231,8 +208,12 @@ export const seoFormSurvey: SurveyConfig = {
       id: 21,
       question:
         "آیا برای وب‌سایت خود تا به حال استراتژی سئو داشتید؟ اگر بله، آخرین استراتژی خود را آپلود کنید یا اگر فایل ندارید به صورت مختصر توضیح دهید.",
-      type: "textarea",
-      placeholder: "توضیح مختصر استراتژی سئو یا لینک فایل",
+      type: "fileUpload",
+      placeholder: "توضیح مختصر استراتژی سئو",
+      uploadHint: "فایل استراتژی سئو (PDF، Word، Excel، PowerPoint، ZIP و ...)",
+      fileAccept:
+        ".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.html,.htm,image/*,application/pdf,application/zip",
+      maxFiles: 5,
     },
     {
       id: 22,
@@ -247,7 +228,8 @@ export const seoFormSurvey: SurveyConfig = {
     },
     {
       id: 23,
-      question: "آیا در تولید محتوای سایت از ابزارهای هوش مصنوعی استفاده کرده‌اید؟",
+      question:
+        "آیا در تولید محتوای سایت از ابزارهای هوش مصنوعی استفاده کرده‌اید؟",
       type: "radio",
       options: [
         "بله، به‌صورت گسترده برای تولید محتوا",
@@ -259,7 +241,8 @@ export const seoFormSurvey: SurveyConfig = {
     },
     {
       id: 24,
-      question: "آیا به مدیریت و بهینه‌سازی Crawl Budget سایت خود توجه می‌کنید؟",
+      question:
+        "آیا به مدیریت و بهینه‌سازی Crawl Budget سایت خود توجه می‌کنید؟",
       type: "radio",
       options: [
         "بله، به‌صورت مستمر از طریق Search Console بررسی می‌کنیم",
@@ -270,7 +253,8 @@ export const seoFormSurvey: SurveyConfig = {
     },
     {
       id: 25,
-      question: "آیا تاکنون محتوای سایت شما در Google Discover نمایش داده شده است؟",
+      question:
+        "آیا تاکنون محتوای سایت شما در Google Discover نمایش داده شده است؟",
       type: "radio",
       options: [
         "بله، به‌صورت مداوم ترافیک Discover داریم",
@@ -348,15 +332,9 @@ export const seoFormSurvey: SurveyConfig = {
     {
       id: 31,
       question:
-        "آیا برای نمایش بهتر در پاسخ‌های ChatGPT، Claude و Google Gemini (GEO) وب‌سایت خود را بهینه‌سازی کرده‌اید؟",
+        "آیا تاکنون تجربه یا برنامه‌ای برای بهینه‌سازی وب‌سایت خود جهت نمایش در پاسخ‌های هوش مصنوعی (مانند ChatGPT، کلود و Google Gemini) داشته‌اید؟",
       type: "radio",
-      options: [
-        "بله، ساختار محتوا و صفحات برای GEO بهینه‌سازی شده است",
-        "بله، اما اقدامات ما محدود به اسکیماهای تخصصی و پاسخ‌های FAQ است",
-        "بله، در حال بررسی و آزمایش هستیم",
-        "خیر، تاکنون اقدامی انجام نشده است",
-        "آشنایی دقیقی با این موضوع ندارم",
-      ],
+      options: ["بله به صورت تخصصی", "بله تا حدودی", "خیر"],
     },
     {
       id: 32,

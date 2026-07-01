@@ -77,7 +77,7 @@ export const pushFormSurvey: SurveyConfig = {
       id: 8,
       question: "با چه سرویسی ارسال می‌کنید؟",
       type: "checkbox",
-      options: ["سرویس های خارجی", "سرویس های ایرانی"],
+      options: ["سرویس های خارجی", "سرویس های ایرانی", "درون سازمانی"],
       checkboxSubOptions: [
         {
           parentOption: "سرویس های خارجی",

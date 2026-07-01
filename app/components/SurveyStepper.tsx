@@ -139,6 +139,11 @@ function isStepVisible(
 ): boolean {
   if (!step.showIf) return true;
   const parentValue = getParentValue(step.showIf, steps, values);
+  if (step.showIf.whenParentAnswered) {
+    if (typeof parentValue === "string") return parentValue.trim().length > 0;
+    if (Array.isArray(parentValue)) return parentValue.length > 0;
+    return false;
+  }
   if (step.showIf.equals !== undefined) {
     return parentValue === step.showIf.equals;
   }
@@ -250,7 +255,7 @@ function getAnswerByQuestion(
   return typeof value === "string" ? value : "";
 }
 
-function getCheckboxOptionsForStep(
+function getOptionsFromParentForStep(
   step: SurveyStep,
   steps: SurveyStep[],
   values: FormValues,
@@ -264,6 +269,14 @@ function getCheckboxOptionsForStep(
     return step.optionsFromParent.optionMap[parentAnswer] ?? [];
   }
   return step.options ?? [];
+}
+
+function getCheckboxOptionsForStep(
+  step: SurveyStep,
+  steps: SurveyStep[],
+  values: FormValues,
+): string[] {
+  return getOptionsFromParentForStep(step, steps, values);
 }
 
 function isStepEmpty(
@@ -357,6 +370,24 @@ function isStepEmpty(
       step.numberFormat ?? "default",
     );
   }
+  if (step.type === "radio" || step.type === "select") {
+    if (step.optionsFromParent) {
+      const parentAnswer = getAnswerByQuestion(
+        steps,
+        values,
+        step.optionsFromParent.parentQuestion,
+      );
+      if (!parentAnswer) return true;
+      const options = step.optionsFromParent.optionMap[parentAnswer] ?? [];
+      if (!options.length) return false;
+      return (
+        !value ||
+        typeof value !== "string" ||
+        !value.trim() ||
+        !options.includes(value)
+      );
+    }
+  }
   return !value || (typeof value === "string" && !value.trim());
 }
 
@@ -368,6 +399,22 @@ function getStepValidationError(
 ): string | null {
   if (
     step.type === "checkbox" &&
+    step.optionsFromParent &&
+    values &&
+    steps
+  ) {
+    const parentAnswer = getAnswerByQuestion(
+      steps,
+      values,
+      step.optionsFromParent.parentQuestion,
+    );
+    const options = step.optionsFromParent.optionMap[parentAnswer] ?? [];
+    if (!options.length) return null;
+    if (!parentAnswer) return EMPTY_ANSWER_MESSAGE;
+  }
+
+  if (
+    (step.type === "radio" || step.type === "select") &&
     step.optionsFromParent &&
     values &&
     steps
@@ -572,6 +619,7 @@ function StepField({
   }
 
   if (step.type === "select") {
+    const selectOptions = getOptionsFromParentForStep(step, steps, watchedValues ?? {});
     return (
       <Controller
         name={name}
@@ -579,7 +627,12 @@ function StepField({
         render={({ field }) => (
           <select
             {...field}
-            value={typeof field.value === "string" ? field.value : ""}
+            value={
+              typeof field.value === "string" && selectOptions.includes(field.value)
+                ? field.value
+                : ""
+            }
+            onChange={(event) => field.onChange(event.target.value)}
             aria-invalid={hasError}
             className={cn(
               "h-11 w-full rounded-lg border border-input bg-transparent px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50",
@@ -587,7 +640,7 @@ function StepField({
             )}
           >
             <option value="">انتخاب کنید</option>
-            {step.options?.map((option) => (
+            {selectOptions.map((option) => (
               <option key={option} value={option}>
                 {option}
               </option>
@@ -599,27 +652,32 @@ function StepField({
   }
 
   if (step.type === "radio") {
+    const radioOptions = getOptionsFromParentForStep(step, steps, watchedValues ?? {});
     return (
       <Controller
         name={name}
         control={control}
-        render={({ field }) => (
-          <RadioGroup
-            value={typeof field.value === "string" ? field.value : ""}
-            onValueChange={field.onChange}
-            className={cn("gap-3", hasError && "rounded-lg border border-destructive p-2")}
-          >
-            {step.options?.map((option) => (
-              <Label
-                key={option}
-                className="flex cursor-pointer items-start gap-3 rounded-lg border border-transparent p-2 hover:bg-muted/50 has-data-checked:border-primary/30 has-data-checked:bg-primary/5"
-              >
-                <RadioGroupItem value={option} className="mt-0.5" />
-                <span className="radio-label text-sm leading-6 text-foreground">{option}</span>
-              </Label>
-            ))}
-          </RadioGroup>
-        )}
+        render={({ field }) => {
+          const currentValue = typeof field.value === "string" ? field.value : "";
+          const selectedValue = radioOptions.includes(currentValue) ? currentValue : "";
+          return (
+            <RadioGroup
+              value={selectedValue}
+              onValueChange={field.onChange}
+              className={cn("gap-3", hasError && "rounded-lg border border-destructive p-2")}
+            >
+              {radioOptions.map((option) => (
+                <Label
+                  key={option}
+                  className="flex cursor-pointer items-start gap-3 rounded-lg border border-transparent p-2 hover:bg-muted/50 has-data-checked:border-primary/30 has-data-checked:bg-primary/5"
+                >
+                  <RadioGroupItem value={option} className="mt-0.5" />
+                  <span className="radio-label text-sm leading-6 text-foreground">{option}</span>
+                </Label>
+              ))}
+            </RadioGroup>
+          );
+        }}
       />
     );
   }
@@ -666,6 +724,7 @@ function StepField({
             value={parseGeoLocationValue(field.value)}
             onChange={(next) => field.onChange(serializeGeoLocationValue(next))}
             hasError={hasError}
+            single={step.geoLocationSingle}
           />
         )}
       />

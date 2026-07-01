@@ -14,6 +14,8 @@ export type ShowIfCondition = {
   parentQuestion: string;
   equals?: string;
   includes?: string;
+  /** Show when the parent step has any non-empty answer (radio, select, text, etc.). */
+  whenParentAnswered?: boolean;
 };
 
 export type SurveyStep = {
@@ -50,13 +52,15 @@ export type SurveyStep = {
   checkboxSubOptions?: CheckboxSubOptionsConfig | CheckboxSubOptionsConfig[];
   /** Max number of selections for plain `checkbox` steps. */
   checkboxMaxSelections?: number;
-  /** Dynamic checkbox options based on a parent step answer. */
+  /** Dynamic options for checkbox, radio, or select based on a parent step answer. */
   optionsFromParent?: {
     parentQuestion: string;
     optionMap: Record<string, string[]>;
   };
   /** When true, the user may leave this answer empty. Defaults to false (required). */
   isAllowedEmpty?: boolean;
+  /** When true, only one location (no numbered header or add-more control). */
+  geoLocationSingle?: boolean;
   showIf?: ShowIfCondition;
 };
 

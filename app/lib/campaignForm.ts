@@ -3,6 +3,12 @@ import {
   CAMPAIGN_CHANNEL_PARENT_OPTIONS,
   CAMPAIGN_CHANNEL_SUB_OPTIONS,
 } from "./campaignChannels";
+import { CAMPAIGN_TYPES } from "./campaignKpis";
+import {
+  CAMPAIGN_SUBTYPE_MAP,
+  CAMPAIGN_SUBTYPE_QUESTION,
+  CAMPAIGN_TYPE_QUESTION,
+} from "./campaignSubTypes";
 
 export const campaignFormSurvey: SurveyConfig = {
   id: "campaign",
@@ -21,30 +27,23 @@ export const campaignFormSurvey: SurveyConfig = {
     },
     {
       id: 2,
-      question: "نوع کمپین مدنظر خود را مشخص کنید",
+      question: CAMPAIGN_TYPE_QUESTION,
       type: "radio",
-      options: [
-        "کمپین Awareness",
-        "کمپین لانچ و معرفی محصول",
-        "کمپین Acquisition (جذب کاربر / مشتری)",
-        "کمپین فروش",
-        "کمپین Engagement (تعاملی)",
-        "کمپین محتوایی",
-        "کمپین Retention (حفظ مشتری)",
-        "کمپین Revenue Expansion",
-        "کمپین اجتماعی و برند",
-        "کمپین رویداد",
-        "کمپین خلاق و وایرال",
-        "اکتیویشن",
-        "Performance Marketing (مارکتینگ عملکردی / نتیجه‌محور)",
-        "CRM & Data-Driven (داده‌محور و شخصی‌سازی‌شده)",
-        "Partnership & Co-Branding (همکاری برندها)",
-        "Employer Branding (برند کارفرمایی)",
-        "Crisis Management / PR (مدیریت بحران و روابط عمومی)",
-        "Customer Education (آموزشی و آگاهی‌بخش)",
-      ],
+      options: [...CAMPAIGN_TYPES],
     },
-
+    {
+      id: 27,
+      question: CAMPAIGN_SUBTYPE_QUESTION,
+      type: "radio",
+      optionsFromParent: {
+        parentQuestion: CAMPAIGN_TYPE_QUESTION,
+        optionMap: CAMPAIGN_SUBTYPE_MAP,
+      },
+      showIf: {
+        parentQuestion: CAMPAIGN_TYPE_QUESTION,
+        whenParentAnswered: true,
+      },
+    },
     {
       id: 3,
       question: "تاریخ شروع کمپین خود را انتخاب کنید",
@@ -189,6 +188,7 @@ export const campaignFormSurvey: SurveyConfig = {
       id: 17,
       question: "پرسونای کمپین - موقعیت جغرافیایی",
       type: "geoLocation",
+      geoLocationSingle: true,
     },
     {
       id: 18,

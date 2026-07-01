@@ -67,6 +67,7 @@ function GeoLocationRow({
   onRemove,
   canRemove,
   hasError,
+  single,
 }: {
   index: number;
   entry: GeoLocationEntry;
@@ -74,6 +75,7 @@ function GeoLocationRow({
   onRemove: () => void;
   canRemove: boolean;
   hasError?: boolean;
+  single?: boolean;
 }) {
   const countrySelectValue = isKnownCountry(entry.country)
     ? entry.country
@@ -89,23 +91,29 @@ function GeoLocationRow({
   }
 
   return (
-    <div className="bg-white p-4 border border-input rounded-xl">
-      <div className="flex justify-between items-center gap-3 mb-4">
-        <p className="font-semibold text-foreground text-sm">
-          موقعیت {index + 1}
-        </p>
-        {canRemove ? (
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            onClick={onRemove}
-            aria-label={`حذف موقعیت ${index + 1}`}
-          >
-            <Trash2 className="size-4" />
-          </Button>
-        ) : null}
-      </div>
+    <div
+      className={cn(
+        !single && "bg-white p-4 border border-input rounded-xl",
+      )}
+    >
+      {!single ? (
+        <div className="flex justify-between items-center gap-3 mb-4">
+          <p className="font-semibold text-foreground text-sm">
+            موقعیت {index + 1}
+          </p>
+          {canRemove ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              onClick={onRemove}
+              aria-label={`حذف موقعیت ${index + 1}`}
+            >
+              <Trash2 className="size-4" />
+            </Button>
+          ) : null}
+        </div>
+      ) : null}
 
       <div className="flex flex-col gap-4">
         <GeoSelect
@@ -207,16 +215,21 @@ export default function GeoLocationInput({
   value,
   onChange,
   hasError,
+  single = false,
 }: {
   value: GeoLocationValue;
   onChange: (value: GeoLocationValue) => void;
   hasError?: boolean;
+  single?: boolean;
 }) {
+  const locations = single ? value.locations.slice(0, 1) : value.locations;
+  const displayLocations =
+    locations.length > 0 ? locations : [{ ...EMPTY_GEO_LOCATION_ENTRY }];
   function updateLocation(index: number, patch: Partial<GeoLocationEntry>) {
-    const locations = value.locations.map((entry, entryIndex) =>
+    const nextLocations = displayLocations.map((entry, entryIndex) =>
       entryIndex === index ? { ...entry, ...patch } : entry,
     );
-    onChange({ locations });
+    onChange({ locations: nextLocations });
   }
 
   function addLocation() {
@@ -244,27 +257,30 @@ export default function GeoLocationInput({
         hasError && "rounded-xl border border-destructive p-3",
       )}
     >
-      {value.locations.map((entry, index) => (
+      {displayLocations.map((entry, index) => (
         <GeoLocationRow
           key={`geo-${index}`}
           index={index}
           entry={entry}
           onChange={(patch) => updateLocation(index, patch)}
           onRemove={() => removeLocation(index)}
-          canRemove={value.locations.length > 1}
+          canRemove={!single && displayLocations.length > 1}
           hasError={hasError}
+          single={single}
         />
       ))}
 
-      <Button
-        type="button"
-        variant="outline"
-        onClick={addLocation}
-        className="rounded-xl w-full h-10 font-semibold"
-      >
-        <Plus className="size-4" />
-        افزودن موقعیت دیگر
-      </Button>
+      {!single ? (
+        <Button
+          type="button"
+          variant="outline"
+          onClick={addLocation}
+          className="rounded-xl w-full h-10 font-semibold"
+        >
+          <Plus className="size-4" />
+          افزودن موقعیت دیگر
+        </Button>
+      ) : null}
     </div>
   );
 }
