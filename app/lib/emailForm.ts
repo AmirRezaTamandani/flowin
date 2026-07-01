@@ -123,16 +123,9 @@ export const emailFormSurvey: SurveyConfig = {
       },
     },
 
+
     {
       id: 11,
-      question:
-        "برای هر هدف انتخاب‌شده، لینک مدنظر مرتبط با آن هدف را وارد کنید (هر هدف و لینک را در یک خط جداگانه بنویسید).",
-      type: "textarea",
-      placeholder: "مثال: افزایش فروش | https://example.com/sale",
-      isAllowedEmpty: true,
-    },
-    {
-      id: 12,
       question: "در گذشته از کدام پنل‌های ایمیل مارکتینگ استفاده کرده‌اید؟",
       type: "checkbox",
       otherOption: "سایر",
@@ -151,26 +144,26 @@ export const emailFormSurvey: SurveyConfig = {
       ],
     },
     {
-      id: 13,
+      id: 12,
       question: "میانگین هزینه ماهانه شما برای ایمیل مارکتینگ چقدر بوده است؟",
       type: "radio",
       options: [...MONTHLY_BUDGET_OPTIONS],
     },
     {
-      id: 14,
+      id: 13,
       question:
         "آیا پس از خرید یا تکمیل فرآیند، به مشتری ایمیل تأیید یا تشکر ارسال می‌شود؟",
       type: "radio",
       options: ["بله", "خیر"],
     },
     {
-      id: 15,
+      id: 14,
       question: "آیا به‌صورت منظم خبرنامه (هفتگی/ماهانه) ارسال کرده‌اید؟",
       type: "radio",
       options: ["بله", "خیر"],
     },
     {
-      id: 16,
+      id: 15,
       question: "موضوع یا موضوعات خبرنامه را بنویسید.",
       type: "textarea",
       showIf: {
@@ -180,20 +173,20 @@ export const emailFormSurvey: SurveyConfig = {
       },
     },
     {
-      id: 17,
+      id: 16,
       question: "لحن و سبک محتوایی مدنظر شما برای ارسال چیست؟",
       type: "radio",
       options: [...CHANNEL_TONE_OPTIONS],
     },
     {
-      id: 18,
+      id: 17,
       question:
         "کدام مناسبت‌های عمومی باید در برنامه‌ریزی و تقویم محتوایی این کانال پوشش داده شوند؟",
       type: "checkbox",
       options: [...CHANNEL_EVENT_TYPE_OPTIONS],
     },
     {
-      id: 19,
+      id: 18,
       question:
         "کدام بخش از ارسال ایمیل را علاقه دارید بهینه کنید؟ (برای هر بخش، دلیل را در خط بعدی بنویسید)",
       type: "textarea",
@@ -201,7 +194,7 @@ export const emailFormSurvey: SurveyConfig = {
       isAllowedEmpty: true,
     },
     {
-      id: 20,
+      id: 19,
       question:
         "اگر دیزاین یا تمپلیت یکپارچه و خاص در این کانال دارید، لینک یا توضیح نمونه مورد تأیید خود را بنویسید.",
       type: "fileUpload",
