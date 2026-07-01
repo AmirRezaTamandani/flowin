@@ -48,10 +48,12 @@ import {
 import {
   createEmptyRepeaterValue,
   getRepeaterFields,
+  getPlainCheckboxSelections,
   hasIncompleteRepeaterRows,
   isRepeaterCellValid,
   isRepeaterEmpty,
   isRepeaterRowComplete,
+  isSyncedRepeaterEmpty,
   parseRepeaterValue,
   serializeRepeaterValue,
 } from "../lib/repeater";
@@ -74,6 +76,7 @@ import {
 } from "../lib/percentageAllocation";
 import PercentageAllocationInput from "./PercentageAllocationInput";
 import RepeaterInput from "./RepeaterInput";
+import ParentSyncedRepeaterInput from "./ParentSyncedRepeaterInput";
 import NestedRepeaterInput from "./NestedRepeaterInput";
 import {
   EMPTY_CHECKBOX_WITH_OTHER,
@@ -311,6 +314,15 @@ function isStepEmpty(
   if (step.type === "repeater") {
     const fields = getRepeaterFields(step);
     const parsed = parseRepeaterValue(value, fields);
+    if (step.repeaterSyncFromParent && steps.length && values) {
+      const parent = steps.find(
+        (item) => item.question === step.repeaterSyncFromParent!.parentQuestion,
+      );
+      const parentPlatforms = parent
+        ? getPlainCheckboxSelections(values[fieldName(parent.id)])
+        : [];
+      return isSyncedRepeaterEmpty(parsed, fields, parentPlatforms);
+    }
     if (hasIncompleteRepeaterRows(parsed, fields)) return true;
     if (isRepeaterEmpty(parsed, fields)) return true;
     const completeRows = parsed.rows.filter((row) => isRepeaterRowComplete(row, fields));
@@ -699,6 +711,29 @@ function StepField({
 
   if (step.type === "repeater") {
     const fields = getRepeaterFields(step);
+    const syncConfig = step.repeaterSyncFromParent;
+    if (syncConfig) {
+      const parent = steps.find((item) => item.question === syncConfig.parentQuestion);
+      const parentPlatforms = parent
+        ? getPlainCheckboxSelections(watchedValues?.[fieldName(parent.id)])
+        : [];
+      return (
+        <Controller
+          name={name}
+          control={control}
+          render={({ field }) => (
+            <ParentSyncedRepeaterInput
+              value={parseRepeaterValue(field.value, fields)}
+              onChange={(next) => field.onChange(serializeRepeaterValue(next))}
+              fields={fields}
+              syncConfig={syncConfig}
+              parentPlatforms={parentPlatforms}
+              hasError={hasError}
+            />
+          )}
+        />
+      );
+    }
     return (
       <Controller
         name={name}

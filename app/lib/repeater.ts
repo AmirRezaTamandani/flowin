@@ -10,6 +10,12 @@ export type RepeaterFieldConfig = {
   numberMin?: number;
   numberMax?: number;
   numberFormat?: "default" | "phone";
+  readOnly?: boolean;
+};
+
+export type RepeaterSyncFromParentConfig = {
+  parentQuestion: string;
+  platformFieldKey: string;
 };
 
 export function isRepeaterCellValid(field: RepeaterFieldConfig, value: string): boolean {
@@ -117,4 +123,52 @@ export function getRepeaterFields(step: {
   return step.repeaterFields?.length
     ? step.repeaterFields
     : DEFAULT_OPERATOR_REPEATER_FIELDS;
+}
+
+export function getPlainCheckboxSelections(value: string | string[] | undefined): string[] {
+  if (Array.isArray(value)) return value;
+  if (!value) return [];
+  try {
+    const parsed = JSON.parse(value);
+    if (Array.isArray(parsed)) return parsed;
+    if (parsed && typeof parsed === "object" && Array.isArray(parsed.selected)) {
+      return parsed.selected;
+    }
+    return [];
+  } catch {
+    return value ? [value] : [];
+  }
+}
+
+export function syncRepeaterWithParentPlatforms(
+  value: RepeaterValue,
+  fields: RepeaterFieldConfig[],
+  parentPlatforms: string[],
+  platformFieldKey: string,
+): RepeaterValue {
+  const existingByPlatform = Object.fromEntries(
+    value.rows
+      .filter((row) => row[platformFieldKey]?.trim())
+      .map((row) => [row[platformFieldKey], row]),
+  );
+
+  const rows = parentPlatforms.map((platform) => {
+    const existing = existingByPlatform[platform];
+    if (existing) return { ...existing, [platformFieldKey]: platform };
+    const row = createEmptyRepeaterRow(fields);
+    row[platformFieldKey] = platform;
+    return row;
+  });
+
+  return { rows };
+}
+
+export function isSyncedRepeaterEmpty(
+  value: RepeaterValue,
+  fields: RepeaterFieldConfig[],
+  parentPlatforms: string[],
+): boolean {
+  if (parentPlatforms.length === 0) return true;
+  if (value.rows.length !== parentPlatforms.length) return true;
+  return !value.rows.every((row) => isRepeaterRowComplete(row, fields));
 }

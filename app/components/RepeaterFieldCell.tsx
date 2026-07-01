@@ -83,6 +83,19 @@ export function RepeaterFieldCell({
     );
   }
 
+  if (field.readOnly) {
+    return (
+      <div
+        className={cn(
+          "flex h-11 min-w-0 items-center rounded-lg border border-input bg-muted/30 px-3 text-sm text-foreground",
+          className,
+        )}
+      >
+        {value || field.placeholder}
+      </div>
+    );
+  }
+
   return (
     <div className={cn("min-w-0", className)}>
       <Input

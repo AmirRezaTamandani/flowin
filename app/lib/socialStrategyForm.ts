@@ -138,8 +138,26 @@ export const socialStrategyFormSurvey: SurveyConfig = {
     {
       id: 3,
       question: "برای هر پلتفرم، وضعیت فعلی فعالیت شما چگونه است؟",
-      type: "textarea",
-      placeholder: `هر پلتفرم در یک خط:\nپلتفرم | وضعیت\nگزینه‌های وضعیت: ${PLATFORM_ACTIVITY_STATUS_OPTIONS.join("، ")}\nمثال:\nاینستاگرام | فعال و منظم\nلینکدین | تازه می‌خواهیم شروع کنیم`,
+      type: "repeater",
+      repeaterFields: [
+        {
+          key: "platform",
+          type: "text",
+          label: "پلتفرم",
+          readOnly: true,
+        },
+        {
+          key: "status",
+          type: "select",
+          label: "وضعیت",
+          placeholder: "انتخاب کنید",
+          options: [...PLATFORM_ACTIVITY_STATUS_OPTIONS],
+        },
+      ],
+      repeaterSyncFromParent: {
+        parentQuestion: "قصد دارید روی کدام شبکه‌های اجتماعی فعالیت داشته باشید؟",
+        platformFieldKey: "platform",
+      },
     },
     {
       id: 4,

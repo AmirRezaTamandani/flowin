@@ -1,6 +1,6 @@
 import type { CheckboxSubOptionsConfig } from "./checkboxWithSubOptions";
 import type { NestedRepeaterConfig } from "./nestedRepeater";
-import type { RepeaterFieldConfig } from "./repeater";
+import type { RepeaterFieldConfig, RepeaterSyncFromParentConfig } from "./repeater";
 import { brandFormSurvey } from "./brandForm";
 import { campaignFormSurvey } from "./campaignForm";
 import { emailFormSurvey } from "./emailForm";
@@ -28,6 +28,8 @@ export type SurveyStep = {
   maxFiles?: number;
   /** Columns for `repeater` steps. */
   repeaterFields?: RepeaterFieldConfig[];
+  /** Pre-fill repeater rows from a parent checkbox step. */
+  repeaterSyncFromParent?: RepeaterSyncFromParentConfig;
   /** Nested repeater config for competitor + social pages pattern. */
   nestedRepeaterConfig?: NestedRepeaterConfig;
   /** `number` steps: `phone` for mobile numbers, `default` for counts. */
