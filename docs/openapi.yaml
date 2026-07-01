@@ -1,0 +1,604 @@
+openapi: 3.1.0
+info:
+  title: Flowin Survey API
+  version: 0.1.0
+  description: |
+    Contract for persisting brand survey submissions from the Flowin frontend.
+
+    **Auth (TBD by backend):** All endpoints expect an authenticated user.
+    Suggested: session cookie or `Authorization: Bearer <token>`.
+
+    **One brand per user** — the branding survey can only be submitted once per brand;
+    updates go through support (see product copy in the UI).
+
+servers:
+  - url: /api/v1
+    description: Next.js route stubs (501 until backend is wired)
+  - url: https://api.flowin.example/v1
+    description: Production backend (placeholder)
+
+tags:
+  - name: brands
+  - name: submissions
+  - name: uploads
+  - name: metadata
+
+paths:
+  /brands/me:
+    get:
+      tags: [brands]
+      summary: Get the current user's brand
+      operationId: getMyBrand
+      responses:
+        "200":
+          description: Brand or null if not created yet
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Brand"
+                  - type: "null"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /brands:
+    post:
+      tags: [brands]
+      summary: Create a brand for the current user
+      operationId: createBrand
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateBrandRequest"
+      responses:
+        "201":
+          description: Brand created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Brand"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          description: User already has a brand
+
+  /brands/{brandId}/submissions:
+    get:
+      tags: [submissions]
+      summary: List submissions for a brand
+      operationId: listSubmissions
+      parameters:
+        - $ref: "#/components/parameters/brandId"
+        - name: surveyId
+          in: query
+          schema:
+            $ref: "#/components/schemas/SurveyId"
+        - name: status
+          in: query
+          schema:
+            $ref: "#/components/schemas/SubmissionStatus"
+      responses:
+        "200":
+          description: Submission list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListSubmissionsResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    post:
+      tags: [submissions]
+      summary: Create or complete a survey submission
+      operationId: createSubmission
+      parameters:
+        - $ref: "#/components/parameters/brandId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSubmissionRequest"
+            examples:
+              brandingCompleted:
+                summary: Completed branding survey (excerpt)
+                value:
+                  surveyId: branding
+                  status: completed
+                  completedAt: "2026-06-30T12:00:00.000Z"
+                  answers:
+                    step_1: "نام برند"
+                    step_2: "https://example.com"
+                    step_23: '{"خالق":40,"حاکم":30,"جادوگر":20,"عاشق":10}'
+      responses:
+        "201":
+          description: Submission saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SurveySubmission"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          description: Branding survey already completed for this brand
+
+  /brands/{brandId}/submissions/{submissionId}:
+    get:
+      tags: [submissions]
+      summary: Get a single submission
+      operationId: getSubmission
+      parameters:
+        - $ref: "#/components/parameters/brandId"
+        - $ref: "#/components/parameters/submissionId"
+      responses:
+        "200":
+          description: Submission
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SurveySubmission"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    patch:
+      tags: [submissions]
+      summary: Update a draft submission
+      operationId: updateSubmission
+      parameters:
+        - $ref: "#/components/parameters/brandId"
+        - $ref: "#/components/parameters/submissionId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSubmissionRequest"
+      responses:
+        "200":
+          description: Updated submission
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SurveySubmission"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          description: Cannot modify a completed submission
+
+  /uploads:
+    post:
+      tags: [uploads]
+      summary: Upload a file (logo, font, template)
+      description: |
+        Files from `brandVisualIdentity` steps should be uploaded here first;
+        store returned `fileId` / `url` in the answer instead of base64 `dataUrl`.
+      operationId: uploadFile
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file, purpose, brandId]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                purpose:
+                  $ref: "#/components/schemas/UploadPurpose"
+                brandId:
+                  type: string
+                  format: uuid
+                submissionId:
+                  type: string
+                  format: uuid
+                stepId:
+                  type: integer
+                field:
+                  type: string
+                  description: e.g. logo, font
+      responses:
+        "201":
+          description: File uploaded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadedFileRecord"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /surveys:
+    get:
+      tags: [metadata]
+      summary: List survey metadata (ids, step counts, types)
+      operationId: listSurveys
+      responses:
+        "200":
+          description: Survey catalog
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/SurveyMetadata"
+
+components:
+  parameters:
+    brandId:
+      name: brandId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    submissionId:
+      name: submissionId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+    Unauthorized:
+      description: Not authenticated
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+
+  schemas:
+    ApiError:
+      type: object
+      required: [error, message]
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+
+    SurveyId:
+      type: string
+      enum:
+        - branding
+        - campaign
+        - email
+        - sms
+        - push
+        - seo
+        - social-competitor
+        - social-strategy
+
+    SubmissionStatus:
+      type: string
+      enum: [draft, completed]
+
+    UploadPurpose:
+      type: string
+      enum: [logo, font, template, other]
+
+    Brand:
+      type: object
+      required: [id, userId, createdAt, updatedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+        name:
+          type: string
+          nullable: true
+        websiteUrl:
+          type: string
+          format: uri
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateBrandRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        websiteUrl:
+          type: string
+          format: uri
+
+    SurveySubmission:
+      type: object
+      required: [id, brandId, surveyId, status, answers, createdAt, updatedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        brandId:
+          type: string
+          format: uuid
+        surveyId:
+          $ref: "#/components/schemas/SurveyId"
+        status:
+          $ref: "#/components/schemas/SubmissionStatus"
+        answers:
+          type: object
+          additionalProperties:
+            type: string
+          description: Keys are `step_{id}`. Complex values are JSON strings.
+        normalizedAnswers:
+          type: array
+          items:
+            $ref: "#/components/schemas/NormalizedAnswer"
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateSubmissionRequest:
+      type: object
+      required: [surveyId, status, answers]
+      properties:
+        surveyId:
+          $ref: "#/components/schemas/SurveyId"
+        status:
+          $ref: "#/components/schemas/SubmissionStatus"
+        answers:
+          type: object
+          additionalProperties:
+            type: string
+        completedAt:
+          type: string
+          format: date-time
+
+    UpdateSubmissionRequest:
+      type: object
+      properties:
+        status:
+          $ref: "#/components/schemas/SubmissionStatus"
+        answers:
+          type: object
+          additionalProperties:
+            type: string
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    ListSubmissionsResponse:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/SurveySubmission"
+
+    UploadedFileRecord:
+      type: object
+      required: [id, brandId, purpose, url, name, mimeType, sizeBytes, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        brandId:
+          type: string
+          format: uuid
+        submissionId:
+          type: string
+          format: uuid
+          nullable: true
+        stepId:
+          type: integer
+          nullable: true
+        field:
+          type: string
+          nullable: true
+        purpose:
+          $ref: "#/components/schemas/UploadPurpose"
+        url:
+          type: string
+          format: uri
+        name:
+          type: string
+        mimeType:
+          type: string
+        sizeBytes:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+
+    SurveyMetadata:
+      type: object
+      required: [id, label, title, stepCount, stepTypes]
+      properties:
+        id:
+          $ref: "#/components/schemas/SurveyId"
+        label:
+          type: string
+        title:
+          type: string
+        stepCount:
+          type: integer
+        stepTypes:
+          type: array
+          items:
+            type: string
+
+    NormalizedAnswer:
+      type: object
+      required: [stepId, question, type, value, raw]
+      properties:
+        stepId:
+          type: integer
+        question:
+          type: string
+        type:
+          type: string
+          enum:
+            - text
+            - textarea
+            - radio
+            - select
+            - checkbox
+            - brandVisualIdentity
+            - personaFields
+            - percentageAllocation
+            - fileUpload
+            - geoLocation
+            - shamsiDate
+            - namedShamsiDates
+            - number
+            - url
+        value:
+          description: Parsed answer — see AnswerValueShapes in app/lib/api/types.ts
+        raw:
+          type: string
+
+    CheckboxWithOtherAnswer:
+      type: object
+      properties:
+        selected:
+          type: array
+          items:
+            type: string
+        other:
+          type: string
+
+    CheckboxWithSubOptionsAnswer:
+      type: object
+      properties:
+        selected:
+          type: array
+          items:
+            type: string
+        subSelections:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+
+    BrandVisualIdentityAnswer:
+      type: object
+      properties:
+        logo:
+          nullable: true
+          type: object
+          properties:
+            name:
+              type: string
+            fileId:
+              type: string
+            url:
+              type: string
+        colors:
+          type: array
+          items:
+            type: string
+        font:
+          nullable: true
+          type: object
+          properties:
+            name:
+              type: string
+            fileId:
+              type: string
+            url:
+              type: string
+
+    PersonaFieldsAnswer:
+      type: object
+      properties:
+        ageRange:
+          type: string
+        gender:
+          type: string
+        country:
+          type: string
+        province:
+          type: string
+        city:
+          type: string
+        job:
+          type: string
+        incomeLevel:
+          type: string
+
+    GeoLocationAnswer:
+      type: object
+      properties:
+        locations:
+          type: array
+          items:
+            type: object
+            properties:
+              country:
+                type: string
+              province:
+                type: string
+              city:
+                type: string
+
+    PercentageAllocationAnswer:
+      type: object
+      additionalProperties:
+        type: number
+
+    NamedShamsiDatesAnswer:
+      type: object
+      properties:
+        events:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              date:
+                type: string

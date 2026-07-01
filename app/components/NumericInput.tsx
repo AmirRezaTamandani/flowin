@@ -2,6 +2,7 @@
 
 import React from "react";
 import { cn } from "@/lib/utils";
+import { isPhoneStepValueValid, sanitizePhoneValue } from "../lib/phoneValidation";
 
 function sanitizeNumericValue(value: string, allowDecimal: boolean): string {
   const cleaned = value.replace(allowDecimal ? /[^\d.]/g : /\D/g, "");
@@ -22,6 +23,8 @@ function clampNumericValue(value: string, min?: number, max?: number): string {
   return value;
 }
 
+export type NumberFormat = "default" | "phone";
+
 export default function NumericInput({
   value,
   onChange,
@@ -31,6 +34,7 @@ export default function NumericInput({
   min,
   max,
   allowDecimal = false,
+  format = "default",
 }: {
   value: string;
   onChange: (value: string) => void;
@@ -40,34 +44,41 @@ export default function NumericInput({
   min?: number;
   max?: number;
   allowDecimal?: boolean;
+  format?: NumberFormat;
 }) {
   function handleChange(nextRaw: string) {
+    if (format === "phone") {
+      onChange(sanitizePhoneValue(nextRaw));
+      return;
+    }
     const sanitized = sanitizeNumericValue(nextRaw, allowDecimal);
     onChange(clampNumericValue(sanitized, min, max));
   }
 
+  const inputMode = format === "phone" ? "tel" : allowDecimal ? "decimal" : "numeric";
+
   return (
     <div
       className={cn(
-        "relative h-11 w-full rounded-lg border border-input bg-white transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50",
+        "relative bg-white border border-input focus-within:border-ring rounded-lg focus-within:ring-3 focus-within:ring-ring/50 w-full h-11 transition-colors",
         hasError && "border-destructive ring-destructive/20",
       )}
     >
       <input
         type="text"
-        inputMode={allowDecimal ? "decimal" : "numeric"}
+        inputMode={inputMode}
         value={value}
         onChange={(event) => handleChange(event.target.value)}
         placeholder={placeholder}
         aria-invalid={hasError}
         dir="ltr"
         className={cn(
-          "h-full w-full bg-transparent text-left text-base text-foreground outline-none placeholder:text-muted-foreground",
+          "bg-transparent outline-none w-full h-full text-foreground placeholder:text-muted-foreground text-base text-left",
           suffix ? "pl-3 pr-10" : "px-3",
         )}
       />
       {suffix ? (
-        <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-base text-muted-foreground">
+        <span className="top-1/2 right-3 absolute text-muted-foreground text-base -translate-y-1/2 pointer-events-none">
           {suffix}
         </span>
       ) : null}
@@ -79,8 +90,11 @@ export function isNumericStepValueValid(
   value: string | string[] | undefined,
   min?: number,
   max?: number,
+  format: NumberFormat = "default",
 ): boolean {
   if (!value || typeof value !== "string" || !value.trim()) return false;
+  if (format === "phone") return isPhoneStepValueValid(value);
+
   const parsed = Number.parseFloat(value);
   if (Number.isNaN(parsed)) return false;
   if (min !== undefined && parsed < min) return false;

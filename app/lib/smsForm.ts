@@ -59,7 +59,9 @@ export const smsFormSurvey: SurveyConfig = {
     {
       id: 5,
       question: "لطفاً شماره این خط خود را وارد کنید.",
-      type: "text",
+      type: "number",
+      numberFormat: "phone",
+      numberSuffix: "شماره موبایل",
       showIf: {
         parentQuestion:
           "آیا خط خدماتی اختصاصی دارید؟ (منظور از خط خدماتی خطی است که با استفاده از آن برای مشتریان خود پیامک ارسال می‌کنید.)",
@@ -68,14 +70,17 @@ export const smsFormSurvey: SurveyConfig = {
     },
     {
       id: 6,
-      question: "آیا خط خدماتی اختصاصی برای ارسال OTP یا پیامک‌های تراکنشی دارید؟",
+      question:
+        "آیا خط خدماتی اختصاصی برای ارسال OTP یا پیامک‌های تراکنشی دارید؟",
       type: "radio",
       options: ["بله", "خیر"],
     },
     {
       id: 7,
       question: "لطفاً شماره این خط خود را وارد کنید.",
-      type: "text",
+      type: "number",
+      numberFormat: "phone",
+      numberSuffix: "شماره موبایل",
       showIf: {
         parentQuestion:
           "آیا خط خدماتی اختصاصی برای ارسال OTP یا پیامک‌های تراکنشی دارید؟",
@@ -92,7 +97,9 @@ export const smsFormSurvey: SurveyConfig = {
     {
       id: 9,
       question: "لطفاً شماره این خط خود را وارد کنید.",
-      type: "text",
+      type: "number",
+      numberFormat: "phone",
+      numberSuffix: "شماره موبایل",
       showIf: {
         parentQuestion:
           "آیا خط تبلیغاتی اختصاصی دارید؟ (منظور از خط تبلیغاتی خطی است که با استفاده از آن برای باشگاه مشتریان یا مشتریان عادی خود پیامک ارسال می‌کنید.)",
@@ -109,7 +116,10 @@ export const smsFormSurvey: SurveyConfig = {
     {
       id: 11,
       question: "لطفاً شماره این خط خود را وارد کنید.",
-      type: "text",
+      type: "number",
+      numberFormat: "phone",
+      numberSuffix: "شماره موبایل",
+      numberMin: 0,
       showIf: {
         parentQuestion:
           "آیا خط تبلیغاتی اختصاصی دارید؟ (منظور از خط تبلیغاتی خطی است که با استفاده از آن برای باشگاه مشتریان یا مشتریان عادی و مشتریانی که در لیست سیاه هستند، پیامک ارسال می‌کنید.)",
@@ -130,17 +140,27 @@ export const smsFormSurvey: SurveyConfig = {
     },
     {
       id: 14,
-      question: "آیا اطلاع دارید که تعداد کاربران همراه اول و ایرانسل شما چقدر است؟",
+      question:
+        "آیا اطلاع دارید که تعداد کاربران همراه اول و ایرانسل شما چقدر است؟",
       type: "radio",
       options: ["بله", "خیر"],
     },
     {
       id: 15,
       question: "تعداد کاربران هر اپراتور را به تفکیک وارد کنید.",
-      type: "textarea",
-      placeholder: "مثال:\nهمراه اول: 5000\nایرانسل: 3000",
+      type: "repeater",
+      repeaterFields: [
+        { key: "operator", type: "text", placeholder: "نام اپراتور" },
+        {
+          key: "count",
+          type: "number",
+          placeholder: "تعداد کاربران",
+          numberMin: 0,
+        },
+      ],
       showIf: {
-        parentQuestion: "آیا اطلاع دارید که تعداد کاربران همراه اول و ایرانسل شما چقدر است؟",
+        parentQuestion:
+          "آیا اطلاع دارید که تعداد کاربران همراه اول و ایرانسل شما چقدر است؟",
         equals: "بله",
       },
     },
@@ -167,7 +187,8 @@ export const smsFormSurvey: SurveyConfig = {
     },
     {
       id: 19,
-      question: "آیا پس از خرید یا تکمیل فرآیند خرید، به مشتری پیامک تأیید یا تشکر ارسال می‌شود؟",
+      question:
+        "آیا پس از خرید یا تکمیل فرآیند خرید، به مشتری پیامک تأیید یا تشکر ارسال می‌شود؟",
       type: "radio",
       options: ["بله", "خیر"],
     },
@@ -198,13 +219,15 @@ export const smsFormSurvey: SurveyConfig = {
     },
     {
       id: 23,
-      question: "آیا پاکنویس به دیتابیس‌های غیرمشتری (مثلاً دیتابیس خریداری‌شده) پیامک ارسال کرده‌اید؟",
+      question:
+        "آیا پاکنویس به دیتابیس‌های غیرمشتری (مثلاً دیتابیس خریداری‌شده) پیامک ارسال کرده‌اید؟",
       type: "radio",
       options: ["بله", "خیر"],
     },
     {
       id: 24,
-      question: "آیا تا به حال با یک برند، به صورت Co-Branding همکاری داشته‌اید؟",
+      question:
+        "آیا تا به حال با یک برند، به صورت Co-Branding همکاری داشته‌اید؟",
       type: "radio",
       options: ["بله", "خیر"],
     },
@@ -213,7 +236,8 @@ export const smsFormSurvey: SurveyConfig = {
       question: "نام برند را بنویسید.",
       type: "text",
       showIf: {
-        parentQuestion: "آیا تا به حال با یک برند، به صورت Co-Branding همکاری داشته‌اید؟",
+        parentQuestion:
+          "آیا تا به حال با یک برند، به صورت Co-Branding همکاری داشته‌اید؟",
         equals: "بله",
       },
     },
@@ -225,7 +249,8 @@ export const smsFormSurvey: SurveyConfig = {
     },
     {
       id: 27,
-      question: "کدام مناسبت‌های عمومی باید در برنامه‌ریزی و تقویم محتوایی این کانال پوشش داده شوند؟",
+      question:
+        "کدام مناسبت‌های عمومی باید در برنامه‌ریزی و تقویم محتوایی این کانال پوشش داده شوند؟",
       type: "checkbox",
       options: [...CHANNEL_EVENT_TYPE_OPTIONS],
     },

@@ -14,12 +14,8 @@ export const pushFormSurvey: SurveyConfig = {
     {
       id: 1,
       question: "چه نوع پوش نوتیفیکیشنی ارسال می‌کنید؟",
-      type: "checkbox",
-      options: [
-        "پوش نوتیفیکیشن وب",
-        "پوش نوتیفیکیشن اپ",
-        "هر دو",
-      ],
+      type: "radio",
+      options: ["پوش نوتیفیکیشن وب", "پوش نوتیفیکیشن اپ", "هر دو"],
     },
     {
       id: 2,
@@ -107,7 +103,15 @@ export const pushFormSurvey: SurveyConfig = {
       type: "checkbox",
       otherOption: "سایر",
       otherPlaceholder: "نام پنل را بنویسید",
-      options: ["نجوا", "فایربیس", "پوشه", "چابک", "تپسی‌پوش", "درون سازمانی"],
+      options: [
+        "نجوا",
+        "فایربیس",
+        "پوشه",
+        "چابک",
+        "تیزپوش",
+        "درون سازمانی",
+        "سایر",
+      ],
     },
     {
       id: 11,
@@ -136,7 +140,8 @@ export const pushFormSurvey: SurveyConfig = {
     },
     {
       id: 14,
-      question: "کدام مناسبت‌های عمومی باید در برنامه‌ریزی و تقویم محتوایی این کانال پوشش داده شوند؟",
+      question:
+        "کدام مناسبت‌های عمومی باید در برنامه‌ریزی و تقویم محتوایی این کانال پوشش داده شوند؟",
       type: "checkbox",
       options: [...CHANNEL_EVENT_TYPE_OPTIONS],
     },
@@ -144,7 +149,7 @@ export const pushFormSurvey: SurveyConfig = {
       id: 15,
       question:
         "اگر دیزاین یا تمپلیت یکپارچه و خاص در این کانال دارید، لینک یا توضیح نمونه مورد تأیید خود را بنویسید.",
-      type: "textarea",
+      type: "fileUpload",
       isAllowedEmpty: true,
     },
   ],

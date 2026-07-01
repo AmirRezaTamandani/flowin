@@ -11,6 +11,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import BrandVisualIdentityInput from "./BrandVisualIdentityInput";
+import FileUploadInput from "./FileUploadInput";
 import ShamsiDateInput from "./ShamsiDateInput";
 import NamedShamsiDatesInput from "./NamedShamsiDatesInput";
 import NumericInput, { isNumericStepValueValid } from "./NumericInput";
@@ -39,12 +40,41 @@ import {
   serializeGeoLocationValue,
 } from "../lib/geoLocation";
 import {
+  EMPTY_FILE_UPLOAD,
+  isFileUploadEmpty,
+  parseFileUploadValue,
+  serializeFileUploadValue,
+} from "../lib/fileUpload";
+import {
+  createEmptyRepeaterValue,
+  getRepeaterFields,
+  hasIncompleteRepeaterRows,
+  isRepeaterCellValid,
+  isRepeaterEmpty,
+  isRepeaterRowComplete,
+  parseRepeaterValue,
+  serializeRepeaterValue,
+} from "../lib/repeater";
+import {
+  countCompleteNestedRows,
+  createEmptyNestedRepeaterValue,
+  getNestedRepeaterConfig,
+  hasIncompleteNestedRepeaterRows,
+  hasInvalidNestedRepeaterCells,
+  hasInvalidNestedRepeaterUrls,
+  isNestedRepeaterEmpty,
+  parseNestedRepeaterValue,
+  serializeNestedRepeaterValue,
+} from "../lib/nestedRepeater";
+import {
   createEmptyPercentageAllocation,
   isPercentageAllocationEmpty,
   parsePercentageAllocationValue,
   serializePercentageAllocationValue,
 } from "../lib/percentageAllocation";
 import PercentageAllocationInput from "./PercentageAllocationInput";
+import RepeaterInput from "./RepeaterInput";
+import NestedRepeaterInput from "./NestedRepeaterInput";
 import {
   EMPTY_CHECKBOX_WITH_OTHER,
   getCheckboxSelections,
@@ -188,6 +218,17 @@ function buildDefaultValues(steps: SurveyStep[]): FormValues {
       values[fieldName(step.id)] = serializePercentageAllocationValue(
         createEmptyPercentageAllocation(step.options),
       );
+    } else if (step.type === "fileUpload") {
+      values[fieldName(step.id)] = serializeFileUploadValue(EMPTY_FILE_UPLOAD);
+    } else if (step.type === "repeater") {
+      values[fieldName(step.id)] = serializeRepeaterValue(
+        createEmptyRepeaterValue(getRepeaterFields(step)),
+      );
+    } else if (step.type === "nestedRepeater") {
+      const config = getNestedRepeaterConfig(step);
+      values[fieldName(step.id)] = config
+        ? serializeNestedRepeaterValue(createEmptyNestedRepeaterValue(config))
+        : "";
     } else {
       values[fieldName(step.id)] = "";
     }
@@ -264,13 +305,43 @@ function isStepEmpty(
       step.options,
     );
   }
+  if (step.type === "fileUpload") {
+    return isFileUploadEmpty(parseFileUploadValue(value));
+  }
+  if (step.type === "repeater") {
+    const fields = getRepeaterFields(step);
+    const parsed = parseRepeaterValue(value, fields);
+    if (hasIncompleteRepeaterRows(parsed, fields)) return true;
+    if (isRepeaterEmpty(parsed, fields)) return true;
+    const completeRows = parsed.rows.filter((row) => isRepeaterRowComplete(row, fields));
+    if (!completeRows.length) return true;
+    return completeRows.some((row) =>
+      fields.some((field) => !isRepeaterCellValid(field, row[field.key] ?? "")),
+    );
+  }
+  if (step.type === "nestedRepeater") {
+    const config = getNestedRepeaterConfig(step);
+    if (!config) return true;
+    const parsed = parseNestedRepeaterValue(value, config);
+    if (hasIncompleteNestedRepeaterRows(parsed, config)) return true;
+    if (isNestedRepeaterEmpty(parsed, config)) return true;
+    if (hasInvalidNestedRepeaterCells(parsed, config)) return true;
+    const completeCount = countCompleteNestedRows(parsed, config);
+    if (config.minRows !== undefined && completeCount < config.minRows) return true;
+    return false;
+  }
   if (step.type === "namedShamsiDates") {
     const parsed = parseNamedShamsiDatesValue(value);
     if (hasIncompleteNamedShamsiDates(parsed)) return true;
     return isNamedShamsiDatesEmpty(parsed);
   }
   if (step.type === "number") {
-    return !isNumericStepValueValid(value, step.numberMin, step.numberMax);
+    return !isNumericStepValueValid(
+      value,
+      step.numberMin,
+      step.numberMax,
+      step.numberFormat ?? "default",
+    );
   }
   return !value || (typeof value === "string" && !value.trim());
 }
@@ -298,6 +369,43 @@ function getStepValidationError(
   }
 
   if (step.isAllowedEmpty && isStepEmpty(step, value, steps ?? [], values ?? {})) return null;
+
+  if (step.type === "repeater") {
+    const fields = getRepeaterFields(step);
+    const parsed = parseRepeaterValue(value, fields);
+    const completeRows = parsed.rows.filter((row) => isRepeaterRowComplete(row, fields));
+    const hasInvalidUrl = completeRows.some((row) =>
+      fields.some(
+        (field) =>
+          field.type === "url" &&
+          Boolean(row[field.key]?.trim()) &&
+          !isRepeaterCellValid(field, row[field.key]),
+      ),
+    );
+    if (hasInvalidUrl) return INVALID_WEBSITE_URL_MESSAGE;
+  }
+
+  if (step.type === "nestedRepeater") {
+    const config = getNestedRepeaterConfig(step);
+    if (config) {
+      const parsed = parseNestedRepeaterValue(value, config);
+      if (hasInvalidNestedRepeaterUrls(parsed, config)) {
+        return INVALID_WEBSITE_URL_MESSAGE;
+      }
+      const completeCount = countCompleteNestedRows(parsed, config);
+      if (
+        config.minRows !== undefined &&
+        completeCount < config.minRows &&
+        !hasIncompleteNestedRepeaterRows(parsed, config)
+      ) {
+        return NESTED_REPEATER_MIN_ROWS_MESSAGE;
+      }
+      if (config.maxRows !== undefined && completeCount > config.maxRows) {
+        return NESTED_REPEATER_MAX_ROWS_MESSAGE;
+      }
+    }
+  }
+
   if (isStepEmpty(step, value, steps ?? [], values ?? {})) return EMPTY_ANSWER_MESSAGE;
   if (step.type === "url" && !isWebsiteUrlStepValueValid(value)) {
     return INVALID_WEBSITE_URL_MESSAGE;
@@ -314,6 +422,8 @@ function isStepAnswerValid(
 }
 
 const EMPTY_ANSWER_MESSAGE = "لطفاً این سوال را پاسخ دهید.";
+const NESTED_REPEATER_MIN_ROWS_MESSAGE = "حداقل ۲ رقیب با اطلاعات کامل وارد کنید.";
+const NESTED_REPEATER_MAX_ROWS_MESSAGE = "حداکثر ۱۰ رقیب مجاز است.";
 
 function StepField({
   step,
@@ -385,6 +495,7 @@ function StepField({
             min={step.numberMin}
             max={step.numberMax}
             allowDecimal={step.numberAllowDecimal}
+            format={step.numberFormat ?? "default"}
             hasError={hasError}
           />
         )}
@@ -559,6 +670,63 @@ function StepField({
             onChange={(next) =>
               field.onChange(serializePercentageAllocationValue(next))
             }
+            hasError={hasError}
+          />
+        )}
+      />
+    );
+  }
+
+  if (step.type === "fileUpload") {
+    return (
+      <Controller
+        name={name}
+        control={control}
+        render={({ field }) => (
+          <FileUploadInput
+            value={parseFileUploadValue(field.value)}
+            onChange={(next) => field.onChange(serializeFileUploadValue(next))}
+            hasError={hasError}
+            accept={step.fileAccept}
+            uploadHint={step.uploadHint}
+            descriptionPlaceholder={step.placeholder}
+            maxFiles={step.maxFiles}
+          />
+        )}
+      />
+    );
+  }
+
+  if (step.type === "repeater") {
+    const fields = getRepeaterFields(step);
+    return (
+      <Controller
+        name={name}
+        control={control}
+        render={({ field }) => (
+          <RepeaterInput
+            value={parseRepeaterValue(field.value, fields)}
+            onChange={(next) => field.onChange(serializeRepeaterValue(next))}
+            fields={fields}
+            hasError={hasError}
+          />
+        )}
+      />
+    );
+  }
+
+  if (step.type === "nestedRepeater") {
+    const config = getNestedRepeaterConfig(step);
+    if (!config) return null;
+    return (
+      <Controller
+        name={name}
+        control={control}
+        render={({ field }) => (
+          <NestedRepeaterInput
+            value={parseNestedRepeaterValue(field.value, config)}
+            onChange={(next) => field.onChange(serializeNestedRepeaterValue(next))}
+            config={config}
             hasError={hasError}
           />
         )}

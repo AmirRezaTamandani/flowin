@@ -1,4 +1,6 @@
 import type { CheckboxSubOptionsConfig } from "./checkboxWithSubOptions";
+import type { NestedRepeaterConfig } from "./nestedRepeater";
+import type { RepeaterFieldConfig } from "./repeater";
 import { brandFormSurvey } from "./brandForm";
 import { campaignFormSurvey } from "./campaignForm";
 import { emailFormSurvey } from "./emailForm";
@@ -18,7 +20,18 @@ export type SurveyStep = {
   id: number;
   page?: number;
   question: string;
-  type: "text" | "textarea" | "radio" | "select" | "checkbox" | "brandVisualIdentity" | "personaFields" | "percentageAllocation" | "geoLocation" | "shamsiDate" | "namedShamsiDates" | "number" | "url";
+  type: "text" | "textarea" | "radio" | "select" | "checkbox" | "brandVisualIdentity" | "personaFields" | "percentageAllocation" | "geoLocation" | "fileUpload" | "repeater" | "nestedRepeater" | "shamsiDate" | "namedShamsiDates" | "number" | "url";
+  /** MIME/extensions for `fileUpload` steps. */
+  fileAccept?: string;
+  uploadHint?: string;
+  /** Max files for `fileUpload` steps. Defaults to 5. */
+  maxFiles?: number;
+  /** Columns for `repeater` steps. */
+  repeaterFields?: RepeaterFieldConfig[];
+  /** Nested repeater config for competitor + social pages pattern. */
+  nestedRepeaterConfig?: NestedRepeaterConfig;
+  /** `number` steps: `phone` for mobile numbers, `default` for counts. */
+  numberFormat?: "default" | "phone";
   placeholder?: string;
   options?: string[];
   /** Suffix shown beside numeric input, e.g. "%" */
