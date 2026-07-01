@@ -123,15 +123,16 @@ export const socialStrategyFormSurvey: SurveyConfig = {
       id: 2,
       question:
         "مهم‌ترین شبکه‌های اجتماعی برای فعالیت شما کدام‌اند؟ لطفاً آن‌ها را به ترتیب اولویت مرتب کنید.",
-      type: "percentageAllocation",
-      options: [
-        "1. اینستاگرام",
-        "2. لینکدین",
-        "3. تلگرام",
-        "4. فیسبوک",
-        "5. یوتیوب",
-        "6. واتساپ",
-        "7. تیک‌تاک",
+      type: "repeater",
+      repeaterFields: [
+        { key: "platform", type: "text", placeholder: "نام پلتفرم" },
+        {
+          key: "priority",
+          type: "number",
+          placeholder: "اولویت",
+          numberMin: 1,
+          numberMax: 10,
+        },
       ],
     },
     {
@@ -144,7 +145,7 @@ export const socialStrategyFormSurvey: SurveyConfig = {
       id: 4,
       question:
         "اهداف اصلی شما از فعالیت در شبکه‌های اجتماعی، به‌ترتیب اهمیت و اولویت، کدام‌اند؟ (حداکثر ۴ گزینه انتخاب کنید)",
-      type: "checkbox",
+      type: "percentageAllocation",
       options: [...SOCIAL_MEDIA_GOALS_OPTIONS],
     },
     {
@@ -152,8 +153,17 @@ export const socialStrategyFormSurvey: SurveyConfig = {
       id: 5,
       question:
         "محصولات یا خدماتی که می‌خواهید در ماه آینده تمرکز محتوایی بیشتری روی آن‌ها داشته باشیم کدام‌اند؟ لطفاً برای هر مورد، سهم تقریبی آن از محتوای ماه آینده را مشخص کنید. مجموع درصدها باید ۱۰۰٪ باشد.",
-      type: "percentageAllocation",
-      options: ["1. محصول الف", "2. خدمت ب", "3. برند فرعی ج"],
+      type: "repeater",
+      repeaterFields: [
+        { key: "product", type: "text", placeholder: "نام محصول" },
+        {
+          key: "percentage",
+          type: "number",
+          placeholder: "درصد",
+          numberMin: 0,
+          numberMax: 100,
+        },
+      ],
     },
     {
       id: 6,
