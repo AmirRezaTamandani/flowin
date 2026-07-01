@@ -31,9 +31,19 @@ export type CheckboxWithSubOptionsAnswer = {
 };
 
 export type BrandVisualIdentityAnswer = {
-  logo: { name: string; fileId?: string; url?: string; dataUrl?: string } | null;
+  logo: {
+    name: string;
+    fileId?: string;
+    url?: string;
+    dataUrl?: string;
+  } | null;
   colors: string[];
-  font: { name: string; fileId?: string; url?: string; dataUrl?: string } | null;
+  font: {
+    name: string;
+    fileId?: string;
+    url?: string;
+    dataUrl?: string;
+  } | null;
 };
 
 export type PersonaFieldsAnswer = {
@@ -58,7 +68,12 @@ export type PercentageAllocationAnswer = Record<string, number>;
 
 export type FileUploadAnswer = {
   description: string;
-  files: Array<{ name: string; fileId?: string; url?: string; dataUrl?: string }>;
+  files: Array<{
+    name: string;
+    fileId?: string;
+    url?: string;
+    dataUrl?: string;
+  }>;
 };
 
 export type ParsedAnswerValue =
