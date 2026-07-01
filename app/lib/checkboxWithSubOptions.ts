@@ -4,16 +4,20 @@ export type CheckboxSubOptionsConfig = {
   parentOption: string;
   label?: string;
   options: string[];
+  otherOption?: string;
+  otherPlaceholder?: string;
 };
 
 export type CheckboxWithSubOptionsValue = {
   selected: string[];
   subSelections: Record<string, string[]>;
+  subOther: Record<string, string>;
 };
 
 export const EMPTY_CHECKBOX_WITH_SUB_OPTIONS: CheckboxWithSubOptionsValue = {
   selected: [],
   subSelections: {},
+  subOther: {},
 };
 
 function parsePlainCheckboxValue(value: string | string[] | undefined): string[] {
@@ -65,6 +69,15 @@ export function parseCheckboxStepValueWithSubs(
               ]),
             )
           : {},
+      subOther:
+        parsed.subOther && typeof parsed.subOther === "object"
+          ? Object.fromEntries(
+              Object.entries(parsed.subOther).map(([key, text]) => [
+                key,
+                typeof text === "string" ? text : "",
+              ]),
+            )
+          : {},
     };
   } catch {
     return { ...EMPTY_CHECKBOX_WITH_SUB_OPTIONS };
@@ -89,10 +102,17 @@ export function hasInvalidCheckboxSubSelections(
   step: SurveyStep,
   value: CheckboxWithSubOptionsValue,
 ): boolean {
-  for (const { parentOption } of getCheckboxSubOptionConfigs(step)) {
-    if (!value.selected.includes(parentOption)) continue;
-    const subSelected = value.subSelections[parentOption] ?? [];
+  for (const config of getCheckboxSubOptionConfigs(step)) {
+    if (!value.selected.includes(config.parentOption)) continue;
+    const subSelected = value.subSelections[config.parentOption] ?? [];
     if (subSelected.length === 0) return true;
+    if (
+      config.otherOption &&
+      subSelected.includes(config.otherOption) &&
+      !(value.subOther[config.parentOption] ?? "").trim()
+    ) {
+      return true;
+    }
   }
   return false;
 }

@@ -77,18 +77,20 @@ export const pushFormSurvey: SurveyConfig = {
       id: 8,
       question: "با چه سرویسی ارسال می‌کنید؟",
       type: "checkbox",
-      otherOption: "سایر",
-      otherPlaceholder: "نام سرویس را بنویسید",
-      options: [
-        "نجوا",
-        "پوشه",
-        "تپسی‌پوش",
-        "OneSignal",
-        "PushEngage",
-        "Firebase",
-        "چابک",
-        "فایربیس",
-        "درون سازمانی",
+      options: ["سرویس های خارجی", "سرویس های ایرانی"],
+      checkboxSubOptions: [
+        {
+          parentOption: "سرویس های خارجی",
+          options: ["نجوا", "پوشه", "تیزپوش", "سایر"],
+          otherOption: "سایر",
+          otherPlaceholder: "نام سرویس را بنویسید",
+        },
+        {
+          parentOption: "سرویس های ایرانی",
+          options: ["OneSignal", "PushEngage", "Firebase", "سایر"],
+          otherOption: "سایر",
+          otherPlaceholder: "نام سرویس را بنویسید",
+        },
       ],
     },
     {

@@ -755,21 +755,41 @@ function StepField({
 
           function updateSelected(nextSelected: string[]) {
             const nextSubSelections = { ...value.subSelections };
+            const nextSubOther = { ...value.subOther };
             for (const config of subConfigs) {
               if (!nextSelected.includes(config.parentOption)) {
                 delete nextSubSelections[config.parentOption];
+                delete nextSubOther[config.parentOption];
               }
             }
-            updateValue({ selected: nextSelected, subSelections: nextSubSelections });
+            updateValue({
+              selected: nextSelected,
+              subSelections: nextSubSelections,
+              subOther: nextSubOther,
+            });
           }
 
           function updateSubSelected(parentOption: string, nextSubSelected: string[]) {
+            const subConfig = subConfigByParent[parentOption];
+            const nextSubOther = { ...value.subOther };
+            if (subConfig?.otherOption && !nextSubSelected.includes(subConfig.otherOption)) {
+              nextSubOther[parentOption] = "";
+            }
             updateValue({
               selected,
               subSelections: {
                 ...value.subSelections,
                 [parentOption]: nextSubSelected,
               },
+              subOther: nextSubOther,
+            });
+          }
+
+          function updateSubOther(parentOption: string, text: string) {
+            updateValue({
+              selected,
+              subSelections: value.subSelections,
+              subOther: { ...value.subOther, [parentOption]: text },
             });
           }
 
@@ -820,28 +840,49 @@ function StepField({
                           <div className="flex flex-col gap-1">
                             {subConfig.options.map((subOption) => {
                               const subChecked = subSelected.includes(subOption);
+                              const showSubOtherInput =
+                                subConfig.otherOption &&
+                                subOption === subConfig.otherOption &&
+                                subChecked;
                               return (
-                                <Label
-                                  key={subOption}
-                                  className={cn(
-                                    "flex cursor-pointer items-start gap-3 rounded-md p-2 hover:bg-muted/50",
-                                    subChecked && "bg-primary/10",
-                                  )}
-                                >
-                                  <Checkbox
-                                    checked={subChecked}
-                                    onCheckedChange={(isChecked) => {
-                                      const next = isChecked
-                                        ? [...subSelected, subOption]
-                                        : subSelected.filter((item) => item !== subOption);
-                                      updateSubSelected(subConfig.parentOption, next);
-                                    }}
-                                    className="mt-0.5"
-                                  />
-                                  <span className="checkbox-label text-sm leading-6 text-foreground">
-                                    {subOption}
-                                  </span>
-                                </Label>
+                                <div key={subOption}>
+                                  <Label
+                                    className={cn(
+                                      "flex cursor-pointer items-start gap-3 rounded-md p-2 hover:bg-muted/50",
+                                      subChecked && "bg-primary/10",
+                                    )}
+                                  >
+                                    <Checkbox
+                                      checked={subChecked}
+                                      onCheckedChange={(isChecked) => {
+                                        const next = isChecked
+                                          ? [...subSelected, subOption]
+                                          : subSelected.filter((item) => item !== subOption);
+                                        updateSubSelected(subConfig.parentOption, next);
+                                      }}
+                                      className="mt-0.5"
+                                    />
+                                    <span className="checkbox-label text-sm leading-6 text-foreground">
+                                      {subOption}
+                                    </span>
+                                  </Label>
+                                  {showSubOtherInput ? (
+                                    <Input
+                                      value={value.subOther[subConfig.parentOption] ?? ""}
+                                      onChange={(event) =>
+                                        updateSubOther(subConfig.parentOption, event.target.value)
+                                      }
+                                      placeholder={
+                                        subConfig.otherPlaceholder || "توضیح دهید"
+                                      }
+                                      aria-invalid={hasError}
+                                      className={cn(
+                                        "mr-7 mt-1 mb-2 h-11 bg-white text-base text-foreground",
+                                        hasError && "border-destructive",
+                                      )}
+                                    />
+                                  ) : null}
+                                </div>
                               );
                             })}
                           </div>
