@@ -35,7 +35,7 @@ function GeoSelect({
 }) {
   return (
     <div className="flex flex-col gap-2">
-      <Label htmlFor={id} className="text-sm font-medium text-foreground">
+      <Label htmlFor={id} className="font-medium text-foreground text-sm">
         {label}
       </Label>
       <select
@@ -45,7 +45,7 @@ function GeoSelect({
         onChange={(event) => onChange(event.target.value)}
         aria-invalid={hasError}
         className={cn(
-          "h-11 w-full rounded-lg border border-input bg-white px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50",
+          "bg-white disabled:opacity-50 px-3 border border-input focus-visible:border-ring rounded-lg outline-none focus-visible:ring-3 focus-visible:ring-ring/50 w-full h-11 text-base disabled:cursor-not-allowed",
           hasError && "border-destructive ring-destructive/20",
         )}
       >
@@ -81,16 +81,19 @@ function GeoLocationRow({
       ? "سایر"
       : "";
   const showCustomCountry = countrySelectValue === "سایر";
-  const customCountry = showCustomCountry && !isKnownCountry(entry.country) ? entry.country : "";
+  const customCountry =
+    showCustomCountry && !isKnownCountry(entry.country) ? entry.country : "";
 
   function updateCountry(next: string) {
     onChange({ country: next, province: "", city: "" });
   }
 
   return (
-    <div className="rounded-xl border border-input bg-white p-4">
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <p className="text-sm font-semibold text-foreground">موقعیت {index + 1}</p>
+    <div className="bg-white p-4 border border-input rounded-xl">
+      <div className="flex justify-between items-center gap-3 mb-4">
+        <p className="font-semibold text-foreground text-sm">
+          موقعیت {index + 1}
+        </p>
         {canRemove ? (
           <Button
             type="button"
@@ -116,7 +119,10 @@ function GeoLocationRow({
 
         {showCustomCountry ? (
           <div className="flex flex-col gap-2">
-            <Label htmlFor={`geo-custom-country-${index}`} className="text-sm font-medium text-foreground">
+            <Label
+              htmlFor={`geo-custom-country-${index}`}
+              className="font-medium text-foreground text-sm"
+            >
               نام کشور
             </Label>
             <Input
@@ -131,7 +137,10 @@ function GeoLocationRow({
               }
               placeholder="نام کشور را وارد کنید"
               aria-invalid={hasError}
-              className={cn("h-11 bg-white text-base", hasError && "border-destructive")}
+              className={cn(
+                "bg-white h-11 text-base",
+                hasError && "border-destructive",
+              )}
             />
           </div>
         ) : null}
@@ -148,7 +157,10 @@ function GeoLocationRow({
           />
         ) : (
           <div className="flex flex-col gap-2">
-            <Label htmlFor={`geo-province-${index}`} className="text-sm font-medium text-foreground">
+            <Label
+              htmlFor={`geo-province-${index}`}
+              className="font-medium text-foreground text-sm"
+            >
               استان / ایالت
             </Label>
             <Input
@@ -158,13 +170,19 @@ function GeoLocationRow({
               placeholder="استان یا ایالت"
               disabled={!entry.country || entry.country === "سایر"}
               aria-invalid={hasError}
-              className={cn("h-11 bg-white text-base", hasError && "border-destructive")}
+              className={cn(
+                "bg-white h-11 text-base",
+                hasError && "border-destructive",
+              )}
             />
           </div>
         )}
 
         <div className="flex flex-col gap-2">
-          <Label htmlFor={`geo-city-${index}`} className="text-sm font-medium text-foreground">
+          <Label
+            htmlFor={`geo-city-${index}`}
+            className="font-medium text-foreground text-sm"
+          >
             شهر
           </Label>
           <Input
@@ -174,7 +192,10 @@ function GeoLocationRow({
             placeholder="شهر"
             disabled={!entry.province}
             aria-invalid={hasError}
-            className={cn("h-11 bg-white text-base", hasError && "border-destructive")}
+            className={cn(
+              "bg-white h-11 text-base",
+              hasError && "border-destructive",
+            )}
           />
         </div>
       </div>
@@ -209,7 +230,11 @@ export default function GeoLocationInput({
       onChange({ locations: [{ ...EMPTY_GEO_LOCATION_ENTRY }] });
       return;
     }
-    onChange({ locations: value.locations.filter((_, entryIndex) => entryIndex !== index) });
+    onChange({
+      locations: value.locations.filter(
+        (_, entryIndex) => entryIndex !== index,
+      ),
+    });
   }
 
   return (
@@ -235,7 +260,7 @@ export default function GeoLocationInput({
         type="button"
         variant="outline"
         onClick={addLocation}
-        className="h-10 w-full rounded-xl font-semibold"
+        className="rounded-xl w-full h-10 font-semibold"
       >
         <Plus className="size-4" />
         افزودن موقعیت دیگر

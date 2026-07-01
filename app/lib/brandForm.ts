@@ -45,7 +45,8 @@ export const brandFormSurvey: SurveyConfig = {
       id: 5,
       page: 1,
       question: "حوزه اصلی کسب‌وکار شما چیست؟",
-      type: "radio",
+      type: "checkbox",
+      checkboxMaxSelections: 5,
       options: [
         "زیبایی، آرایشی و مراقبت شخصی",
         "مد، پوشاک و پوشیدنی‌ها",
@@ -298,13 +299,13 @@ export const brandFormSurvey: SurveyConfig = {
       page: 2,
       question:
         "سودآورترین محصول یا خدمت شما چیست؟ نام ببرید یا لینک محصول را قرار دهید.",
-      type: "text",
+      type: "textarea",
     },
     {
       id: 15,
       page: 2,
       question:
-        "مهم‌ترین زمان فروش برای کسب‌و‌کار شما در سال کدام یک از موقعیت‌های زیر است؟ به ترتیب اولویت بچینید.",
+        "مهم‌ترین زمان فروش برای کسب‌و‌کار شما در سال کدام یک از موقعیت‌های زیر است؟.",
       otherOption: "سایر",
       otherPlaceholder: "موضوع مورد نظر خود را بنویسید",
       type: "checkbox",

@@ -9,7 +9,7 @@ import {
   type RepeaterFieldConfig,
   type RepeaterValue,
 } from "../lib/repeater";
-import { RepeaterFieldCell } from "./RepeaterFieldCell";
+import { RepeaterFieldCell, RepeaterFieldLabel } from "./RepeaterFieldCell";
 
 export default function RepeaterInput({
   value,
@@ -22,6 +22,8 @@ export default function RepeaterInput({
   fields: RepeaterFieldConfig[];
   hasError?: boolean;
 }) {
+  const hasLabels = fields.some((field) => field.label);
+
   function updateRow(index: number, key: string, next: string) {
     onChange({
       rows: value.rows.map((row, rowIndex) =>
@@ -44,6 +46,31 @@ export default function RepeaterInput({
     onChange({ rows: value.rows.filter((_, rowIndex) => rowIndex !== index) });
   }
 
+  const rowControls = (index: number) => (
+    <div className="flex shrink-0 items-center gap-1.5">
+      <Button
+        type="button"
+        variant="secondary"
+        size="icon"
+        className="size-9 rounded-full"
+        onClick={() => removeRow(index)}
+        aria-label={`حذف ردیف ${index + 1}`}
+      >
+        <Minus className="size-4" />
+      </Button>
+      <Button
+        type="button"
+        variant="secondary"
+        size="icon"
+        className="size-9 rounded-full"
+        onClick={() => addRowAfter(index)}
+        aria-label="افزودن ردیف"
+      >
+        <Plus className="size-4" />
+      </Button>
+    </div>
+  );
+
   return (
     <div
       className={cn(
@@ -51,44 +78,53 @@ export default function RepeaterInput({
         hasError && "rounded-xl border border-destructive p-3",
       )}
     >
-      {value.rows.map((row, index) => (
-        <div key={`repeater-row-${index}`} className="flex items-center gap-2">
-          <div className="flex shrink-0 items-center gap-1.5">
-            <Button
-              type="button"
-              variant="secondary"
-              size="icon"
-              className="size-9 rounded-full"
-              onClick={() => removeRow(index)}
-              aria-label={`حذف ردیف ${index + 1}`}
-            >
-              <Minus className="size-4" />
-            </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              size="icon"
-              className="size-9 rounded-full"
-              onClick={() => addRowAfter(index)}
-              aria-label="افزودن ردیف"
-            >
-              <Plus className="size-4" />
-            </Button>
+      {value.rows.map((row, index) =>
+        hasLabels ? (
+          <div
+            key={`repeater-row-${index}`}
+            className="rounded-xl border border-input bg-white p-4"
+          >
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <p className="text-sm font-semibold text-foreground">فرد {index + 1}</p>
+              {rowControls(index)}
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {fields.map((field) => {
+                const fieldId = `repeater-${index}-${field.key}`;
+                return (
+                  <div key={field.key}>
+                    <RepeaterFieldLabel field={field} htmlFor={fieldId} />
+                    <RepeaterFieldCell
+                      field={field}
+                      id={fieldId}
+                      row={row}
+                      value={row[field.key] ?? ""}
+                      onChange={(next) => updateRow(index, field.key, next)}
+                      hasError={hasError}
+                    />
+                  </div>
+                );
+              })}
+            </div>
           </div>
-
-          {fields.map((field, fieldIndex) => (
-            <RepeaterFieldCell
-              key={field.key}
-              field={field}
-              id={`repeater-${index}-${field.key}`}
-              value={row[field.key] ?? ""}
-              onChange={(next) => updateRow(index, field.key, next)}
-              hasError={hasError}
-              className={fieldIndex === 0 ? "flex-[2]" : "flex-[3]"}
-            />
-          ))}
-        </div>
-      ))}
+        ) : (
+          <div key={`repeater-row-${index}`} className="flex items-center gap-2">
+            {rowControls(index)}
+            {fields.map((field, fieldIndex) => (
+              <RepeaterFieldCell
+                key={field.key}
+                field={field}
+                id={`repeater-${index}-${field.key}`}
+                row={row}
+                value={row[field.key] ?? ""}
+                onChange={(next) => updateRow(index, field.key, next)}
+                hasError={hasError}
+                className={fieldIndex === 0 ? "flex-[2]" : "flex-[3]"}
+              />
+            ))}
+          </div>
+        ),
+      )}
     </div>
   );
 }

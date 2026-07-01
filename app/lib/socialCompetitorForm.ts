@@ -3,17 +3,15 @@ import type { SurveyConfig } from "./surveys";
 import { SOCIAL_PLATFORM_OPTIONS } from "./socialPlatforms";
 
 const SOCIAL_COMPETITOR_ANALYZE_GOAL_OPTIONS = [
-  "پیدا کردن ایده محتوا",
+  "پیدا کردن ایده محتوا و شناخت راه‌های ایجاد تمایز",
 
-  "شناسایی نقاط ضعف رقبا",
-
-  "پیدا کردن فرصت‌های تمایز در محتوا",
+  "مقایسه جایگاه برند با رقبا و شناسایی نقاط ضعف و قوت",
 
   "پیدا کردن ترندهای صنعت",
 
-  "مقایسه جایگاه برند با رقبا",
-
   "پیدا کردن الگوی فعالیت مناسب برند",
+
+  "پیدا کردن محتواهای موفق رقبا و کشف علت آن (بازدید، تعامل، فالوور و ...)",
 ] as const;
 
 const COMPETITORS_SOCIAL_LACKS_OPTIONS = [

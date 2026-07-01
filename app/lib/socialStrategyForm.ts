@@ -97,6 +97,16 @@ const CONTENT_ASSETS_OPTIONS = [
   "ابزار طراحی و ویرایش آنلاین",
 ] as const;
 
+const CONTENT_PROCESS_ROLE_OPTIONS = [
+  "تولید محتوا",
+  "تأیید محتوا",
+  "تأمین ایده / اطلاعات تخصصی محتوا",
+  "بازبینی حقوقی",
+  "مدیریت برند",
+  "انتشار محتوا",
+  "تحلیل و گزارش‌گیری",
+] as const;
+
 export const socialStrategyFormSurvey: SurveyConfig = {
   id: "social-strategy",
   label: "استراتژی و کلندر سوشال",
@@ -270,7 +280,17 @@ export const socialStrategyFormSurvey: SurveyConfig = {
       id: 13,
       question:
         "چه موضوعات یا ستون‌های محتوایی باید حتماً در محتوای شما پوشش داده شوند؟ لطفاً آن‌ها را به ترتیب اهمیت بنویسید و سهم هرکدام از محتوای ماه آینده را مشخص کنید. مجموع درصدها بهتر است به ۱۰۰٪ نزدیک باشد.",
-      type: "percentageAllocation",
+      type: "repeater",
+      repeaterFields: [
+        { key: "topic", type: "text", placeholder: "نام موضوع" },
+        {
+          key: "percentage",
+          type: "number",
+          placeholder: "درصد",
+          numberMin: 0,
+          numberMax: 100,
+        },
+      ],
       options: [
         "1. معرفی محصولات/خدمات",
         "2. مزیت رقابتی",
@@ -283,9 +303,13 @@ export const socialStrategyFormSurvey: SurveyConfig = {
       id: 14,
       question:
         "لینک حداکثر ۵ نمونه از محتواهایی که فکر می‌کنید در ۳ ماه اخیر عملکرد خوبی داشته‌اند یا شخصاً از نتیجه آن‌ها راضی بوده‌اید را ارسال کنید.",
-      type: "textarea",
-      placeholder:
-        "هر نمونه در یک خط:\nپلتفرم | لینک | دلیل انتخاب (اختیاری)\nمثال:\nاینستاگرام | https://instagram.com/p/... | تعامل بالا",
+      type: "repeater",
+      repeaterFields: [
+        { key: "platform", type: "text", placeholder: "نام پلتفرم" },
+        { key: "url", type: "url", placeholder: "لینک" },
+        { key: "reason", type: "text", placeholder: "دلیل انتخاب" },
+      ],
+
       isAllowedEmpty: true,
     },
     {
@@ -298,9 +322,22 @@ export const socialStrategyFormSurvey: SurveyConfig = {
       id: 16,
       question:
         "چه افرادی از سمت مجموعه در تولید یا تأیید محتوا مشارکت خواهند داشت؟",
-      type: "textarea",
-      placeholder:
-        "هر فرد در یک خط:\nنام یا سمت | نقش در فرآیند محتوا\nگزینه‌های نقش: تولید محتوا، تأیید محتوا، تأمین ایده/اطلاعات تخصصی محتوا، بازبینی حقوقی، مدیریت برند، انتشار محتوا، تحلیل و گزارش‌گیری\nمثال:\nمدیر بازاریابی | تأیید محتوا",
+      type: "repeater",
+      repeaterFields: [
+        {
+          key: "title",
+          type: "text",
+          label: "سمت",
+          placeholder: "مثال: مدیر بازاریابی",
+        },
+        {
+          key: "role",
+          type: "select",
+          label: "نقش در فرایند محتوا",
+          placeholder: "انتخاب کنید",
+          options: [...CONTENT_PROCESS_ROLE_OPTIONS],
+        },
+      ],
     },
   ],
 };
