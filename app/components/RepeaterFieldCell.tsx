@@ -4,7 +4,8 @@ import React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import type { RepeaterFieldConfig } from "../lib/repeater";
+import type { RepeaterFieldConfig, RepeaterRow } from "../lib/repeater";
+import { resolveRepeaterSelectOptions } from "../lib/repeater";
 import NumericInput from "./NumericInput";
 
 export function RepeaterFieldCell({
@@ -14,6 +15,7 @@ export function RepeaterFieldCell({
   id,
   hasError,
   className,
+  row,
 }: {
   field: RepeaterFieldConfig;
   value: string;
@@ -21,6 +23,7 @@ export function RepeaterFieldCell({
   id: string;
   hasError?: boolean;
   className?: string;
+  row?: RepeaterRow;
 }) {
   if (field.type === "number") {
     return (
@@ -60,6 +63,7 @@ export function RepeaterFieldCell({
   }
 
   if (field.type === "select") {
+    const options = row ? resolveRepeaterSelectOptions(field, row) : (field.options ?? []);
     return (
       <div className={cn("min-w-0", className)}>
         <select
@@ -73,7 +77,7 @@ export function RepeaterFieldCell({
           )}
         >
           <option value="">{field.placeholder || "انتخاب کنید"}</option>
-          {field.options?.map((option) => (
+          {options.map((option) => (
             <option key={option} value={option}>
               {option}
             </option>

@@ -1,25 +1,15 @@
 import type { SurveyConfig } from "./surveys";
+import {
+  CONTENT_TIME_PERIOD_OPTIONS,
+  CONTENT_TYPE_BASE_OPTIONS,
+  SOCIAL_PLATFORM_OPTIONS,
+  STORY_CAPABLE_PLATFORMS,
+} from "./socialPlatforms";
 
-const INTENDED_SOCIAL_PLATFORMS_OPTIONS = [
-  "اینستاگرام",
-  "فیسبوک",
-  "یوتیوب",
-  "واتساپ",
-  "تلگرام",
-  "تیک‌تاک",
-  "ایکس (توئیتر)",
-  "لینکدین",
-  "پینترست",
-  "دیسکورد",
-  "توئیچ",
-  "تردز",
-  "روبیکا",
-  "بله",
-  "ایتا",
-  "سروش‌پلاس",
-  "آپارات",
-  "ردیت",
-] as const;
+const INTENDED_SOCIAL_PLATFORMS_QUESTION =
+  "قصد دارید روی کدام شبکه‌های اجتماعی فعالیت داشته باشید؟";
+
+const INTENDED_SOCIAL_PLATFORMS_OPTIONS = SOCIAL_PLATFORM_OPTIONS;
 
 const PLATFORM_ACTIVITY_STATUS_OPTIONS = [
   "فعال و منظم",
@@ -115,7 +105,7 @@ export const socialStrategyFormSurvey: SurveyConfig = {
   steps: [
     {
       id: 1,
-      question: "قصد دارید روی کدام شبکه‌های اجتماعی فعالیت داشته باشید؟",
+      question: INTENDED_SOCIAL_PLATFORMS_QUESTION,
       type: "checkbox",
       options: [...INTENDED_SOCIAL_PLATFORMS_OPTIONS],
     },
@@ -155,7 +145,7 @@ export const socialStrategyFormSurvey: SurveyConfig = {
         },
       ],
       repeaterSyncFromParent: {
-        parentQuestion: "قصد دارید روی کدام شبکه‌های اجتماعی فعالیت داشته باشید؟",
+        parentQuestion: INTENDED_SOCIAL_PLATFORMS_QUESTION,
         platformFieldKey: "platform",
       },
     },
@@ -201,10 +191,51 @@ export const socialStrategyFormSurvey: SurveyConfig = {
       id: 8,
       question:
         "بر اساس تجربیات قبلی شما، چه الگویی برای انتشار محتوا بهترین نتیجه را داشته است؟",
-      type: "textarea",
-      placeholder:
-        "هر الگو در یک خط:\nپلتفرم | نوع محتوا | تعداد | بازه زمانی\nمثال:\nاینستاگرام | پست | 3 | هفته\nاینستاگرام | استوری | 5 | هفته",
+      type: "repeater",
       isAllowedEmpty: true,
+      repeaterFields: [
+        {
+          key: "platform",
+          type: "text",
+          label: "پلتفرم",
+          readOnly: true,
+        },
+        {
+          key: "contentType",
+          type: "select",
+          label: "نوع محتوا",
+          placeholder: "انتخاب کنید",
+          options: [...CONTENT_TYPE_BASE_OPTIONS],
+          conditionalOptions: {
+            dependsOnKey: "platform",
+            extraOptions: [
+              {
+                option: "استوری",
+                whenDependsOnIncludes: [...STORY_CAPABLE_PLATFORMS],
+                insertAfter: "پست",
+              },
+            ],
+          },
+        },
+        {
+          key: "count",
+          type: "number",
+          label: "تعداد",
+          placeholder: "تعداد محتوا",
+          numberMin: 0,
+        },
+        {
+          key: "timePeriod",
+          type: "select",
+          label: "بازه زمانی",
+          placeholder: "انتخاب کنید",
+          options: [...CONTENT_TIME_PERIOD_OPTIONS],
+        },
+      ],
+      repeaterSyncFromParent: {
+        parentQuestion: INTENDED_SOCIAL_PLATFORMS_QUESTION,
+        platformFieldKey: "platform",
+      },
     },
     {
       id: 9,
@@ -232,6 +263,7 @@ export const socialStrategyFormSurvey: SurveyConfig = {
       question:
         "سه ویژگی اصلی که دوست دارید مخاطبان پس از مشاهده محتوای شما به برندتان نسبت دهند چیست؟ (حداکثر ۳ گزینه)",
       type: "checkbox",
+  
       options: [...DESIRED_BRAND_PERCEPTION_OPTIONS],
     },
     {

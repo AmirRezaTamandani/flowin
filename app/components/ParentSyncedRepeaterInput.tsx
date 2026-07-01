@@ -6,6 +6,7 @@ import {
   type RepeaterFieldConfig,
   type RepeaterSyncFromParentConfig,
   type RepeaterValue,
+  sanitizeRepeaterRowSelectValues,
   syncRepeaterWithParentPlatforms,
 } from "../lib/repeater";
 import { RepeaterFieldCell, RepeaterFieldLabel } from "./RepeaterFieldCell";
@@ -46,9 +47,14 @@ export default function ParentSyncedRepeaterInput({
 
   function updateRow(index: number, key: string, next: string) {
     onChange({
-      rows: value.rows.map((row, rowIndex) =>
-        rowIndex === index ? { ...row, [key]: next } : row,
-      ),
+      rows: value.rows.map((row, rowIndex) => {
+        if (rowIndex !== index) return row;
+        const updated = sanitizeRepeaterRowSelectValues(
+          { ...row, [key]: next },
+          fields,
+        );
+        return updated;
+      }),
     });
   }
 
@@ -70,7 +76,7 @@ export default function ParentSyncedRepeaterInput({
       {value.rows.map((row, index) => (
         <div
           key={`${row[syncConfig.platformFieldKey]}-${index}`}
-          className="grid gap-3 sm:grid-cols-2"
+          className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
         >
           {fields.map((field) => {
             const fieldId = `synced-repeater-${index}-${field.key}`;
@@ -80,6 +86,7 @@ export default function ParentSyncedRepeaterInput({
                 <RepeaterFieldCell
                   field={field}
                   id={fieldId}
+                  row={row}
                   value={row[field.key] ?? ""}
                   onChange={(next) => updateRow(index, field.key, next)}
                   hasError={hasError}

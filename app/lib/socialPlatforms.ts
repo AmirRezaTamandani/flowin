@@ -18,3 +18,16 @@ export const SOCIAL_PLATFORM_OPTIONS = [
   "آپارات",
   "ردیت",
 ] as const;
+
+/** Platforms that support story-style content in social strategy forms. */
+export const STORY_CAPABLE_PLATFORMS = [
+  "اینستاگرام",
+  "تلگرام",
+  "واتساپ",
+  "روبیکا",
+  "بله",
+] as const;
+
+export const CONTENT_TYPE_BASE_OPTIONS = ["پست", "لایو"] as const;
+
+export const CONTENT_TIME_PERIOD_OPTIONS = ["روز", "هفته", "ماه"] as const;

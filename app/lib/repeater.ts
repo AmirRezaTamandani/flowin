@@ -1,12 +1,22 @@
 import { isPhoneStepValueValid } from "./phoneValidation";
 import { isValidWebsiteUrl } from "./urlValidation";
 
+export type RepeaterConditionalOption = {
+  option: string;
+  whenDependsOnIncludes: string[];
+  insertAfter?: string;
+};
+
 export type RepeaterFieldConfig = {
   key: string;
   label?: string;
   type: "text" | "number" | "url" | "select";
   placeholder?: string;
   options?: string[];
+  conditionalOptions?: {
+    dependsOnKey: string;
+    extraOptions: RepeaterConditionalOption[];
+  };
   numberMin?: number;
   numberMax?: number;
   numberFormat?: "default" | "phone";
@@ -18,7 +28,51 @@ export type RepeaterSyncFromParentConfig = {
   platformFieldKey: string;
 };
 
-export function isRepeaterCellValid(field: RepeaterFieldConfig, value: string): boolean {
+export function resolveRepeaterSelectOptions(
+  field: RepeaterFieldConfig,
+  row: RepeaterRow,
+): string[] {
+  let options = [...(field.options ?? [])];
+  if (!field.conditionalOptions) return options;
+
+  const dependsOnValue = row[field.conditionalOptions.dependsOnKey] ?? "";
+  for (const extra of field.conditionalOptions.extraOptions) {
+    if (!extra.whenDependsOnIncludes.includes(dependsOnValue)) continue;
+    if (options.includes(extra.option)) continue;
+
+    const anchorIndex = extra.insertAfter
+      ? options.indexOf(extra.insertAfter)
+      : options.length - 1;
+    if (anchorIndex >= 0) {
+      options.splice(anchorIndex + 1, 0, extra.option);
+    } else {
+      options.push(extra.option);
+    }
+  }
+
+  return options;
+}
+
+export function sanitizeRepeaterRowSelectValues(
+  row: RepeaterRow,
+  fields: RepeaterFieldConfig[],
+): RepeaterRow {
+  const next = { ...row };
+  for (const field of fields) {
+    if (field.type !== "select") continue;
+    const options = resolveRepeaterSelectOptions(field, row);
+    if (next[field.key] && !options.includes(next[field.key])) {
+      next[field.key] = "";
+    }
+  }
+  return next;
+}
+
+export function isRepeaterCellValid(
+  field: RepeaterFieldConfig,
+  value: string,
+  row?: RepeaterRow,
+): boolean {
   const trimmed = value.trim();
   if (!trimmed) return false;
 
@@ -33,8 +87,10 @@ export function isRepeaterCellValid(field: RepeaterFieldConfig, value: string): 
       if (field.numberMax !== undefined && parsed > field.numberMax) return false;
       return true;
     }
-    case "select":
-      return field.options?.length ? field.options.includes(trimmed) : Boolean(trimmed);
+    case "select": {
+      const options = row ? resolveRepeaterSelectOptions(field, row) : (field.options ?? []);
+      return options.length ? options.includes(trimmed) : Boolean(trimmed);
+    }
     default:
       return true;
   }
@@ -95,7 +151,9 @@ export function isRepeaterRowComplete(
   row: RepeaterRow,
   fields: RepeaterFieldConfig[],
 ): boolean {
-  return fields.every((field) => Boolean(row[field.key]?.trim()));
+  return fields.every((field) =>
+    isRepeaterCellValid(field, row[field.key] ?? "", row),
+  );
 }
 
 export function isRepeaterRowPartial(
@@ -154,10 +212,14 @@ export function syncRepeaterWithParentPlatforms(
 
   const rows = parentPlatforms.map((platform) => {
     const existing = existingByPlatform[platform];
-    if (existing) return { ...existing, [platformFieldKey]: platform };
-    const row = createEmptyRepeaterRow(fields);
-    row[platformFieldKey] = platform;
-    return row;
+    const row = existing
+      ? { ...existing, [platformFieldKey]: platform }
+      : (() => {
+          const empty = createEmptyRepeaterRow(fields);
+          empty[platformFieldKey] = platform;
+          return empty;
+        })();
+    return sanitizeRepeaterRowSelectValues(row, fields);
   });
 
   return { rows };
@@ -167,8 +229,17 @@ export function isSyncedRepeaterEmpty(
   value: RepeaterValue,
   fields: RepeaterFieldConfig[],
   parentPlatforms: string[],
+  options?: { allowEmpty?: boolean },
 ): boolean {
-  if (parentPlatforms.length === 0) return true;
+  if (parentPlatforms.length === 0) return !options?.allowEmpty;
   if (value.rows.length !== parentPlatforms.length) return true;
+  if (hasIncompleteRepeaterRows(value, fields)) return true;
+
+  const editableFields = fields.filter((field) => !field.readOnly);
+  const allEditableEmpty = value.rows.every((row) =>
+    editableFields.every((field) => !row[field.key]?.trim()),
+  );
+  if (options?.allowEmpty && allEditableEmpty) return false;
+
   return !value.rows.every((row) => isRepeaterRowComplete(row, fields));
 }

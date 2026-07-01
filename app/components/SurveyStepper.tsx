@@ -321,14 +321,16 @@ function isStepEmpty(
       const parentPlatforms = parent
         ? getPlainCheckboxSelections(values[fieldName(parent.id)])
         : [];
-      return isSyncedRepeaterEmpty(parsed, fields, parentPlatforms);
+      return isSyncedRepeaterEmpty(parsed, fields, parentPlatforms, {
+        allowEmpty: step.isAllowedEmpty,
+      });
     }
     if (hasIncompleteRepeaterRows(parsed, fields)) return true;
     if (isRepeaterEmpty(parsed, fields)) return true;
     const completeRows = parsed.rows.filter((row) => isRepeaterRowComplete(row, fields));
     if (!completeRows.length) return true;
     return completeRows.some((row) =>
-      fields.some((field) => !isRepeaterCellValid(field, row[field.key] ?? "")),
+      fields.some((field) => !isRepeaterCellValid(field, row[field.key] ?? "", row)),
     );
   }
   if (step.type === "nestedRepeater") {
