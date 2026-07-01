@@ -263,7 +263,7 @@ export const socialStrategyFormSurvey: SurveyConfig = {
       question:
         "سه ویژگی اصلی که دوست دارید مخاطبان پس از مشاهده محتوای شما به برندتان نسبت دهند چیست؟ (حداکثر ۳ گزینه)",
       type: "checkbox",
-  
+      checkboxMaxSelections: 3,
       options: [...DESIRED_BRAND_PERCEPTION_OPTIONS],
     },
     {

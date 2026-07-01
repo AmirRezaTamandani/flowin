@@ -946,6 +946,9 @@ function StepField({
         const visibleSelected = step.optionsFromParent
           ? selected.filter((item) => checkboxOptions.includes(item))
           : selected;
+        const maxSelections = step.checkboxMaxSelections;
+        const atSelectionLimit =
+          maxSelections !== undefined && visibleSelected.length >= maxSelections;
 
         function updateCheckbox(nextSelected: string[], nextOther = otherText) {
           if (stepHasOtherOption(step)) {
@@ -977,6 +980,11 @@ function StepField({
 
         return (
           <div className="flex flex-col gap-3">
+            {maxSelections !== undefined ? (
+              <p className="text-xs text-muted-foreground">
+                حداکثر {maxSelections} گزینه ({visibleSelected.length} / {maxSelections})
+              </p>
+            ) : null}
             <div
               className={cn(
                 "checkbox-list max-h-80 overflow-y-auto rounded-lg border border-input p-2",
@@ -986,6 +994,7 @@ function StepField({
               {checkboxOptions.map((option) => {
                 const checked = visibleSelected.includes(option);
                 const isOtherOption = stepHasOtherOption(step) && option === step.otherOption;
+                const isDisabled = !checked && atSelectionLimit;
 
                 return (
                   <div key={option}>
@@ -993,11 +1002,14 @@ function StepField({
                       className={cn(
                         "flex cursor-pointer items-start gap-3 rounded-md p-2 hover:bg-muted/50",
                         checked && "bg-primary/10",
+                        isDisabled && "cursor-not-allowed opacity-50",
                       )}
                     >
                       <Checkbox
                         checked={checked}
+                        disabled={isDisabled}
                         onCheckedChange={(isChecked) => {
+                          if (isChecked && atSelectionLimit) return;
                           const next = isChecked
                             ? [...visibleSelected, option]
                             : visibleSelected.filter((item) => item !== option);

@@ -48,6 +48,8 @@ export type SurveyStep = {
   otherPlaceholder?: string;
   /** Checkbox option(s) that reveal nested checkbox options when selected. */
   checkboxSubOptions?: CheckboxSubOptionsConfig | CheckboxSubOptionsConfig[];
+  /** Max number of selections for plain `checkbox` steps. */
+  checkboxMaxSelections?: number;
   /** Dynamic checkbox options based on a parent step answer. */
   optionsFromParent?: {
     parentQuestion: string;
