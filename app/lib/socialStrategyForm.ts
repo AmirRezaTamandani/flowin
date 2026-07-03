@@ -227,19 +227,20 @@ export const socialStrategyFormSurvey: SurveyConfig = {
             ],
           },
         },
-        {
-          key: "count",
-          type: "number",
-          label: "تعداد",
-          placeholder: "تعداد محتوا",
-          numberMin: 0,
-        },
+
         {
           key: "timePeriod",
           type: "select",
-          label: "بازه زمانی",
+          label: "در چه بازه زمانی؟",
           placeholder: "انتخاب کنید",
           options: [...CONTENT_TIME_PERIOD_OPTIONS],
+        },
+        {
+          key: "count",
+          type: "number",
+          label: "چه تعداد؟",
+          placeholder: "تعداد محتوا",
+          numberMin: 0,
         },
       ],
       repeaterSyncFromParent: {
