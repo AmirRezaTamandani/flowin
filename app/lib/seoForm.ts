@@ -28,6 +28,8 @@ export const seoFormSurvey: SurveyConfig = {
       id: 3,
       question: "نوع وب‌سایت شما چیست؟",
       type: "select",
+      otherOption: "سایر",
+      otherPlaceholder: "نوع وب‌سایت را بنویسید",
       options: [
         "فروشگاهی",
         "خبری و مجله",
@@ -35,7 +37,6 @@ export const seoFormSurvey: SurveyConfig = {
         "مارکت‌پلیس",
         "شرکتی و خدماتی",
         "آموزشی",
-        "سایر",
       ],
     },
     {
@@ -206,7 +207,6 @@ export const seoFormSurvey: SurveyConfig = {
         "۴ تا ۶ نفر",
         "۶ تا ۱۰ نفر",
         "بالای ۱۰ نفر",
-        "توسط آژانس یا شرکت بیرونی مدیریت می‌شود",
       ],
     },
     {
