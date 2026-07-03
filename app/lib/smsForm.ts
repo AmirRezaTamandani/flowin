@@ -201,7 +201,8 @@ export const smsFormSurvey: SurveyConfig = {
     {
       id: 21,
       question: "نام ابزار کوتاه‌کننده لینک را بنویسید.",
-      type: "text",
+      type: "url",
+      placeholder: "https://example.com",
       showIf: {
         parentQuestion: "آیا از کوتاه‌کننده لینک استفاده کرده‌اید؟",
         equals: "بله",
