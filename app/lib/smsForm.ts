@@ -47,6 +47,7 @@ export const smsFormSurvey: SurveyConfig = {
         "آتیه پرداز",
         "فرا پیامک",
         "سامانه پیامک ملی",
+        "سایر",
       ],
     },
     {
