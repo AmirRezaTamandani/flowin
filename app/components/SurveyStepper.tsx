@@ -46,6 +46,7 @@ import {
   serializeFileUploadValue,
 } from "../lib/fileUpload";
 import {
+  countCompleteRepeaterRows,
   createEmptyRepeaterValue,
   getRepeaterFields,
   getPlainCheckboxSelections,
@@ -77,6 +78,7 @@ import {
 import PercentageAllocationInput from "./PercentageAllocationInput";
 import RepeaterInput from "./RepeaterInput";
 import ParentSyncedRepeaterInput from "./ParentSyncedRepeaterInput";
+import JourneyFunnelInput from "./JourneyFunnelInput";
 import NestedRepeaterInput from "./NestedRepeaterInput";
 import {
   EMPTY_CHECKBOX_WITH_OTHER,
@@ -230,7 +232,10 @@ function buildDefaultValues(steps: SurveyStep[]): FormValues {
       values[fieldName(step.id)] = serializeFileUploadValue(EMPTY_FILE_UPLOAD);
     } else if (step.type === "repeater") {
       values[fieldName(step.id)] = serializeRepeaterValue(
-        createEmptyRepeaterValue(getRepeaterFields(step)),
+        createEmptyRepeaterValue(
+          getRepeaterFields(step),
+          Math.max(step.repeaterMinRows ?? 1, 1),
+        ),
       );
     } else if (step.type === "nestedRepeater") {
       const config = getNestedRepeaterConfig(step);
@@ -341,7 +346,8 @@ function isStepEmpty(
     if (hasIncompleteRepeaterRows(parsed, fields)) return true;
     if (isRepeaterEmpty(parsed, fields)) return true;
     const completeRows = parsed.rows.filter((row) => isRepeaterRowComplete(row, fields));
-    if (!completeRows.length) return true;
+    const minRows = Math.max(step.repeaterMinRows ?? 1, 1);
+    if (completeRows.length < minRows) return true;
     return completeRows.some((row) =>
       fields.some((field) => !isRepeaterCellValid(field, row[field.key] ?? "", row)),
     );
@@ -435,6 +441,7 @@ function getStepValidationError(
     const fields = getRepeaterFields(step);
     const parsed = parseRepeaterValue(value, fields);
     const completeRows = parsed.rows.filter((row) => isRepeaterRowComplete(row, fields));
+    const minRows = Math.max(step.repeaterMinRows ?? 1, 1);
     const hasInvalidUrl = completeRows.some((row) =>
       fields.some(
         (field) =>
@@ -444,6 +451,10 @@ function getStepValidationError(
       ),
     );
     if (hasInvalidUrl) return INVALID_WEBSITE_URL_MESSAGE;
+    const completeCount = countCompleteRepeaterRows(parsed, fields);
+    if (completeCount < minRows && !hasIncompleteRepeaterRows(parsed, fields)) {
+      return `حداقل ${minRows} مرحله با اطلاعات کامل وارد کنید.`;
+    }
   }
 
   if (step.type === "nestedRepeater") {
@@ -772,6 +783,23 @@ function StepField({
 
   if (step.type === "repeater") {
     const fields = getRepeaterFields(step);
+    if (step.repeaterVariant === "journeyFunnel") {
+      return (
+        <Controller
+          name={name}
+          control={control}
+          render={({ field }) => (
+            <JourneyFunnelInput
+              value={parseRepeaterValue(field.value, fields)}
+              onChange={(next) => field.onChange(serializeRepeaterValue(next))}
+              fields={fields}
+              minRows={Math.max(step.repeaterMinRows ?? 3, 1)}
+              hasError={hasError}
+            />
+          )}
+        />
+      );
+    }
     const syncConfig = step.repeaterSyncFromParent;
     if (syncConfig) {
       const parent = steps.find((item) => item.question === syncConfig.parentQuestion);

@@ -30,6 +30,10 @@ export type SurveyStep = {
   maxFiles?: number;
   /** Columns for `repeater` steps. */
   repeaterFields?: RepeaterFieldConfig[];
+  /** Alternate UI for repeater steps, e.g. customer journey funnel. */
+  repeaterVariant?: "default" | "journeyFunnel";
+  /** Minimum complete rows required for repeater validation. */
+  repeaterMinRows?: number;
   /** Pre-fill repeater rows from a parent checkbox step. */
   repeaterSyncFromParent?: RepeaterSyncFromParentConfig;
   /** Nested repeater config for competitor + social pages pattern. */

@@ -32,7 +32,7 @@ export function resolveRepeaterSelectOptions(
   field: RepeaterFieldConfig,
   row: RepeaterRow,
 ): string[] {
-  let options = [...(field.options ?? [])];
+  const options = [...(field.options ?? [])];
   if (!field.conditionalOptions) return options;
 
   const dependsOnValue = row[field.conditionalOptions.dependsOnKey] ?? "";
@@ -111,8 +111,14 @@ export function createEmptyRepeaterRow(fields: RepeaterFieldConfig[]): RepeaterR
   return Object.fromEntries(fields.map((field) => [field.key, ""]));
 }
 
-export function createEmptyRepeaterValue(fields: RepeaterFieldConfig[]): RepeaterValue {
-  return { rows: [createEmptyRepeaterRow(fields)] };
+export function createEmptyRepeaterValue(
+  fields: RepeaterFieldConfig[],
+  rowCount = 1,
+): RepeaterValue {
+  const safeRowCount = Math.max(rowCount, 1);
+  return {
+    rows: Array.from({ length: safeRowCount }, () => createEmptyRepeaterRow(fields)),
+  };
 }
 
 export function parseRepeaterValue(
@@ -166,6 +172,13 @@ export function isRepeaterRowPartial(
 
 export function isRepeaterEmpty(value: RepeaterValue, fields: RepeaterFieldConfig[]): boolean {
   return !value.rows.some((row) => isRepeaterRowComplete(row, fields));
+}
+
+export function countCompleteRepeaterRows(
+  value: RepeaterValue,
+  fields: RepeaterFieldConfig[],
+): number {
+  return value.rows.filter((row) => isRepeaterRowComplete(row, fields)).length;
 }
 
 export function hasIncompleteRepeaterRows(

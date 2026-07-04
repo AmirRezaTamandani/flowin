@@ -331,7 +331,23 @@ export const brandFormSurvey: SurveyConfig = {
       page: 2,
       question:
         "مسیر خرید مشتری شما چیست؟ (معمولاً از چه مسیری با برند شما آشنا می‌شود و به خرید می‌رسد؟)",
-      type: "text",
+      type: "repeater",
+      repeaterVariant: "journeyFunnel",
+      repeaterMinRows: 3,
+      repeaterFields: [
+        {
+          key: "title",
+          label: "عنوان مرحله",
+          type: "text",
+          placeholder: "مثلاً آشنایی",
+        },
+        {
+          key: "description",
+          label: "توضیح مرحله",
+          type: "text",
+          placeholder: "مثلاً آشنایی با محصول از طریق سرچ گوگل",
+        },
+      ],
     },
     {
       id: 17,
