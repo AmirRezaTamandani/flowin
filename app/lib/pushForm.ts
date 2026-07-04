@@ -80,13 +80,13 @@ export const pushFormSurvey: SurveyConfig = {
       options: ["سرویس های خارجی", "سرویس های ایرانی", "درون سازمانی"],
       checkboxSubOptions: [
         {
-          parentOption: "سرویس های خارجی",
+          parentOption: "سرویس های ایرانی",
           options: ["نجوا", "پوشه", "تیزپوش", "سایر"],
           otherOption: "سایر",
           otherPlaceholder: "نام سرویس را بنویسید",
         },
         {
-          parentOption: "سرویس های ایرانی",
+          parentOption: "سرویس های خارجی",
           options: ["OneSignal", "PushEngage", "Firebase", "سایر"],
           otherOption: "سایر",
           otherPlaceholder: "نام سرویس را بنویسید",
