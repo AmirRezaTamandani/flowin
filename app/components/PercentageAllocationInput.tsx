@@ -39,12 +39,12 @@ export default function PercentageAllocationInput({
         <p
           className={cn(
             "mt-2 text-xs",
-            remaining === 0 ? "text-muted-foreground" : "text-foreground",
+            remaining === 0 ? "text-muted-foreground" : "text-destructive",
           )}
         >
           {remaining > 0
-            ? `${remaining}% باقی‌مانده برای تخصیص`
-            : "حداکثر ۱۰۰٪ تخصیص داده شده است"}
+            ? `${remaining}% باقی‌مانده است. مجموع باید دقیقاً ۱۰۰٪ شود.`
+            : "مجموع درصدها کامل و برابر با ۱۰۰٪ است."}
         </p>
       </div>
 

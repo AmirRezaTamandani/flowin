@@ -181,6 +181,19 @@ export function countCompleteRepeaterRows(
   return value.rows.filter((row) => isRepeaterRowComplete(row, fields)).length;
 }
 
+export function hasRepeaterPercentageField(fields: RepeaterFieldConfig[]): boolean {
+  return fields.some((field) => field.key === "percentage" && field.type === "number");
+}
+
+export function getRepeaterPercentageTotal(value: RepeaterValue): number {
+  return value.rows.reduce((sum, row) => {
+    const raw = row.percentage?.trim() ?? "";
+    if (!raw) return sum;
+    const parsed = Number.parseFloat(raw);
+    return Number.isFinite(parsed) ? sum + parsed : sum;
+  }, 0);
+}
+
 export function hasIncompleteRepeaterRows(
   value: RepeaterValue,
   fields: RepeaterFieldConfig[],

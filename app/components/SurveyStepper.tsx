@@ -50,7 +50,9 @@ import {
   createEmptyRepeaterValue,
   getRepeaterFields,
   getPlainCheckboxSelections,
+  getRepeaterPercentageTotal,
   hasIncompleteRepeaterRows,
+  hasRepeaterPercentageField,
   isRepeaterCellValid,
   isRepeaterEmpty,
   isRepeaterRowComplete,
@@ -474,6 +476,12 @@ function getStepValidationError(
     const completeCount = countCompleteRepeaterRows(parsed, fields);
     if (completeCount < minRows && !hasIncompleteRepeaterRows(parsed, fields)) {
       return `حداقل ${minRows} مرحله با اطلاعات کامل وارد کنید.`;
+    }
+    if (hasRepeaterPercentageField(fields) && completeCount > 0) {
+      const percentageTotal = getRepeaterPercentageTotal(parsed);
+      if (percentageTotal !== 100) {
+        return "مجموع درصدها باید دقیقاً ۱۰۰٪ باشد.";
+      }
     }
   }
 
