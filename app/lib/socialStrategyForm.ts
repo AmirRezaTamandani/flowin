@@ -1,9 +1,7 @@
 import type { SurveyConfig } from "./surveys";
 import {
   CONTENT_TIME_PERIOD_OPTIONS,
-  CONTENT_TYPE_BASE_OPTIONS,
   SOCIAL_PLATFORM_OPTIONS,
-  STORY_CAPABLE_PLATFORMS,
 } from "./socialPlatforms";
 
 const INTENDED_SOCIAL_PLATFORMS_QUESTION =
@@ -105,6 +103,52 @@ const CONTENT_PROCESS_ROLE_OPTIONS = [
   "مدیریت برند",
   "انتشار محتوا",
   "تحلیل و گزارش‌گیری",
+] as const;
+
+const CONTENT_TYPE_POST_PLATFORMS = [
+  "اینستاگرام",
+  "فیسبوک",
+  "یوتیوب",
+  "واتساپ",
+  "تلگرام",
+  "تیک‌تاک",
+  "ایکس (توئیتر)",
+  "لینکدین",
+  "پینترست",
+  "دیسکورد",
+  "تردز",
+  "روبیکا",
+  "بله",
+  "ایتا",
+  "سروش‌پلاس",
+  "آپارات",
+  "ردیت",
+] as const;
+
+const CONTENT_TYPE_STORY_PLATFORMS = [
+  "اینستاگرام",
+  "فیسبوک",
+  "تلگرام",
+  "روبیکا",
+  "بله",
+  "ایتا",
+  "سروش‌پلاس",
+] as const;
+
+const CONTENT_TYPE_STATUS_PLATFORMS = ["واتساپ"] as const;
+
+const CONTENT_TYPE_LIVE_PLATFORMS = [
+  "اینستاگرام",
+  "فیسبوک",
+  "یوتیوب",
+  "تلگرام",
+  "تیک‌تاک",
+  "ایکس (توئیتر)",
+  "لینکدین",
+  "دیسکورد",
+  "توئیچ",
+  "روبیکا",
+  "آپارات",
 ] as const;
 
 export const socialStrategyFormSurvey: SurveyConfig = {
@@ -213,14 +257,28 @@ export const socialStrategyFormSurvey: SurveyConfig = {
           type: "select",
           label: "نوع محتوا",
           placeholder: "انتخاب کنید",
-          options: [...CONTENT_TYPE_BASE_OPTIONS],
+          options: [],
           conditionalOptions: {
             dependsOnKey: "platform",
             extraOptions: [
               {
+                option: "پست",
+                whenDependsOnIncludes: [...CONTENT_TYPE_POST_PLATFORMS],
+              },
+              {
                 option: "استوری",
-                whenDependsOnIncludes: [...STORY_CAPABLE_PLATFORMS],
+                whenDependsOnIncludes: [...CONTENT_TYPE_STORY_PLATFORMS],
                 insertAfter: "پست",
+              },
+              {
+                option: "استتوس",
+                whenDependsOnIncludes: [...CONTENT_TYPE_STATUS_PLATFORMS],
+                insertAfter: "پست",
+              },
+              {
+                option: "لایو",
+                whenDependsOnIncludes: [...CONTENT_TYPE_LIVE_PLATFORMS],
+                insertAfter: "استوری",
               },
             ],
           },
