@@ -322,6 +322,7 @@ export const socialStrategyFormSurvey: SurveyConfig = {
     {
       id: 11,
       question: "چه لحن و سبک محتوایی را ترجیح می‌دهید؟",
+      checkboxMaxSelections: 3,
       type: "checkbox",
       options: [...PREFERRED_CONTENT_TONE_OPTIONS],
     },
