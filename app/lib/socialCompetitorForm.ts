@@ -180,13 +180,25 @@ export const socialCompetitorFormSurvey: SurveyConfig = {
       id: 4,
 
       question:
-        "آیا صفحه یا صفحاتی، چه رقیب و چه برند غیررقیب، وجود دارد که سبک محتوایی آن‌ها را برای برند خود می‌پسندید؟ اگر بله، نام و لینک صفحه را وارد کنید.",
+        "آیا صفحه یا صفحاتی (چه رقیب و چه برند غیر رقیب) وجود دارد که سبک محتوایی آن‌ها را برای برند خود می‌پسندید؟ اگر بله، نام و لینک صفحه را وارد کنید.",
 
       type: "repeater",
       repeaterFields: [
-        { key: "name", type: "text", placeholder: "نام برند یا صفحه" },
-        { key: "platform", type: "text", placeholder: "پلتفرم" },
-        { key: "url", type: "url", placeholder: "لینک" },
+        { key: "name", type: "text", placeholder: "نام برند" },
+        {
+          key: "platform",
+          type: "select",
+          placeholder: "دلیل انتخاب",
+          options: [
+            "طراحی و زیبایی بصری",
+            "کپی‌رایت و لحن",
+            "جذابیت ویدئوها",
+            "تعامل باکیفیت با مخاطب",
+            "استمرار و نظم در انتشار محتوا",
+            "ایده‌های جذاب محتوا",
+          ],
+        },
+        { key: "url", type: "url", placeholder: "https://example.com" },
         {
           key: "reason",
           type: "text",
@@ -196,7 +208,7 @@ export const socialCompetitorFormSurvey: SurveyConfig = {
       ],
 
       placeholder:
-        "هر صفحه در یک خط:\nنام برند یا صفحه | پلتفرم | لینک | چه چیزی را می‌پسندید (طراحی، لحن، ویدئوها، تعامل، نظم انتشار، ایده‌های محتوا)\nمثال:\nبرند نمونه | اینستاگرام | https://instagram.com/sample | لحن صمیمی و ویدئوهای آموزشی",
+        "هر صفحه در یک خط:\nنام برند یا صفحه | دلیل انتخاب | لینک | چه چیزی را می‌پسندید (طراحی، لحن، ویدئوها، تعامل، نظم انتشار، ایده‌های محتوا)\nمثال:\nبرند نمونه | کپی‌رایت و لحن | https://instagram.com/sample | لحن صمیمی و ویدئوهای آموزشی",
 
       isAllowedEmpty: true,
     },
