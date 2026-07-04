@@ -58,8 +58,6 @@ export const emailFormSurvey: SurveyConfig = {
       id: 4,
       question: "فرکانس ارسال ایمیل شما چقدر است؟",
       type: "radio",
-      otherOption: "سایر",
-      otherPlaceholder: "فرکانس ارسال را بنویسید",
       options: ["هفتگی", "دو بار در هفته", "ماهی یکبار", "هرروز"],
       showIf: {
         parentQuestion: "آیا تا بحال ایمیل ارسال کرده‌اید؟",
@@ -122,7 +120,6 @@ export const emailFormSurvey: SurveyConfig = {
         equals: "بله",
       },
     },
-
 
     {
       id: 11,
