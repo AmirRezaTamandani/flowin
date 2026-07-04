@@ -1,6 +1,10 @@
 "use client";
 
+import { useAuthStore } from "../lib/authStore";
+
 export default function DashboardStats() {
+  const phone = useAuthStore((state) => state.phone);
+
   return (
     <section className="dashboard-stats" aria-label="خلاصه حساب">
       <div className="stat-card stat-card-profile">
@@ -12,8 +16,8 @@ export default function DashboardStats() {
             </svg>
           </div>
           <div className="stat-info">
-            <p className="stat-name">Amir Reza Tamandani</p>
-            <p className="stat-sub">09107066626</p>
+            <p className="stat-name">کاربر فلووین</p>
+            <p className="stat-sub" dir="ltr">{phone ?? "-"}</p>
           </div>
         </div>
         <button type="button" className="stat-action-btn">
