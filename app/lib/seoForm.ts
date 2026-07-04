@@ -53,7 +53,7 @@ export const seoFormSurvey: SurveyConfig = {
     {
       id: 5,
       question: "مخاطب هدف شما در چه منطقه جغرافیایی است؟",
-      type: "geoLocation",
+      type: "personaFields",
     },
     {
       id: 6,
