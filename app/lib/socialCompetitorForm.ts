@@ -11,7 +11,7 @@ const SOCIAL_COMPETITOR_ANALYZE_GOAL_OPTIONS = [
 
   "پیدا کردن الگوی فعالیت مناسب برند",
 
-  "پیدا کردن محتواهای موفق رقبا و کشف علت آن (بازدید، تعامل، فالوور و ...)",
+  "علت بازدید بالا، علت جذب فالوئر، علت ورود پست به اکسپلور و ...",
 ] as const;
 
 const COMPETITORS_SOCIAL_LACKS_OPTIONS = [
@@ -164,7 +164,7 @@ export const socialCompetitorFormSurvey: SurveyConfig = {
 
             label: "اولویت",
 
-            placeholder: "۱ تا ۱۰",
+            placeholder: "از ۰ تا ۱۰",
 
             numberMin: 1,
 
