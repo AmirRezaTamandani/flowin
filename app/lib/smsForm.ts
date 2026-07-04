@@ -106,15 +106,9 @@ export const smsFormSurvey: SurveyConfig = {
         equals: "بله",
       },
     },
+
     {
       id: 10,
-      question:
-        "آیا خط تبلیغاتی اختصاصی دارید؟ (منظور از خط تبلیغاتی خطی است که با استفاده از آن برای باشگاه مشتریان یا مشتریان عادی و مشتریانی که در لیست سیاه هستند، پیامک ارسال می‌کنید.)",
-      type: "radio",
-      options: ["بله", "خیر"],
-    },
-    {
-      id: 11,
       question: "لطفاً شماره این خط خود را وارد کنید.",
       type: "number",
       numberFormat: "phone",
@@ -127,26 +121,26 @@ export const smsFormSurvey: SurveyConfig = {
       },
     },
     {
-      id: 12,
+      id: 11,
       question: "آیا تا به حال تحلیل RFM انجام داده‌اید؟",
       type: "radio",
       options: ["بله", "خیر"],
     },
     {
-      id: 13,
+      id: 12,
       question: "آیا پیامک‌های ارسالی خود را ردیابی (Track) می‌کنید؟",
       type: "radio",
       options: ["بله", "خیر"],
     },
     {
-      id: 14,
+      id: 13,
       question:
         "آیا اطلاع دارید که تعداد کاربران همراه اول و ایرانسل شما چقدر است؟",
       type: "radio",
       options: ["بله", "خیر"],
     },
     {
-      id: 15,
+      id: 14,
       question: "تعداد کاربران هر اپراتور را به تفکیک وارد کنید.",
       type: "repeater",
       repeaterFields: [
@@ -165,13 +159,13 @@ export const smsFormSurvey: SurveyConfig = {
       },
     },
     {
-      id: 16,
+      id: 15,
       question: "در حال حاضر از وضعیت پیامک‌های ارسالی راضی هستید؟",
       type: "radio",
       options: ["بله", "خیر"],
     },
     {
-      id: 17,
+      id: 16,
       question: "دلیل عدم رضایت خود را بنویسید.",
       type: "textarea",
       showIf: {
@@ -180,26 +174,26 @@ export const smsFormSurvey: SurveyConfig = {
       },
     },
     {
-      id: 18,
+      id: 17,
       question: "میانگین هزینه ماهانه شما چقدر بوده است؟",
       type: "radio",
       options: [...MONTHLY_BUDGET_OPTIONS],
     },
     {
-      id: 19,
+      id: 18,
       question:
         "آیا پس از خرید یا تکمیل فرآیند خرید، به مشتری پیامک تأیید یا تشکر ارسال می‌شود؟",
       type: "radio",
       options: ["بله", "خیر"],
     },
     {
-      id: 20,
+      id: 19,
       question: "آیا از کوتاه‌کننده لینک استفاده کرده‌اید؟",
       type: "radio",
       options: ["بله", "خیر"],
     },
     {
-      id: 21,
+      id: 20,
       question: "نام ابزار کوتاه‌کننده لینک را بنویسید.",
       type: "url",
       placeholder: "https://example.com",
@@ -209,7 +203,7 @@ export const smsFormSurvey: SurveyConfig = {
       },
     },
     {
-      id: 22,
+      id: 21,
       question: "بیشترین حجم پیامک ارسالی شما در یک ماه چقدر بوده است؟",
       type: "radio",
       options: [
@@ -219,21 +213,21 @@ export const smsFormSurvey: SurveyConfig = {
       ],
     },
     {
-      id: 23,
+      id: 22,
       question:
         "آیا تاکنون به دیتابیس‌های غیرمشتری (مثلاً دیتابیس خریداری‌شده) پیامک ارسال کرده‌اید؟",
       type: "radio",
       options: ["بله", "خیر"],
     },
     {
-      id: 24,
+      id: 23,
       question:
         "آیا تا به حال با یک برند، به صورت Co-Branding همکاری داشته‌اید؟",
       type: "radio",
       options: ["بله", "خیر"],
     },
     {
-      id: 25,
+      id: 24,
       question: "نام برند را بنویسید.",
       type: "text",
       showIf: {
@@ -243,20 +237,20 @@ export const smsFormSurvey: SurveyConfig = {
       },
     },
     {
-      id: 26,
+      id: 25,
       question: "لحن و سبک محتوایی مدنظر شما برای ارسال چیست؟",
       type: "radio",
       options: [...CHANNEL_TONE_OPTIONS],
     },
     {
-      id: 27,
+      id: 26,
       question:
         "کدام مناسبت‌های عمومی باید در برنامه‌ریزی و تقویم محتوایی این کانال پوشش داده شوند؟",
       type: "checkbox",
       options: [...CHANNEL_EVENT_TYPE_OPTIONS],
     },
     {
-      id: 28,
+      id: 27,
       question:
         "کدام بخش از ارسال پیامک را علاقه دارید بهینه کنید؟ (برای هر بخش، دلیل را در خط بعدی بنویسید)",
       type: "textarea",
@@ -264,7 +258,7 @@ export const smsFormSurvey: SurveyConfig = {
       isAllowedEmpty: true,
     },
     {
-      id: 29,
+      id: 28,
       question:
         "یک نمونه از پیامک‌های ارسالی خود را که هم مورد تأیید شما بوده و هم عملکرد خوبی داشته است، بنویسید.",
       type: "textarea",
