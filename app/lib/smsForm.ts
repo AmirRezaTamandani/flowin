@@ -61,7 +61,6 @@ export const smsFormSurvey: SurveyConfig = {
       id: 5,
       question: "لطفاً شماره این خط خود را وارد کنید.",
       type: "number",
-      numberFormat: "phone",
       numberSuffix: "شماره موبایل یا شماره خط",
       showIf: {
         parentQuestion:
