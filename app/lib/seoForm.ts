@@ -3,8 +3,8 @@ import type { SurveyConfig } from "./surveys";
 const KEYWORD_DROP_QUESTION =
   "آیا اخیراً کاهش قابل توجهی در رتبه یا ترافیک کلمات کلیدی مهم خود مشاهده کرده‌اید؟";
 
-const GOOGLE_PENALTY_QUESTION =
-  "آیا وب‌سایت شما تاکنون دچار پنالتی گوگل یا افت شدید ترافیک ارگانیک شده است؟";
+// const GOOGLE_PENALTY_QUESTION =
+//   "آیا وب‌سایت شما تاکنون دچار پنالتی گوگل یا افت شدید ترافیک ارگانیک شده است؟";
 
 export const seoFormSurvey: SurveyConfig = {
   id: "seo",
@@ -341,22 +341,22 @@ export const seoFormSurvey: SurveyConfig = {
       type: "radio",
       options: ["بله به صورت تخصصی", "بله تا حدودی", "خیر"],
     },
-    {
-      id: 32,
-      question: GOOGLE_PENALTY_QUESTION,
-      type: "radio",
-      options: ["بله", "خیر", "نمی‌دانم"],
-    },
-    {
-      id: 33,
-      question:
-        "در صورت پنالتی یا افت شدید، آیا از ترافیک فیک یا روش‌های کلاه سیاه استفاده کرده‌اید؟ توضیح دهید.",
-      type: "textarea",
-      isAllowedEmpty: true,
-      showIf: {
-        parentQuestion: GOOGLE_PENALTY_QUESTION,
-        equals: "بله",
-      },
-    },
+    // {
+    //   id: 32,
+    //   question: GOOGLE_PENALTY_QUESTION,
+    //   type: "radio",
+    //   options: ["بله", "خیر", "نمی‌دانم"],
+    // },
+    // {
+    //   id: 33,
+    //   question:
+    //     "در صورت پنالتی یا افت شدید، آیا از ترافیک فیک یا روش‌های کلاه سیاه استفاده کرده‌اید؟ توضیح دهید.",
+    //   type: "textarea",
+    //   isAllowedEmpty: true,
+    //   showIf: {
+    //     parentQuestion: GOOGLE_PENALTY_QUESTION,
+    //     equals: "بله",
+    //   },
+    // },
   ],
 };

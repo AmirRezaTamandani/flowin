@@ -18,21 +18,15 @@ export const campaignFormSurvey: SurveyConfig = {
   pageCount: 1,
   pageLabels: ["فرم کمپین"],
   steps: [
+
     {
       id: 1,
-      question: "اصلی‌ ترین دلایل شما براجرای این کمپین چیست؟",
-      type: "textarea",
-      placeholder:
-        "مثال: به دلیل افت فروش کلی با یک کمپین میخام حضورم رو تو بازار پر رنگ کنم",
-    },
-    {
-      id: 2,
       question: CAMPAIGN_TYPE_QUESTION,
       type: "radio",
       options: [...CAMPAIGN_TYPES],
     },
     {
-      id: 27,
+      id: 2,
       question: CAMPAIGN_SUBTYPE_QUESTION,
       type: "radio",
       optionsFromParent: {
