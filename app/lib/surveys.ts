@@ -61,6 +61,10 @@ export type SurveyStep = {
     parentQuestion: string;
     optionMap: Record<string, string[]>;
   };
+  /** Build percentage-allocation items from a parent checkbox answer. */
+  percentageAllocationSyncFromParent?: {
+    parentQuestion: string;
+  };
   /** When true, the user may leave this answer empty. Defaults to false (required). */
   isAllowedEmpty?: boolean;
   /** When true, only one location (no numbered header or add-more control). */

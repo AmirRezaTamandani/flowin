@@ -71,6 +71,8 @@ import {
 } from "../lib/nestedRepeater";
 import {
   createEmptyPercentageAllocation,
+  getPercentageAllocationTotal,
+  isPercentageAllocationTotalComplete,
   isPercentageAllocationEmpty,
   parsePercentageAllocationValue,
   serializePercentageAllocationValue,
@@ -226,7 +228,7 @@ function buildDefaultValues(steps: SurveyStep[]): FormValues {
       values[fieldName(step.id)] = serializeGeoLocationValue(EMPTY_GEO_LOCATION);
     } else if (step.type === "percentageAllocation") {
       values[fieldName(step.id)] = serializePercentageAllocationValue(
-        createEmptyPercentageAllocation(step.options),
+        createEmptyPercentageAllocation(step.options ?? []),
       );
     } else if (step.type === "fileUpload") {
       values[fieldName(step.id)] = serializeFileUploadValue(EMPTY_FILE_UPLOAD);
@@ -284,6 +286,23 @@ function getCheckboxOptionsForStep(
   return getOptionsFromParentForStep(step, steps, values);
 }
 
+function getPercentageAllocationOptionsForStep(
+  step: SurveyStep,
+  steps: SurveyStep[],
+  values: FormValues,
+): string[] {
+  if (step.percentageAllocationSyncFromParent) {
+    const parent = steps.find(
+      (item) => item.question === step.percentageAllocationSyncFromParent!.parentQuestion,
+    );
+    const parentSelections = parent
+      ? getPlainCheckboxSelections(values[fieldName(parent.id)])
+      : [];
+    return parentSelections.flatMap((item) => [item, ""]);
+  }
+  return step.options ?? [];
+}
+
 function isStepEmpty(
   step: SurveyStep,
   value: string | string[] | undefined,
@@ -321,9 +340,10 @@ function isStepEmpty(
     return isGeoLocationEmpty(parsed);
   }
   if (step.type === "percentageAllocation") {
+    const options = getPercentageAllocationOptionsForStep(step, steps, values);
     return isPercentageAllocationEmpty(
-      parsePercentageAllocationValue(value, step.options),
-      step.options,
+      parsePercentageAllocationValue(value, options),
+      options,
     );
   }
   if (step.type === "fileUpload") {
@@ -454,6 +474,15 @@ function getStepValidationError(
     const completeCount = countCompleteRepeaterRows(parsed, fields);
     if (completeCount < minRows && !hasIncompleteRepeaterRows(parsed, fields)) {
       return `حداقل ${minRows} مرحله با اطلاعات کامل وارد کنید.`;
+    }
+  }
+
+  if (step.type === "percentageAllocation") {
+    const options = getPercentageAllocationOptionsForStep(step, steps ?? [], values ?? {});
+    const parsed = parsePercentageAllocationValue(value, options);
+    const total = getPercentageAllocationTotal(parsed);
+    if (options.length > 0 && total > 0 && !isPercentageAllocationTotalComplete(parsed, options)) {
+      return "مجموع درصدها باید دقیقاً ۱۰۰٪ باشد.";
     }
   }
 
@@ -743,14 +772,19 @@ function StepField({
   }
 
   if (step.type === "percentageAllocation") {
+    const allocationOptions = getPercentageAllocationOptionsForStep(
+      step,
+      steps,
+      watchedValues ?? {},
+    );
     return (
       <Controller
         name={name}
         control={control}
         render={({ field }) => (
           <PercentageAllocationInput
-            options={step.options}
-            value={parsePercentageAllocationValue(field.value, step.options)}
+            options={allocationOptions}
+            value={parsePercentageAllocationValue(field.value, allocationOptions)}
             onChange={(next) =>
               field.onChange(serializePercentageAllocationValue(next))
             }

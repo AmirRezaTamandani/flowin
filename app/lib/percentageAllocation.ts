@@ -59,6 +59,14 @@ export function getPercentageAllocationTotal(value: PercentageAllocationValue): 
   return Object.values(value).reduce((sum, amount) => sum + amount, 0);
 }
 
+export function isPercentageAllocationTotalComplete(
+  value: PercentageAllocationValue,
+  options: string[] = [],
+): boolean {
+  if (getPercentageAllocationItems(options).length === 0) return false;
+  return getPercentageAllocationTotal(value) === 100;
+}
+
 export function getPercentageAllocationMaxForItem(
   itemId: string,
   value: PercentageAllocationValue,

@@ -121,19 +121,11 @@ export const socialStrategyFormSurvey: SurveyConfig = {
     },
     {
       id: 2,
-      question:
-        "مهم‌ترین شبکه‌های اجتماعی برای فعالیت شما کدام‌اند؟ لطفاً آن‌ها را به ترتیب اولویت مرتب کنید.",
-      type: "repeater",
-      repeaterFields: [
-        { key: "platform", type: "text", placeholder: "نام پلتفرم" },
-        {
-          key: "priority",
-          type: "number",
-          placeholder: "اولویت",
-          numberMin: 1,
-          numberMax: 10,
-        },
-      ],
+      question: "درصد اهمیت و اولویت شبکه‌های اجتماعی مد نظرتان را مشخص کنید.",
+      type: "percentageAllocation",
+      percentageAllocationSyncFromParent: {
+        parentQuestion: INTENDED_SOCIAL_PLATFORMS_QUESTION,
+      },
     },
     {
       id: 3,
