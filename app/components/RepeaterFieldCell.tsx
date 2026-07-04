@@ -48,6 +48,7 @@ export function RepeaterFieldCell({
   }
 
   if (field.type === "url") {
+    const inputDir = field.inputDir ?? "ltr";
     return (
       <div className={cn("min-w-0", className)}>
         <Input
@@ -58,9 +59,10 @@ export function RepeaterFieldCell({
           onChange={(event) => onChange(event.target.value)}
           placeholder={field.placeholder || "https://example.com"}
           aria-invalid={hasError}
-          dir="ltr"
+          dir={inputDir}
           className={cn(
-            "h-11 bg-white text-base text-foreground text-left",
+            "h-11 bg-white text-base text-foreground",
+            inputDir === "rtl" ? "text-right" : "text-left",
             hasError && "border-destructive",
           )}
         />

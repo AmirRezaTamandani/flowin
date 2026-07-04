@@ -414,8 +414,13 @@ export const socialStrategyFormSurvey: SurveyConfig = {
       type: "repeater",
       repeaterFields: [
         { key: "platform", type: "text", placeholder: "نام پلتفرم" },
-        { key: "url", type: "url", placeholder: "https://example.com" },
-        { key: "reason", type: "text", placeholder: "دلیل انتخاب" },
+        {
+          key: "url",
+          type: "url",
+          placeholder: "لینک محتوا",
+          inputDir: "rtl",
+        },
+        { key: "reason", type: "text", placeholder: "دلیل انتخاب این محتوا" },
       ],
 
       isAllowedEmpty: true,

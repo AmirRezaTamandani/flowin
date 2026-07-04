@@ -21,6 +21,7 @@ export type RepeaterFieldConfig = {
   numberMax?: number;
   numberFormat?: "default" | "phone";
   numberSuffix?: string;
+  inputDir?: "ltr" | "rtl";
   readOnly?: boolean;
 };
 

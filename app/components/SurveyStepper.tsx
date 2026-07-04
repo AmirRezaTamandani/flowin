@@ -462,14 +462,13 @@ function getStepValidationError(
   if (step.type === "repeater") {
     const fields = getRepeaterFields(step);
     const parsed = parseRepeaterValue(value, fields);
-    const completeRows = parsed.rows.filter((row) => isRepeaterRowComplete(row, fields));
     const minRows = Math.max(step.repeaterMinRows ?? 1, 1);
-    const hasInvalidUrl = completeRows.some((row) =>
+    const hasInvalidUrl = parsed.rows.some((row) =>
       fields.some(
         (field) =>
           field.type === "url" &&
           Boolean(row[field.key]?.trim()) &&
-          !isRepeaterCellValid(field, row[field.key]),
+          !isRepeaterCellValid(field, row[field.key], row),
       ),
     );
     if (hasInvalidUrl) return INVALID_WEBSITE_URL_MESSAGE;
