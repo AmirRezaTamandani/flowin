@@ -61,7 +61,7 @@ export const smsFormSurvey: SurveyConfig = {
       id: 5,
       question: "لطفاً شماره این خط خود را وارد کنید.",
       type: "number",
-      numberSuffix: "شماره موبایل یا شماره خط",
+      numberSuffix: "شماره خط",
       showIf: {
         parentQuestion:
           "آیا خط خدماتی اختصاصی دارید؟ (منظور از خط خدماتی خطی است که با استفاده از آن برای مشتریان خود پیامک ارسال می‌کنید.)",
@@ -80,7 +80,7 @@ export const smsFormSurvey: SurveyConfig = {
       question: "لطفاً شماره این خط خود را وارد کنید.",
       type: "number",
       numberFormat: "phone",
-      numberSuffix: "شماره موبایل یا شماره خط",
+      numberSuffix: "شماره خط",
       showIf: {
         parentQuestion:
           "آیا خط خدماتی اختصاصی برای ارسال OTP یا پیامک‌های تراکنشی دارید؟",
@@ -99,7 +99,7 @@ export const smsFormSurvey: SurveyConfig = {
       question: "لطفاً شماره این خط خود را وارد کنید.",
       type: "number",
       numberFormat: "phone",
-      numberSuffix: "شماره موبایل یا شماره خط",
+      numberSuffix: "شماره خط",
       showIf: {
         parentQuestion:
           "آیا خط تبلیغاتی اختصاصی دارید؟ (منظور از خط تبلیغاتی خطی است که با استفاده از آن برای باشگاه مشتریان یا مشتریان عادی خود پیامک ارسال می‌کنید.)",
@@ -118,7 +118,7 @@ export const smsFormSurvey: SurveyConfig = {
       question: "لطفاً شماره این خط خود را وارد کنید.",
       type: "number",
       numberFormat: "phone",
-      numberSuffix: "شماره موبایل یا شماره خط",
+      numberSuffix: "شماره خط",
       numberMin: 0,
       showIf: {
         parentQuestion:
