@@ -105,6 +105,16 @@ const CONTENT_PROCESS_ROLE_OPTIONS = [
   "تحلیل و گزارش‌گیری",
 ] as const;
 
+const WEEKDAY_OPTIONS = [
+  "شنبه",
+  "یکشنبه",
+  "دوشنبه",
+  "سه‌شنبه",
+  "چهارشنبه",
+  "پنجشنبه",
+  "جمعه",
+] as const;
+
 const CONTENT_TYPE_POST_PLATFORMS = [
   "اینستاگرام",
   "فیسبوک",
@@ -308,9 +318,35 @@ export const socialStrategyFormSurvey: SurveyConfig = {
       id: 9,
       question:
         "در صورت وجود تجربه قبلی، چه زمان‌هایی بیشترین بازده را برای انتشار محتوا داشته‌اید؟",
-      type: "textarea",
-      placeholder:
-        "هر پلتفرم در یک خط:\nپلتفرم | روزهای هفته | بازه زمانی\nمثال:\nاینستاگرام | شنبه تا چهارشنبه | 18:00-21:00",
+      type: "repeater",
+      repeaterFields: [
+        {
+          key: "platform",
+          type: "text",
+          label: "پلتفرم",
+          readOnly: true,
+        },
+        {
+          key: "days",
+          type: "multiCheckbox",
+          label: "روز هفته",
+          options: [...WEEKDAY_OPTIONS],
+        },
+        {
+          key: "startTime",
+          type: "time",
+          label: "از ساعت",
+        },
+        {
+          key: "endTime",
+          type: "time",
+          label: "تا ساعت",
+        },
+      ],
+      repeaterSyncFromParent: {
+        parentQuestion: INTENDED_SOCIAL_PLATFORMS_QUESTION,
+        platformFieldKey: "platform",
+      },
       isAllowedEmpty: true,
     },
     {

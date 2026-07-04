@@ -10,7 +10,7 @@ export type RepeaterConditionalOption = {
 export type RepeaterFieldConfig = {
   key: string;
   label?: string;
-  type: "text" | "number" | "url" | "select";
+  type: "text" | "number" | "url" | "select" | "multiCheckbox" | "time";
   placeholder?: string;
   options?: string[];
   conditionalOptions?: {
@@ -54,6 +54,26 @@ export function resolveRepeaterSelectOptions(
   return options;
 }
 
+export function parseRepeaterMultiCheckboxValue(value: string): string[] {
+  if (!value.trim()) return [];
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed)
+      ? parsed.filter((item): item is string => typeof item === "string")
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+export function serializeRepeaterMultiCheckboxValue(values: string[]): string {
+  return values.length ? JSON.stringify(values) : "";
+}
+
+export function isRepeaterTimeValueValid(value: string): boolean {
+  return /^([01]\d|2[0-3]):([0-5]\d)$/.test(value.trim());
+}
+
 export function sanitizeRepeaterRowSelectValues(
   row: RepeaterRow,
   fields: RepeaterFieldConfig[],
@@ -92,6 +112,15 @@ export function isRepeaterCellValid(
       const options = row ? resolveRepeaterSelectOptions(field, row) : (field.options ?? []);
       return options.length ? options.includes(trimmed) : Boolean(trimmed);
     }
+    case "multiCheckbox": {
+      const selected = parseRepeaterMultiCheckboxValue(value);
+      if (!selected.length) return false;
+      return field.options?.length
+        ? selected.every((item) => field.options!.includes(item))
+        : true;
+    }
+    case "time":
+      return isRepeaterTimeValueValid(trimmed);
     default:
       return true;
   }
@@ -167,8 +196,10 @@ export function isRepeaterRowPartial(
   row: RepeaterRow,
   fields: RepeaterFieldConfig[],
 ): boolean {
-  const filledCount = fields.filter((field) => Boolean(row[field.key]?.trim())).length;
-  return filledCount > 0 && filledCount < fields.length;
+  const editableFields = fields.filter((field) => !field.readOnly);
+  if (editableFields.length === 0) return false;
+  const filledCount = editableFields.filter((field) => Boolean(row[field.key]?.trim())).length;
+  return filledCount > 0 && filledCount < editableFields.length;
 }
 
 export function isRepeaterEmpty(value: RepeaterValue, fields: RepeaterFieldConfig[]): boolean {
