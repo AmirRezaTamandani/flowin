@@ -20,6 +20,7 @@ export type RepeaterFieldConfig = {
   numberMin?: number;
   numberMax?: number;
   numberFormat?: "default" | "phone";
+  numberSuffix?: string;
   readOnly?: boolean;
 };
 

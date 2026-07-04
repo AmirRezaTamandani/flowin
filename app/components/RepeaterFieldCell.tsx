@@ -34,6 +34,7 @@ export function RepeaterFieldCell({
           placeholder={field.placeholder}
           min={field.numberMin}
           max={field.numberMax}
+          suffix={field.numberSuffix}
           format={field.numberFormat ?? "default"}
           hasError={hasError}
         />

@@ -137,7 +137,7 @@ export const pushFormSurvey: SurveyConfig = {
     {
       id: 13,
       question: "لحن و سبک محتوایی مدنظر شما برای ارسال چیست؟",
-      type: "checkbox",
+      type: "radio",
       options: [...CHANNEL_TONE_OPTIONS],
     },
     {

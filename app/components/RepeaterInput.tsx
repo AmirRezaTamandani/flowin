@@ -3,9 +3,12 @@
 import React from "react";
 import { Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Progress, ProgressLabel, ProgressValue } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import {
   createEmptyRepeaterRow,
+  getRepeaterPercentageTotal,
+  hasRepeaterPercentageField,
   type RepeaterFieldConfig,
   type RepeaterValue,
 } from "../lib/repeater";
@@ -23,6 +26,9 @@ export default function RepeaterInput({
   hasError?: boolean;
 }) {
   const hasLabels = fields.some((field) => field.label);
+  const hasPercentageField = hasRepeaterPercentageField(fields);
+  const percentageTotal = getRepeaterPercentageTotal(value);
+  const remainingPercentage = 100 - percentageTotal;
 
   function updateRow(index: number, key: string, next: string) {
     onChange({
@@ -78,6 +84,27 @@ export default function RepeaterInput({
         hasError && "rounded-xl border border-destructive p-3",
       )}
     >
+      {hasPercentageField ? (
+        <div className="rounded-xl border border-input bg-white p-4">
+          <Progress value={percentageTotal} className="gap-2">
+            <div className="flex w-full items-center justify-between gap-3 text-sm">
+              <ProgressLabel>مجموع تخصیص</ProgressLabel>
+              <ProgressValue />
+            </div>
+          </Progress>
+          <p
+            className={cn(
+              "mt-2 text-xs",
+              remainingPercentage === 0 ? "text-muted-foreground" : "text-destructive",
+            )}
+          >
+            {remainingPercentage > 0
+              ? `${remainingPercentage}% باقی‌مانده است. مجموع باید دقیقاً ۱۰۰٪ شود.`
+              : "مجموع درصدها کامل و برابر با ۱۰۰٪ است."}
+          </p>
+        </div>
+      ) : null}
+
       {value.rows.map((row, index) =>
         hasLabels ? (
           <div
@@ -119,7 +146,7 @@ export default function RepeaterInput({
                 value={row[field.key] ?? ""}
                 onChange={(next) => updateRow(index, field.key, next)}
                 hasError={hasError}
-                className={fieldIndex === 0 ? "flex-[2]" : "flex-[3]"}
+                className={fieldIndex === 0 ? "flex-2" : "flex-3"}
               />
             ))}
           </div>
