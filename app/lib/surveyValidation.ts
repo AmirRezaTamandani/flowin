@@ -27,8 +27,6 @@ import {
   countCompleteNestedRows,
   getNestedRepeaterConfig,
   hasIncompleteNestedRepeaterRows,
-  hasInvalidNestedRepeaterCells,
-  hasInvalidNestedRepeaterUrls,
   isNestedRepeaterEmpty,
   isNestedRowFieldsPartial,
   parseNestedRepeaterValue,
@@ -61,6 +59,7 @@ import {
   type RepeaterRow,
 } from "./repeater";
 import type { SurveyStep } from "./surveys";
+import { getPlatformUrlValidationMessage } from "./platformUrlValidation";
 import { INVALID_WEBSITE_URL_MESSAGE, isWebsiteUrlStepValueValid } from "./urlValidation";
 
 export type FormValues = Record<string, string | string[]>;
@@ -117,7 +116,17 @@ export function getRepeaterCellErrorMessage(
   if (isRepeaterCellValid(field, value, row)) return "";
   const trimmed = value.trim();
   if (!trimmed) return EMPTY_FIELD_MESSAGE;
-  if (field.type === "url") return INVALID_WEBSITE_URL_MESSAGE;
+  if (field.type === "url") {
+    const platform =
+      field.urlPlatformDependsOnKey && row
+        ? row[field.urlPlatformDependsOnKey]
+        : undefined;
+    const requireSocialLink = Boolean(field.urlPlatformDependsOnKey);
+    return (
+      getPlatformUrlValidationMessage(trimmed, platform, { requireSocialLink }) ||
+      INVALID_WEBSITE_URL_MESSAGE
+    );
+  }
   if (field.type === "time") return INVALID_TIME_MESSAGE;
   if (field.type === "number") return INVALID_NUMBER_MESSAGE;
   if (field.type === "select") return INVALID_SELECT_MESSAGE;
@@ -230,28 +239,14 @@ function collectRepeaterValidationErrors(
   parsed.rows.forEach((row, rowIndex) => {
     const editableFields = fields.filter((field) => !field.readOnly);
     const rowHasAny = editableFields.some((field) => row[field.key]?.trim());
-    const rowPartial = isRepeaterRowPartial(row, fields);
-    const rowComplete = isRepeaterRowComplete(row, fields);
+    if (!rowHasAny) return;
 
-    if (rowPartial || (rowHasAny && !rowComplete)) {
-      for (const field of editableFields) {
-        const cellValue = row[field.key] ?? "";
-        const message = getRepeaterCellErrorMessage(field, cellValue, row);
-        if (message) {
-          result.fields[repeaterFieldKey(rowIndex, field.key)] = message;
-        }
-      }
-      return;
-    }
-
-    for (const field of fields) {
+    for (const field of editableFields) {
       const cellValue = row[field.key] ?? "";
-      if (cellValue.trim() && !isRepeaterCellValid(field, cellValue, row)) {
-        result.fields[repeaterFieldKey(rowIndex, field.key)] = getRepeaterCellErrorMessage(
-          field,
-          cellValue,
-          row,
-        );
+      if (isRepeaterCellValid(field, cellValue, row)) continue;
+      const message = getRepeaterCellErrorMessage(field, cellValue, row);
+      if (message) {
+        result.fields[repeaterFieldKey(rowIndex, field.key)] = message;
       }
     }
   });
@@ -280,20 +275,6 @@ function collectNestedRepeaterValidationErrors(
     return result;
   }
 
-  if (hasInvalidNestedRepeaterUrls(parsed, config)) {
-    parsed.rows.forEach((row, rowIndex) => {
-      row.nested.forEach((child, nestedIndex) => {
-        for (const field of config.nestedFields) {
-          const cellValue = child[field.key] ?? "";
-          if (cellValue.trim() && field.type === "url" && !isRepeaterCellValid(field, cellValue)) {
-            result.fields[nestedChildFieldKey(rowIndex, nestedIndex, field.key)] =
-              INVALID_WEBSITE_URL_MESSAGE;
-          }
-        }
-      });
-    });
-  }
-
   parsed.rows.forEach((row, rowIndex) => {
     if (isNestedRowFieldsPartial(row, config)) {
       for (const field of config.fields) {
@@ -304,21 +285,16 @@ function collectNestedRepeaterValidationErrors(
     }
 
     row.nested.forEach((child, nestedIndex) => {
-      if (isRepeaterRowPartial(child, config.nestedFields)) {
-        for (const field of config.nestedFields) {
-          const cellValue = child[field.key] ?? "";
-          const message = getRepeaterCellErrorMessage(field, cellValue, child);
-          if (message) {
-            result.fields[nestedChildFieldKey(rowIndex, nestedIndex, field.key)] = message;
-          }
-        }
-      } else if (hasInvalidNestedRepeaterCells(parsed, config)) {
-        for (const field of config.nestedFields) {
-          const cellValue = child[field.key] ?? "";
-          if (cellValue.trim() && !isRepeaterCellValid(field, cellValue, child)) {
-            result.fields[nestedChildFieldKey(rowIndex, nestedIndex, field.key)] =
-              getRepeaterCellErrorMessage(field, cellValue, child);
-          }
+      const nestedFields = config.nestedFields.filter((field) => !field.readOnly);
+      const nestedHasAny = nestedFields.some((field) => child[field.key]?.trim());
+      if (!nestedHasAny) return;
+
+      for (const field of nestedFields) {
+        const cellValue = child[field.key] ?? "";
+        if (isRepeaterCellValid(field, cellValue, child)) continue;
+        const message = getRepeaterCellErrorMessage(field, cellValue, child);
+        if (message) {
+          result.fields[nestedChildFieldKey(rowIndex, nestedIndex, field.key)] = message;
         }
       }
     });

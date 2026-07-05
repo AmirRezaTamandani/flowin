@@ -182,7 +182,7 @@ export default function NestedRepeaterInput({
                   ];
                   return (
                     <RepeaterFieldCell
-                      key={field.key}
+                      key={`${rowIndex}-${nestedIndex}-${field.key}`}
                       field={field}
                       id={`nested-${rowIndex}-${nestedIndex}-${field.key}`}
                       value={child[field.key] ?? ""}

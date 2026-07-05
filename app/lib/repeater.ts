@@ -1,5 +1,5 @@
+import { isValidPlatformUrl } from "./platformUrlValidation";
 import { isPhoneStepValueValid } from "./phoneValidation";
-import { isValidWebsiteUrl } from "./urlValidation";
 
 export type RepeaterConditionalOption = {
   option: string;
@@ -23,6 +23,8 @@ export type RepeaterFieldConfig = {
   numberSuffix?: string;
   inputDir?: "ltr" | "rtl";
   readOnly?: boolean;
+  /** Validate URL against a platform-specific regex from the given row field. */
+  urlPlatformDependsOnKey?: string;
 };
 
 export type RepeaterSyncFromParentConfig = {
@@ -99,8 +101,14 @@ export function isRepeaterCellValid(
   if (!trimmed) return false;
 
   switch (field.type) {
-    case "url":
-      return isValidWebsiteUrl(trimmed);
+    case "url": {
+      const platform =
+        field.urlPlatformDependsOnKey && row
+          ? row[field.urlPlatformDependsOnKey]
+          : undefined;
+      const requireSocialLink = Boolean(field.urlPlatformDependsOnKey);
+      return isValidPlatformUrl(trimmed, platform, { requireSocialLink });
+    }
     case "number": {
       if (field.numberFormat === "phone") return isPhoneStepValueValid(trimmed);
       const parsed = Number.parseFloat(trimmed);

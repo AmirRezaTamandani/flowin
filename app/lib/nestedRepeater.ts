@@ -124,7 +124,9 @@ export function isNestedCompetitorRowComplete(
   );
   if (completePages.length < minNested) return false;
   return completePages.every((child) =>
-    config.nestedFields.every((field) => isRepeaterCellValid(field, child[field.key] ?? "")),
+    config.nestedFields.every((field) =>
+      isRepeaterCellValid(field, child[field.key] ?? "", child),
+    ),
   );
 }
 
@@ -163,7 +165,7 @@ export function hasInvalidNestedRepeaterUrls(
         (field) =>
           field.type === "url" &&
           Boolean(child[field.key]?.trim()) &&
-          !isRepeaterCellValid(field, child[field.key]),
+          !isRepeaterCellValid(field, child[field.key], child),
       ),
     ),
   );
@@ -184,7 +186,9 @@ export function hasInvalidNestedRepeaterCells(
     return row.nested.some(
       (child) =>
         isRepeaterRowComplete(child, config.nestedFields) &&
-        config.nestedFields.some((field) => !isRepeaterCellValid(field, child[field.key] ?? "")),
+        config.nestedFields.some((field) =>
+          !isRepeaterCellValid(field, child[field.key] ?? "", child),
+        ),
     );
   });
 }

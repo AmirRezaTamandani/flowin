@@ -11,6 +11,7 @@ import {
   resolveRepeaterSelectOptions,
   serializeRepeaterMultiCheckboxValue,
 } from "../lib/repeater";
+import { getPlatformUrlPattern } from "../lib/platformUrlValidation";
 import NumericInput from "./NumericInput";
 import FieldErrorMessage from "./FieldErrorMessage";
 
@@ -54,6 +55,13 @@ export function RepeaterFieldCell({
 
   if (field.type === "url") {
     const inputDir = field.inputDir ?? "ltr";
+    const platformLabel =
+      field.urlPlatformDependsOnKey && row
+        ? row[field.urlPlatformDependsOnKey]?.trim()
+        : "";
+    const platformExample = platformLabel
+      ? getPlatformUrlPattern(platformLabel)?.example
+      : undefined;
     return (
       <div className={cn("min-w-0", className)}>
         <Input
@@ -62,7 +70,7 @@ export function RepeaterFieldCell({
           inputMode="url"
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          placeholder={field.placeholder || "https://example.com"}
+          placeholder={platformExample ?? field.placeholder ?? "https://example.com"}
           aria-invalid={showError}
           dir={inputDir}
           className={cn(

@@ -93,6 +93,8 @@ const SOCIAL_PAGE_REPEATER_FIELDS = [
     type: "url" as const,
 
     placeholder: "لینک صفحه",
+
+    urlPlatformDependsOnKey: "platform",
   },
 ];
 

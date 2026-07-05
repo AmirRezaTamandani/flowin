@@ -1,0 +1,156 @@
+import { INVALID_WEBSITE_URL_MESSAGE, isValidWebsiteUrl, normalizeWebsiteUrl } from "./urlValidation";
+
+export type PlatformPatternKey =
+  | "rubika"
+  | "linkedin"
+  | "instagram"
+  | "telegram"
+  | "aparat"
+  | "reddit"
+  | "facebook"
+  | "youtube"
+  | "tiktok";
+
+export const PLATFORM_URL_PATTERNS: Record<
+  PlatformPatternKey,
+  { regex: RegExp; example: string }
+> = {
+  rubika: {
+    regex: /^https?:\/\/(www\.)?rubika\.ir\/.+/i,
+    example: "https://rubika.ir/username",
+  },
+  linkedin: {
+    regex: /^https?:\/\/(www\.)?linkedin\.com\/(in|company|pub)\/.+/i,
+    example: "https://linkedin.com/in/username",
+  },
+  instagram: {
+    regex: /^https?:\/\/(www\.)?instagram\.com\/.+/i,
+    example: "https://instagram.com/username",
+  },
+  telegram: {
+    regex: /^https?:\/\/(t\.me|telegram\.me)\/.+/i,
+    example: "https://t.me/username",
+  },
+  aparat: {
+    regex: /^https?:\/\/(www\.)?aparat\.com\/.+/i,
+    example: "https://www.aparat.com/username",
+  },
+  reddit: {
+    regex: /^https?:\/\/(www\.)?reddit\.com\/.+/i,
+    example: "https://reddit.com/user/username",
+  },
+  facebook: {
+    regex: /^https?:\/\/(www\.|m\.)?facebook\.com\/.+/i,
+    example: "https://facebook.com/username",
+  },
+  youtube: {
+    regex: /^https?:\/\/(www\.)?(youtube\.com|youtu\.be)\/.+/i,
+    example: "https://youtube.com/@channel",
+  },
+  tiktok: {
+    regex: /^https?:\/\/(www\.)?tiktok\.com\/.+/i,
+    example: "https://tiktok.com/@username",
+  },
+};
+
+const PLATFORM_LABEL_TO_KEY: Record<string, PlatformPatternKey> = {
+  روبیکا: "rubika",
+  rubika: "rubika",
+  لینکدین: "linkedin",
+  linkedin: "linkedin",
+  "اینستاگرام": "instagram",
+  instagram: "instagram",
+  تلگرام: "telegram",
+  telegram: "telegram",
+  آپارات: "aparat",
+  aparat: "aparat",
+  ردیت: "reddit",
+  reddit: "reddit",
+  فیسبوک: "facebook",
+  facebook: "facebook",
+  یوتیوب: "youtube",
+  youtube: "youtube",
+  "تیک‌تاک": "tiktok",
+  tiktok: "tiktok",
+};
+
+export const INVALID_SOCIAL_LINK_MESSAGE =
+  "لینک باید آدرس عمومی و معتبر شبکه اجتماعی باشد.";
+
+export const LOCALHOST_URL_MESSAGE =
+  "آدرس localhost برای لینک شبکه اجتماعی مجاز نیست.";
+
+export function resolvePlatformPatternKey(platform: string): PlatformPatternKey | null {
+  const trimmed = platform.trim();
+  if (!trimmed) return null;
+  return PLATFORM_LABEL_TO_KEY[trimmed] ?? PLATFORM_LABEL_TO_KEY[trimmed.toLowerCase()] ?? null;
+}
+
+export function getPlatformUrlPattern(platform: string) {
+  const key = resolvePlatformPatternKey(platform);
+  return key ? PLATFORM_URL_PATTERNS[key] : null;
+}
+
+function isDevOrLocalUrl(url: string): boolean {
+  try {
+    const hostname = new URL(normalizeWebsiteUrl(url)).hostname.toLowerCase();
+    return (
+      hostname === "localhost" ||
+      hostname === "127.0.0.1" ||
+      hostname.endsWith(".local")
+    );
+  } catch {
+    return true;
+  }
+}
+
+export function isValidPlatformUrl(
+  url: string,
+  platform?: string,
+  options?: { requireSocialLink?: boolean },
+): boolean {
+  const trimmed = url.trim();
+  if (!trimmed) return false;
+
+  if (options?.requireSocialLink && isDevOrLocalUrl(trimmed)) {
+    return false;
+  }
+
+  const pattern = platform?.trim() ? getPlatformUrlPattern(platform) : null;
+  if (pattern) {
+    return pattern.regex.test(normalizeWebsiteUrl(trimmed));
+  }
+
+  if (options?.requireSocialLink) {
+    return isValidWebsiteUrl(trimmed) && !isDevOrLocalUrl(trimmed);
+  }
+
+  return isValidWebsiteUrl(trimmed);
+}
+
+export function getPlatformUrlValidationMessage(
+  url: string,
+  platform?: string,
+  options?: { requireSocialLink?: boolean },
+): string {
+  const trimmed = url.trim();
+  if (!trimmed) return "";
+
+  if (options?.requireSocialLink && isDevOrLocalUrl(trimmed)) {
+    return LOCALHOST_URL_MESSAGE;
+  }
+
+  const platformLabel = platform?.trim() ?? "";
+  const pattern = platformLabel ? getPlatformUrlPattern(platformLabel) : null;
+
+  if (pattern) {
+    if (pattern.regex.test(normalizeWebsiteUrl(trimmed))) return "";
+    return `لینک باید متعلق به ${platformLabel} باشد. مثال: ${pattern.example}`;
+  }
+
+  if (options?.requireSocialLink) {
+    return isValidWebsiteUrl(trimmed) ? "" : INVALID_SOCIAL_LINK_MESSAGE;
+  }
+
+  return isValidWebsiteUrl(trimmed) ? "" : INVALID_WEBSITE_URL_MESSAGE;
+}

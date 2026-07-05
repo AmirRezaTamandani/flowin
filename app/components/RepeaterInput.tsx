@@ -146,7 +146,7 @@ export default function RepeaterInput({
               const cellError = fieldErrors[repeaterFieldKey(index, field.key)];
               return (
                 <RepeaterFieldCell
-                  key={field.key}
+                  key={`${index}-${field.key}`}
                   field={field}
                   id={`repeater-${index}-${field.key}`}
                   row={row}

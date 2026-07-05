@@ -419,6 +419,7 @@ export const socialStrategyFormSurvey: SurveyConfig = {
           type: "url",
           placeholder: "لینک محتوا",
           inputDir: "rtl",
+          urlPlatformDependsOnKey: "platform",
         },
         { key: "reason", type: "text", placeholder: "دلیل انتخاب این محتوا" },
       ],
