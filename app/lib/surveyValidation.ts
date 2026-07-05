@@ -248,7 +248,7 @@ function collectRepeaterValidationErrors(
     if (completeCount > 0) {
       const total = getRepeaterPercentageTotal(parsed);
       if (total !== 100) {
-        result.stepMessage = "مجموع درصدها باید دقیقاً ۱۰۰٪ باشد.";
+        result.stepMessage = "مجموع درصدها باید دقیقاً 100٪ باشد.";
       }
     }
   }
@@ -465,7 +465,7 @@ export function getStepValidationErrors(
     const parsed = parsePercentageAllocationValue(value, options);
     const total = getPercentageAllocationTotal(parsed);
     if (options.length > 0 && total > 0 && !isPercentageAllocationTotalComplete(parsed, options)) {
-      return { stepMessage: "مجموع درصدها باید دقیقاً ۱۰۰٪ باشد.", fields: {} };
+      return { stepMessage: "مجموع درصدها باید دقیقاً 100٪ باشد.", fields: {} };
     }
     if (isPercentageAllocationEmpty(parsed, options) && !step.isAllowedEmpty) {
       return { stepMessage: EMPTY_ANSWER_MESSAGE, fields: {} };
