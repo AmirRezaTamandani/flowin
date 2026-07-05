@@ -51,10 +51,11 @@ import {
   hasRepeaterPercentageField,
   isRepeaterCellValid,
   isRepeaterEmpty,
-  isRepeaterRowComplete,
   isRepeaterRowPartial,
+  isRepeaterTimeValueValid,
   isSyncedRepeaterEmpty,
   parseRepeaterValue,
+  repeaterTimeToMinutes,
   type RepeaterFieldConfig,
   type RepeaterRow,
 } from "./repeater";
@@ -74,6 +75,7 @@ export const EMPTY_FIELD_MESSAGE = "این فیلد الزامی است.";
 export const EMPTY_ANSWER_MESSAGE = "لطفاً این سوال را پاسخ دهید.";
 export const INVALID_NUMBER_MESSAGE = "مقدار وارد شده معتبر نیست.";
 export const INVALID_TIME_MESSAGE = "ساعت وارد شده معتبر نیست.";
+export const INVALID_TIME_RANGE_MESSAGE = "بازه زمانی واردشده معتبر نیست.";
 export const INVALID_SELECT_MESSAGE = "لطفاً یک گزینه انتخاب کنید.";
 export const INVALID_MULTI_CHECKBOX_MESSAGE = "حداقل یک گزینه انتخاب کنید.";
 
@@ -127,7 +129,30 @@ export function getRepeaterCellErrorMessage(
       INVALID_WEBSITE_URL_MESSAGE
     );
   }
-  if (field.type === "time") return INVALID_TIME_MESSAGE;
+  if (field.type === "time") {
+    if (!isRepeaterTimeValueValid(trimmed)) return INVALID_TIME_MESSAGE;
+    if (field.timeMustBeAfterKey && row) {
+      const start = row[field.timeMustBeAfterKey]?.trim() ?? "";
+      if (
+        start &&
+        isRepeaterTimeValueValid(start) &&
+        repeaterTimeToMinutes(trimmed) <= repeaterTimeToMinutes(start)
+      ) {
+        return INVALID_TIME_RANGE_MESSAGE;
+      }
+    }
+    if (field.timeMustBeBeforeKey && row) {
+      const end = row[field.timeMustBeBeforeKey]?.trim() ?? "";
+      if (
+        end &&
+        isRepeaterTimeValueValid(end) &&
+        repeaterTimeToMinutes(trimmed) >= repeaterTimeToMinutes(end)
+      ) {
+        return INVALID_TIME_RANGE_MESSAGE;
+      }
+    }
+    return INVALID_TIME_MESSAGE;
+  }
   if (field.type === "number") return INVALID_NUMBER_MESSAGE;
   if (field.type === "select") return INVALID_SELECT_MESSAGE;
   if (field.type === "multiCheckbox") return INVALID_MULTI_CHECKBOX_MESSAGE;
@@ -199,11 +224,14 @@ function collectRepeaterValidationErrors(
     const parentPlatforms = parent
       ? getPlainCheckboxSelections(values[fieldName(parent.id)])
       : [];
-    if (
-      step.isAllowedEmpty &&
-      isSyncedRepeaterEmpty(parsed, fields, parentPlatforms, { allowEmpty: true })
-    ) {
-      return result;
+    if (step.isAllowedEmpty) {
+      const editableFields = fields.filter((field) => !field.readOnly);
+      const allEditableEmpty =
+        parentPlatforms.length === 0 ||
+        parsed.rows.every((row) =>
+          editableFields.every((field) => !row[field.key]?.trim()),
+        );
+      if (allEditableEmpty) return result;
     }
   }
 
@@ -616,7 +644,11 @@ function isStepValueEmpty(
       const parentPlatforms = parent
         ? getPlainCheckboxSelections(values[fieldName(parent.id)])
         : [];
-      return isSyncedRepeaterEmpty(parsed, fields, parentPlatforms, { allowEmpty: true });
+      if (parentPlatforms.length === 0) return true;
+      const editableFields = fields.filter((field) => !field.readOnly);
+      return parsed.rows.every((row) =>
+        editableFields.every((field) => !row[field.key]?.trim()),
+      );
     }
     return isRepeaterEmpty(parsed, fields) && !hasIncompleteRepeaterRows(parsed, fields);
   }

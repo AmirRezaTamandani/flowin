@@ -359,7 +359,7 @@ function isStepEmpty(
       const parentPlatforms = parent
         ? getPlainCheckboxSelections(values[fieldName(parent.id)])
         : [];
-      return isSyncedRepeaterEmpty(parsed, fields, parentPlatforms, {
+      return isSyncedRepeaterEmpty(parsed, fields, parentPlatforms, step.repeaterSyncFromParent!, {
         allowEmpty: step.isAllowedEmpty,
       });
     }

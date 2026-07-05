@@ -25,11 +25,17 @@ export type RepeaterFieldConfig = {
   readOnly?: boolean;
   /** Validate URL against a platform-specific regex from the given row field. */
   urlPlatformDependsOnKey?: string;
+  /** End time must be strictly after this row field (HH:mm). */
+  timeMustBeAfterKey?: string;
+  /** Start time must be strictly before this row field (HH:mm). */
+  timeMustBeBeforeKey?: string;
 };
 
 export type RepeaterSyncFromParentConfig = {
   parentQuestion: string;
   platformFieldKey: string;
+  /** Allow multiple time slots per synced platform (e.g. Sat 12:00 and Mon 14:00). */
+  allowMultipleRowsPerPlatform?: boolean;
 };
 
 export function resolveRepeaterSelectOptions(
@@ -75,6 +81,23 @@ export function serializeRepeaterMultiCheckboxValue(values: string[]): string {
 
 export function isRepeaterTimeValueValid(value: string): boolean {
   return /^([01]\d|2[0-3]):([0-5]\d)$/.test(value.trim());
+}
+
+export function repeaterTimeToMinutes(value: string): number {
+  const [hours, minutes] = value.trim().split(":").map(Number);
+  return hours * 60 + minutes;
+}
+
+export function isRepeaterTimeRangeValid(
+  row: RepeaterRow,
+  startKey: string,
+  endKey: string,
+): boolean {
+  const start = row[startKey]?.trim() ?? "";
+  const end = row[endKey]?.trim() ?? "";
+  if (!start || !end) return true;
+  if (!isRepeaterTimeValueValid(start) || !isRepeaterTimeValueValid(end)) return true;
+  return repeaterTimeToMinutes(start) < repeaterTimeToMinutes(end);
 }
 
 export function sanitizeRepeaterRowSelectValues(
@@ -128,8 +151,30 @@ export function isRepeaterCellValid(
         ? selected.every((item) => field.options!.includes(item))
         : true;
     }
-    case "time":
-      return isRepeaterTimeValueValid(trimmed);
+    case "time": {
+      if (!isRepeaterTimeValueValid(trimmed)) return false;
+      if (field.timeMustBeAfterKey && row) {
+        const start = row[field.timeMustBeAfterKey]?.trim() ?? "";
+        if (
+          start &&
+          isRepeaterTimeValueValid(start) &&
+          repeaterTimeToMinutes(trimmed) <= repeaterTimeToMinutes(start)
+        ) {
+          return false;
+        }
+      }
+      if (field.timeMustBeBeforeKey && row) {
+        const end = row[field.timeMustBeBeforeKey]?.trim() ?? "";
+        if (
+          end &&
+          isRepeaterTimeValueValid(end) &&
+          repeaterTimeToMinutes(trimmed) >= repeaterTimeToMinutes(end)
+        ) {
+          return false;
+        }
+      }
+      return true;
+    }
     default:
       return true;
   }
@@ -269,8 +314,44 @@ export function syncRepeaterWithParentPlatforms(
   value: RepeaterValue,
   fields: RepeaterFieldConfig[],
   parentPlatforms: string[],
-  platformFieldKey: string,
+  syncConfig: RepeaterSyncFromParentConfig,
 ): RepeaterValue {
+  const { platformFieldKey, allowMultipleRowsPerPlatform } = syncConfig;
+
+  if (allowMultipleRowsPerPlatform) {
+    const parentSet = new Set(parentPlatforms);
+    const filteredRows = value.rows.filter((row) => {
+      const platform = row[platformFieldKey]?.trim();
+      return platform && parentSet.has(platform);
+    });
+
+    const rowsByPlatform = new Map<string, RepeaterRow[]>();
+    for (const row of filteredRows) {
+      const platform = row[platformFieldKey]!;
+      const bucket = rowsByPlatform.get(platform) ?? [];
+      bucket.push(row);
+      rowsByPlatform.set(platform, bucket);
+    }
+
+    const orderedRows: RepeaterRow[] = [];
+    for (const platform of parentPlatforms) {
+      const existing = rowsByPlatform.get(platform);
+      if (existing?.length) {
+        orderedRows.push(
+          ...existing.map((row) => ({ ...row, [platformFieldKey]: platform })),
+        );
+      } else {
+        const empty = createEmptyRepeaterRow(fields);
+        empty[platformFieldKey] = platform;
+        orderedRows.push(empty);
+      }
+    }
+
+    return {
+      rows: orderedRows.map((row) => sanitizeRepeaterRowSelectValues(row, fields)),
+    };
+  }
+
   const existingByPlatform = Object.fromEntries(
     value.rows
       .filter((row) => row[platformFieldKey]?.trim())
@@ -296,10 +377,23 @@ export function isSyncedRepeaterEmpty(
   value: RepeaterValue,
   fields: RepeaterFieldConfig[],
   parentPlatforms: string[],
+  syncConfig: RepeaterSyncFromParentConfig,
   options?: { allowEmpty?: boolean },
 ): boolean {
+  const { platformFieldKey, allowMultipleRowsPerPlatform } = syncConfig;
+
   if (parentPlatforms.length === 0) return !options?.allowEmpty;
-  if (value.rows.length !== parentPlatforms.length) return true;
+
+  if (allowMultipleRowsPerPlatform) {
+    for (const platform of parentPlatforms) {
+      if (!value.rows.some((row) => row[platformFieldKey] === platform)) {
+        return true;
+      }
+    }
+  } else if (value.rows.length !== parentPlatforms.length) {
+    return true;
+  }
+
   if (hasIncompleteRepeaterRows(value, fields)) return true;
 
   const editableFields = fields.filter((field) => !field.readOnly);
@@ -308,5 +402,15 @@ export function isSyncedRepeaterEmpty(
   );
   if (options?.allowEmpty && allEditableEmpty) return false;
 
-  return !value.rows.every((row) => isRepeaterRowComplete(row, fields));
+  if (
+    value.rows.some(
+      (row) =>
+        editableFields.some((field) => row[field.key]?.trim()) &&
+        !isRepeaterRowComplete(row, fields),
+    )
+  ) {
+    return true;
+  }
+
+  return false;
 }
