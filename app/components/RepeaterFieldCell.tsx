@@ -12,6 +12,7 @@ import {
   serializeRepeaterMultiCheckboxValue,
 } from "../lib/repeater";
 import NumericInput from "./NumericInput";
+import FieldErrorMessage from "./FieldErrorMessage";
 
 export function RepeaterFieldCell({
   field,
@@ -19,6 +20,7 @@ export function RepeaterFieldCell({
   onChange,
   id,
   hasError,
+  errorMessage,
   className,
   row,
 }: {
@@ -27,9 +29,11 @@ export function RepeaterFieldCell({
   onChange: (value: string) => void;
   id: string;
   hasError?: boolean;
+  errorMessage?: string;
   className?: string;
   row?: RepeaterRow;
 }) {
+  const showError = hasError || Boolean(errorMessage);
   if (field.type === "number") {
     return (
       <div className={cn("min-w-0", className)}>
@@ -41,8 +45,9 @@ export function RepeaterFieldCell({
           max={field.numberMax}
           suffix={field.numberSuffix}
           format={field.numberFormat ?? "default"}
-          hasError={hasError}
+          hasError={showError}
         />
+        <FieldErrorMessage message={errorMessage} />
       </div>
     );
   }
@@ -58,14 +63,15 @@ export function RepeaterFieldCell({
           value={value}
           onChange={(event) => onChange(event.target.value)}
           placeholder={field.placeholder || "https://example.com"}
-          aria-invalid={hasError}
+          aria-invalid={showError}
           dir={inputDir}
           className={cn(
             "h-11 bg-white text-base text-foreground",
             inputDir === "rtl" ? "text-right" : "text-left",
-            hasError && "border-destructive",
+            showError && "border-destructive",
           )}
         />
+        <FieldErrorMessage message={errorMessage} />
       </div>
     );
   }
@@ -78,10 +84,10 @@ export function RepeaterFieldCell({
           id={id}
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          aria-invalid={hasError}
+          aria-invalid={showError}
           className={cn(
             "h-11 w-full rounded-lg border border-input bg-white px-3 text-base text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50",
-            hasError && "border-destructive ring-destructive/20",
+            showError && "border-destructive ring-destructive/20",
           )}
         >
           <option value="">{field.placeholder || "انتخاب کنید"}</option>
@@ -91,6 +97,7 @@ export function RepeaterFieldCell({
             </option>
           ))}
         </select>
+        <FieldErrorMessage message={errorMessage} />
       </div>
     );
   }
@@ -102,7 +109,7 @@ export function RepeaterFieldCell({
       <div
         className={cn(
           "min-w-0 rounded-lg border border-input bg-white p-3",
-          hasError && "border-destructive ring-1 ring-destructive/20",
+          showError && "border-destructive ring-1 ring-destructive/20",
           className,
         )}
       >
@@ -118,7 +125,7 @@ export function RepeaterFieldCell({
                 <Checkbox
                   id={`${id}-${option}`}
                   checked={checked}
-                  aria-invalid={hasError}
+                  aria-invalid={showError}
                   onCheckedChange={(nextChecked) => {
                     const nextSelected = nextChecked
                       ? [...selected, option]
@@ -131,6 +138,7 @@ export function RepeaterFieldCell({
             );
           })}
         </div>
+        <FieldErrorMessage message={errorMessage} />
       </div>
     );
   }
@@ -145,12 +153,13 @@ export function RepeaterFieldCell({
           value={value}
           onChange={(event) => onChange(event.target.value)}
           placeholder={field.placeholder}
-          aria-invalid={hasError}
+          aria-invalid={showError}
           className={cn(
             "h-11 bg-white text-base text-foreground",
-            hasError && "border-destructive",
+            showError && "border-destructive",
           )}
         />
+        <FieldErrorMessage message={errorMessage} />
       </div>
     );
   }
@@ -175,12 +184,13 @@ export function RepeaterFieldCell({
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={field.placeholder}
-        aria-invalid={hasError}
+        aria-invalid={showError}
         className={cn(
           "h-11 bg-white text-base text-foreground",
-          hasError && "border-destructive",
+          showError && "border-destructive",
         )}
       />
+      <FieldErrorMessage message={errorMessage} />
     </div>
   );
 }

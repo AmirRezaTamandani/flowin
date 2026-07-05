@@ -141,14 +141,50 @@ export function serializePersonaFieldsValue(value: PersonaFieldsValue): string {
   return JSON.stringify(value);
 }
 
+export const PERSONA_EMPTY_FIELD_MESSAGE = "این فیلد الزامی است.";
+
+function isPersonaSelectValueValid(
+  value: string,
+  options: readonly string[],
+): boolean {
+  return Boolean(value.trim()) && options.includes(value);
+}
+
+export function getPersonaFieldsValidationErrors(
+  value: PersonaFieldsValue,
+): Partial<Record<keyof PersonaFieldsValue, string>> {
+  const errors: Partial<Record<keyof PersonaFieldsValue, string>> = {};
+
+  if (!isPersonaSelectValueValid(value.ageRange, PERSONA_AGE_OPTIONS)) {
+    errors.ageRange = PERSONA_EMPTY_FIELD_MESSAGE;
+  }
+  if (!isPersonaSelectValueValid(value.gender, PERSONA_GENDER_OPTIONS)) {
+    errors.gender = PERSONA_EMPTY_FIELD_MESSAGE;
+  }
+  if (!isPersonaSelectValueValid(value.country, PERSONA_COUNTRY_OPTIONS)) {
+    errors.country = PERSONA_EMPTY_FIELD_MESSAGE;
+  } else {
+    const provinceOptions = getPersonaProvinceOptions(value.country);
+    const province = provinceOptions.includes(value.province) ? value.province : "";
+    if (!province) {
+      errors.province = PERSONA_EMPTY_FIELD_MESSAGE;
+    } else {
+      const cityOptions = getPersonaCityOptions(value.country, province);
+      if (!isPersonaSelectValueValid(value.city, cityOptions)) {
+        errors.city = PERSONA_EMPTY_FIELD_MESSAGE;
+      }
+    }
+  }
+  if (!isPersonaSelectValueValid(value.job, PERSONA_JOB_OPTIONS)) {
+    errors.job = PERSONA_EMPTY_FIELD_MESSAGE;
+  }
+  if (!isPersonaSelectValueValid(value.incomeLevel, PERSONA_INCOME_OPTIONS)) {
+    errors.incomeLevel = PERSONA_EMPTY_FIELD_MESSAGE;
+  }
+
+  return errors;
+}
+
 export function isPersonaFieldsEmpty(value: PersonaFieldsValue): boolean {
-  return (
-    !value.ageRange.trim() ||
-    !value.gender.trim() ||
-    !value.country.trim() ||
-    !value.province.trim() ||
-    !value.city.trim() ||
-    !value.job.trim() ||
-    !value.incomeLevel.trim()
-  );
+  return Object.keys(getPersonaFieldsValidationErrors(value)).length > 0;
 }

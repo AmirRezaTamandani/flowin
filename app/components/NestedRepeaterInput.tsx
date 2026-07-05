@@ -10,6 +10,7 @@ import {
   type NestedRepeaterConfig,
   type NestedRepeaterValue,
 } from "../lib/nestedRepeater";
+import { nestedChildFieldKey, nestedParentFieldKey } from "../lib/surveyValidation";
 import { RepeaterFieldCell, RepeaterFieldLabel } from "./RepeaterFieldCell";
 
 export default function NestedRepeaterInput({
@@ -17,11 +18,13 @@ export default function NestedRepeaterInput({
   onChange,
   config,
   hasError,
+  fieldErrors = {},
 }: {
   value: NestedRepeaterValue;
   onChange: (value: NestedRepeaterValue) => void;
   config: NestedRepeaterConfig;
   hasError?: boolean;
+  fieldErrors?: Record<string, string>;
 }) {
   const nestedAddLabel = config.nestedAddLabel ?? "افزودن صفحه اجتماعی";
 
@@ -140,6 +143,7 @@ export default function NestedRepeaterInput({
           <div className="mb-4 grid gap-3 sm:grid-cols-2">
             {config.fields.map((field) => {
               const fieldId = `nested-${rowIndex}-${field.key}`;
+              const cellError = fieldErrors[nestedParentFieldKey(rowIndex, field.key)];
               return (
                 <div key={field.key}>
                   <RepeaterFieldLabel field={field} htmlFor={fieldId} />
@@ -148,7 +152,8 @@ export default function NestedRepeaterInput({
                     id={fieldId}
                     value={row.fields[field.key] ?? ""}
                     onChange={(next) => updateRowFields(rowIndex, field.key, next)}
-                    hasError={hasError}
+                    hasError={Boolean(cellError)}
+                    errorMessage={cellError}
                   />
                 </div>
               );
@@ -171,19 +176,25 @@ export default function NestedRepeaterInput({
                 >
                   <Minus className="size-4" />
                 </Button>
-                {config.nestedFields.map((field, fieldIndex) => (
-                  <RepeaterFieldCell
-                    key={field.key}
-                    field={field}
-                    id={`nested-${rowIndex}-${nestedIndex}-${field.key}`}
-                    value={child[field.key] ?? ""}
-                    onChange={(next) =>
-                      updateNestedCell(rowIndex, nestedIndex, field.key, next)
-                    }
-                    hasError={hasError}
-                    className={fieldIndex === 0 ? "flex-[2]" : "flex-[3]"}
-                  />
-                ))}
+                {config.nestedFields.map((field, fieldIndex) => {
+                  const cellError = fieldErrors[
+                    nestedChildFieldKey(rowIndex, nestedIndex, field.key)
+                  ];
+                  return (
+                    <RepeaterFieldCell
+                      key={field.key}
+                      field={field}
+                      id={`nested-${rowIndex}-${nestedIndex}-${field.key}`}
+                      value={child[field.key] ?? ""}
+                      onChange={(next) =>
+                        updateNestedCell(rowIndex, nestedIndex, field.key, next)
+                      }
+                      hasError={Boolean(cellError)}
+                      errorMessage={cellError}
+                      className={fieldIndex === 0 ? "flex-[2]" : "flex-[3]"}
+                    />
+                  );
+                })}
               </div>
             ))}
             <Button

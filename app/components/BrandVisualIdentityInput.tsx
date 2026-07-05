@@ -12,6 +12,7 @@ import {
   isValidHexColor,
   normalizeHexColor,
 } from "../lib/brandVisualIdentity";
+import FieldErrorMessage from "./FieldErrorMessage";
 
 type EyeDropperConstructor = new () => {
   open: () => Promise<{ sRGBHex: string }>;
@@ -248,10 +249,12 @@ export default function BrandVisualIdentityInput({
   value,
   onChange,
   hasError,
+  fieldErrors = {},
 }: {
   value: BrandVisualIdentityValue;
   onChange: (value: BrandVisualIdentityValue) => void;
   hasError?: boolean;
+  fieldErrors?: Record<string, string>;
 }) {
   function update(partial: Partial<BrandVisualIdentityValue>) {
     onChange({ ...value, ...partial });
@@ -278,17 +281,25 @@ export default function BrandVisualIdentityInput({
         hasError && "rounded-xl border border-destructive p-3",
       )}
     >
-      <FileUploadField
-        id="brand-logo-upload"
-        label="لوگو / آیکون"
-        hint="PNG، JPG، WEBP، SVG یا ICO"
-        accept={LOGO_ACCEPT}
-        file={value.logo}
-        onChange={(logo) => update({ logo })}
-        previewType="image"
-      />
+      <div className={cn(fieldErrors.logo && "rounded-xl border border-destructive p-2")}>
+        <FileUploadField
+          id="brand-logo-upload"
+          label="لوگو / آیکون"
+          hint="PNG، JPG، WEBP، SVG یا ICO"
+          accept={LOGO_ACCEPT}
+          file={value.logo}
+          onChange={(logo) => update({ logo })}
+          previewType="image"
+        />
+        <FieldErrorMessage message={fieldErrors.logo} />
+      </div>
 
-      <div className="rounded-xl border border-input bg-white p-4">
+      <div
+        className={cn(
+          "rounded-xl border border-input bg-white p-4",
+          fieldErrors.colors && "border-destructive",
+        )}
+      >
         <div className="mb-3 flex items-center justify-between gap-3">
           <div>
             <p className="text-sm font-semibold text-foreground">رنگ‌های برند</p>
@@ -318,17 +329,21 @@ export default function BrandVisualIdentityInput({
             ))}
           </div>
         )}
+        <FieldErrorMessage message={fieldErrors.colors} />
       </div>
 
-      <FileUploadField
-        id="brand-font-upload"
-        label="فونت برند"
-        hint="TTF، OTF، WOFF یا WOFF2"
-        accept={FONT_ACCEPT}
-        file={value.font}
-        onChange={(font) => update({ font })}
-        previewType="file"
-      />
+      <div className={cn(fieldErrors.font && "rounded-xl border border-destructive p-2")}>
+        <FileUploadField
+          id="brand-font-upload"
+          label="فونت برند"
+          hint="TTF، OTF، WOFF یا WOFF2"
+          accept={FONT_ACCEPT}
+          file={value.font}
+          onChange={(font) => update({ font })}
+          previewType="file"
+        />
+        <FieldErrorMessage message={fieldErrors.font} />
+      </div>
     </div>
   );
 }

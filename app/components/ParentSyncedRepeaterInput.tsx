@@ -9,6 +9,7 @@ import {
   sanitizeRepeaterRowSelectValues,
   syncRepeaterWithParentPlatforms,
 } from "../lib/repeater";
+import { repeaterFieldKey } from "../lib/surveyValidation";
 import { RepeaterFieldCell, RepeaterFieldLabel } from "./RepeaterFieldCell";
 
 export default function ParentSyncedRepeaterInput({
@@ -18,6 +19,7 @@ export default function ParentSyncedRepeaterInput({
   syncConfig,
   parentPlatforms,
   hasError,
+  fieldErrors = {},
 }: {
   value: RepeaterValue;
   onChange: (value: RepeaterValue) => void;
@@ -25,6 +27,7 @@ export default function ParentSyncedRepeaterInput({
   syncConfig: RepeaterSyncFromParentConfig;
   parentPlatforms: string[];
   hasError?: boolean;
+  fieldErrors?: Record<string, string>;
 }) {
   const platformsKey = parentPlatforms.join("\0");
 
@@ -80,6 +83,7 @@ export default function ParentSyncedRepeaterInput({
         >
           {fields.map((field) => {
             const fieldId = `synced-repeater-${index}-${field.key}`;
+            const cellError = fieldErrors[repeaterFieldKey(index, field.key)];
             return (
               <div key={field.key}>
                 <RepeaterFieldLabel field={field} htmlFor={fieldId} />
@@ -89,7 +93,8 @@ export default function ParentSyncedRepeaterInput({
                   row={row}
                   value={row[field.key] ?? ""}
                   onChange={(next) => updateRow(index, field.key, next)}
-                  hasError={hasError}
+                  hasError={Boolean(cellError)}
+                  errorMessage={cellError}
                 />
               </div>
             );

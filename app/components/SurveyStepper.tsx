@@ -15,10 +15,15 @@ import FileUploadInput from "./FileUploadInput";
 import ShamsiDateInput from "./ShamsiDateInput";
 import NamedShamsiDatesInput from "./NamedShamsiDatesInput";
 import NumericInput, { isNumericStepValueValid } from "./NumericInput";
+import FieldErrorMessage from "./FieldErrorMessage";
 import {
-  INVALID_WEBSITE_URL_MESSAGE,
-  isWebsiteUrlStepValueValid,
-} from "../lib/urlValidation";
+  getStepValidationErrors,
+  hasStepValidationErrors,
+  isStepAnswerValid,
+  ROOT_FIELD_KEY,
+  type StepValidationErrors,
+} from "../lib/surveyValidation";
+import type { ShowIfCondition, SurveyConfig, SurveyStep } from "../lib/surveys";
 import {
   isBrandVisualIdentityEmpty,
   parseBrandVisualIdentityValue,
@@ -46,13 +51,10 @@ import {
   serializeFileUploadValue,
 } from "../lib/fileUpload";
 import {
-  countCompleteRepeaterRows,
   createEmptyRepeaterValue,
   getRepeaterFields,
   getPlainCheckboxSelections,
-  getRepeaterPercentageTotal,
   hasIncompleteRepeaterRows,
-  hasRepeaterPercentageField,
   isRepeaterCellValid,
   isRepeaterEmpty,
   isRepeaterRowComplete,
@@ -66,15 +68,12 @@ import {
   getNestedRepeaterConfig,
   hasIncompleteNestedRepeaterRows,
   hasInvalidNestedRepeaterCells,
-  hasInvalidNestedRepeaterUrls,
   isNestedRepeaterEmpty,
   parseNestedRepeaterValue,
   serializeNestedRepeaterValue,
 } from "../lib/nestedRepeater";
 import {
   createEmptyPercentageAllocation,
-  getPercentageAllocationTotal,
-  isPercentageAllocationTotalComplete,
   isPercentageAllocationEmpty,
   parsePercentageAllocationValue,
   serializePercentageAllocationValue,
@@ -110,7 +109,6 @@ import {
   stepHasCheckboxSubOptions,
   type CheckboxWithSubOptionsValue,
 } from "../lib/checkboxWithSubOptions";
-import type { ShowIfCondition, SurveyConfig, SurveyStep } from "../lib/surveys";
 
 function getCheckboxSelectionsForStep(
   step: SurveyStep,
@@ -419,134 +417,23 @@ function isStepEmpty(
   return !value || (typeof value === "string" && !value.trim());
 }
 
-function getStepValidationError(
-  step: SurveyStep,
-  value: string | string[] | undefined,
-  values?: FormValues,
-  steps?: SurveyStep[],
-): string | null {
-  if (
-    step.type === "checkbox" &&
-    step.optionsFromParent &&
-    values &&
-    steps
-  ) {
-    const parentAnswer = getAnswerByQuestion(
-      steps,
-      values,
-      step.optionsFromParent.parentQuestion,
-    );
-    const options = step.optionsFromParent.optionMap[parentAnswer] ?? [];
-    if (!options.length) return null;
-    if (!parentAnswer) return EMPTY_ANSWER_MESSAGE;
-  }
-
-  if (
-    (step.type === "radio" || step.type === "select") &&
-    step.optionsFromParent &&
-    values &&
-    steps
-  ) {
-    const parentAnswer = getAnswerByQuestion(
-      steps,
-      values,
-      step.optionsFromParent.parentQuestion,
-    );
-    const options = step.optionsFromParent.optionMap[parentAnswer] ?? [];
-    if (!options.length) return null;
-    if (!parentAnswer) return EMPTY_ANSWER_MESSAGE;
-  }
-
-  if (step.isAllowedEmpty && isStepEmpty(step, value, steps ?? [], values ?? {})) return null;
-
-  if (step.type === "repeater") {
-    const fields = getRepeaterFields(step);
-    const parsed = parseRepeaterValue(value, fields);
-    const minRows = Math.max(step.repeaterMinRows ?? 1, 1);
-    const hasInvalidUrl = parsed.rows.some((row) =>
-      fields.some(
-        (field) =>
-          field.type === "url" &&
-          Boolean(row[field.key]?.trim()) &&
-          !isRepeaterCellValid(field, row[field.key], row),
-      ),
-    );
-    if (hasInvalidUrl) return INVALID_WEBSITE_URL_MESSAGE;
-    const completeCount = countCompleteRepeaterRows(parsed, fields);
-    if (completeCount < minRows && !hasIncompleteRepeaterRows(parsed, fields)) {
-      return `حداقل ${minRows} مرحله با اطلاعات کامل وارد کنید.`;
-    }
-    if (hasRepeaterPercentageField(fields) && completeCount > 0) {
-      const percentageTotal = getRepeaterPercentageTotal(parsed);
-      if (percentageTotal !== 100) {
-        return "مجموع درصدها باید دقیقاً ۱۰۰٪ باشد.";
-      }
-    }
-  }
-
-  if (step.type === "percentageAllocation") {
-    const options = getPercentageAllocationOptionsForStep(step, steps ?? [], values ?? {});
-    const parsed = parsePercentageAllocationValue(value, options);
-    const total = getPercentageAllocationTotal(parsed);
-    if (options.length > 0 && total > 0 && !isPercentageAllocationTotalComplete(parsed, options)) {
-      return "مجموع درصدها باید دقیقاً ۱۰۰٪ باشد.";
-    }
-  }
-
-  if (step.type === "nestedRepeater") {
-    const config = getNestedRepeaterConfig(step);
-    if (config) {
-      const parsed = parseNestedRepeaterValue(value, config);
-      if (hasInvalidNestedRepeaterUrls(parsed, config)) {
-        return INVALID_WEBSITE_URL_MESSAGE;
-      }
-      const completeCount = countCompleteNestedRows(parsed, config);
-      if (
-        config.minRows !== undefined &&
-        completeCount < config.minRows &&
-        !hasIncompleteNestedRepeaterRows(parsed, config)
-      ) {
-        return NESTED_REPEATER_MIN_ROWS_MESSAGE;
-      }
-      if (config.maxRows !== undefined && completeCount > config.maxRows) {
-        return NESTED_REPEATER_MAX_ROWS_MESSAGE;
-      }
-    }
-  }
-
-  if (isStepEmpty(step, value, steps ?? [], values ?? {})) return EMPTY_ANSWER_MESSAGE;
-  if (step.type === "url" && !isWebsiteUrlStepValueValid(value)) {
-    return INVALID_WEBSITE_URL_MESSAGE;
-  }
-  return null;
-}
-
-function isStepAnswerValid(
-  step: SurveyStep,
-  values: FormValues,
-  steps: SurveyStep[],
-): boolean {
-  return getStepValidationError(step, values[fieldName(step.id)], values, steps) === null;
-}
-
-const EMPTY_ANSWER_MESSAGE = "لطفاً این سوال را پاسخ دهید.";
-const NESTED_REPEATER_MIN_ROWS_MESSAGE = "حداقل ۲ رقیب با اطلاعات کامل وارد کنید.";
-const NESTED_REPEATER_MAX_ROWS_MESSAGE = "حداکثر ۱۰ رقیب مجاز است.";
-
 function StepField({
   step,
   steps,
   control,
-  hasError,
+  validationErrors,
 }: {
   step: SurveyStep;
   steps: SurveyStep[];
   control: ReturnType<typeof useForm<FormValues>>["control"];
-  hasError?: boolean;
+  validationErrors?: StepValidationErrors;
 }) {
   const watchedValues = useWatch({ control }) as FormValues;
   const name = fieldName(step.id);
-  const errorClass = hasError
+  const fieldErrors = validationErrors?.fields ?? {};
+  const rootError = fieldErrors[ROOT_FIELD_KEY];
+  const hasFieldError = (key: string) => Boolean(fieldErrors[key]);
+  const errorClass = rootError
     ? "border-destructive ring-destructive/20 aria-invalid:border-destructive"
     : "";
 
@@ -556,13 +443,16 @@ function StepField({
         name={name}
         control={control}
         render={({ field }) => (
-          <Input
-            {...field}
-            value={typeof field.value === "string" ? field.value : ""}
-            placeholder={step.placeholder || ""}
-            aria-invalid={hasError}
-            className={cn("h-11 text-base text-foreground bg-white", errorClass)}
-          />
+          <>
+            <Input
+              {...field}
+              value={typeof field.value === "string" ? field.value : ""}
+              placeholder={step.placeholder || ""}
+              aria-invalid={Boolean(rootError)}
+              className={cn("h-11 text-base text-foreground bg-white", errorClass)}
+            />
+            <FieldErrorMessage message={rootError} />
+          </>
         )}
       />
     );
@@ -574,16 +464,19 @@ function StepField({
         name={name}
         control={control}
         render={({ field }) => (
-          <Input
-            {...field}
-            type="url"
-            inputMode="url"
-            value={typeof field.value === "string" ? field.value : ""}
-            placeholder={step.placeholder || "https://example.com"}
-            aria-invalid={hasError}
-            dir="ltr"
-            className={cn("h-11 bg-white text-base text-foreground text-left", errorClass)}
-          />
+          <>
+            <Input
+              {...field}
+              type="url"
+              inputMode="url"
+              value={typeof field.value === "string" ? field.value : ""}
+              placeholder={step.placeholder || "https://example.com"}
+              aria-invalid={Boolean(rootError)}
+              dir="ltr"
+              className={cn("h-11 bg-white text-base text-foreground text-left", errorClass)}
+            />
+            <FieldErrorMessage message={rootError} />
+          </>
         )}
       />
     );
@@ -595,17 +488,20 @@ function StepField({
         name={name}
         control={control}
         render={({ field }) => (
-          <NumericInput
-            value={typeof field.value === "string" ? field.value : ""}
-            onChange={field.onChange}
-            suffix={step.numberSuffix}
-            placeholder={step.placeholder}
-            min={step.numberMin}
-            max={step.numberMax}
-            allowDecimal={step.numberAllowDecimal}
-            format={step.numberFormat ?? "default"}
-            hasError={hasError}
-          />
+          <>
+            <NumericInput
+              value={typeof field.value === "string" ? field.value : ""}
+              onChange={field.onChange}
+              suffix={step.numberSuffix}
+              placeholder={step.placeholder}
+              min={step.numberMin}
+              max={step.numberMax}
+              allowDecimal={step.numberAllowDecimal}
+              format={step.numberFormat ?? "default"}
+              hasError={Boolean(rootError)}
+            />
+            <FieldErrorMessage message={rootError} />
+          </>
         )}
       />
     );
@@ -617,14 +513,17 @@ function StepField({
         name={name}
         control={control}
         render={({ field }) => (
-          <Textarea
-            {...field}
-            value={typeof field.value === "string" ? field.value : ""}
-            placeholder={step.placeholder || ""}
-            rows={5}
-            aria-invalid={hasError}
-            className={cn("min-h-[120px] text-base text-foreground bg-white", errorClass)}
-          />
+          <>
+            <Textarea
+              {...field}
+              value={typeof field.value === "string" ? field.value : ""}
+              placeholder={step.placeholder || ""}
+              rows={5}
+              aria-invalid={Boolean(rootError)}
+              className={cn("min-h-[120px] text-base text-foreground bg-white", errorClass)}
+            />
+            <FieldErrorMessage message={rootError} />
+          </>
         )}
       />
     );
@@ -636,13 +535,16 @@ function StepField({
         name={name}
         control={control}
         render={({ field }) => (
-          <ShamsiDateInput
-            value={typeof field.value === "string" ? field.value : ""}
-            onChange={field.onChange}
-            mode={step.shamsiPickerMode ?? "date"}
-            placeholder={step.placeholder}
-            hasError={hasError}
-          />
+          <>
+            <ShamsiDateInput
+              value={typeof field.value === "string" ? field.value : ""}
+              onChange={field.onChange}
+              mode={step.shamsiPickerMode ?? "date"}
+              placeholder={step.placeholder}
+              hasError={Boolean(rootError)}
+            />
+            <FieldErrorMessage message={rootError} />
+          </>
         )}
       />
     );
@@ -657,7 +559,8 @@ function StepField({
           <NamedShamsiDatesInput
             value={parseNamedShamsiDatesValue(field.value)}
             onChange={(next) => field.onChange(serializeNamedShamsiDatesValue(next))}
-            hasError={hasError}
+            hasError={Boolean(validationErrors && hasStepValidationErrors(validationErrors))}
+            fieldErrors={fieldErrors}
             namePlaceholder={step.placeholder}
           />
         )}
@@ -672,27 +575,30 @@ function StepField({
         name={name}
         control={control}
         render={({ field }) => (
-          <select
-            {...field}
-            value={
-              typeof field.value === "string" && selectOptions.includes(field.value)
-                ? field.value
-                : ""
-            }
-            onChange={(event) => field.onChange(event.target.value)}
-            aria-invalid={hasError}
-            className={cn(
-              "h-11 w-full rounded-lg border border-input bg-transparent px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50",
-              errorClass,
-            )}
-          >
-            <option value="">انتخاب کنید</option>
-            {selectOptions.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
+          <>
+            <select
+              {...field}
+              value={
+                typeof field.value === "string" && selectOptions.includes(field.value)
+                  ? field.value
+                  : ""
+              }
+              onChange={(event) => field.onChange(event.target.value)}
+              aria-invalid={Boolean(rootError)}
+              className={cn(
+                "h-11 w-full rounded-lg border border-input bg-transparent px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50",
+                errorClass,
+              )}
+            >
+              <option value="">انتخاب کنید</option>
+              {selectOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+            <FieldErrorMessage message={rootError} />
+          </>
         )}
       />
     );
@@ -708,21 +614,24 @@ function StepField({
           const currentValue = typeof field.value === "string" ? field.value : "";
           const selectedValue = radioOptions.includes(currentValue) ? currentValue : "";
           return (
-            <RadioGroup
-              value={selectedValue}
-              onValueChange={field.onChange}
-              className={cn("gap-3", hasError && "rounded-lg border border-destructive p-2")}
-            >
-              {radioOptions.map((option) => (
-                <Label
-                  key={option}
-                  className="flex cursor-pointer items-start gap-3 rounded-lg border border-transparent p-2 hover:bg-muted/50 has-data-checked:border-primary/30 has-data-checked:bg-primary/5"
-                >
-                  <RadioGroupItem value={option} className="mt-0.5" />
-                  <span className="radio-label text-sm leading-6 text-foreground">{option}</span>
-                </Label>
-              ))}
-            </RadioGroup>
+            <>
+              <RadioGroup
+                value={selectedValue}
+                onValueChange={field.onChange}
+                className={cn("gap-3", rootError && "rounded-lg border border-destructive p-2")}
+              >
+                {radioOptions.map((option) => (
+                  <Label
+                    key={option}
+                    className="flex cursor-pointer items-start gap-3 rounded-lg border border-transparent p-2 hover:bg-muted/50 has-data-checked:border-primary/30 has-data-checked:bg-primary/5"
+                  >
+                    <RadioGroupItem value={option} className="mt-0.5" />
+                    <span className="radio-label text-sm leading-6 text-foreground">{option}</span>
+                  </Label>
+                ))}
+              </RadioGroup>
+              <FieldErrorMessage message={rootError} />
+            </>
           );
         }}
       />
@@ -738,7 +647,8 @@ function StepField({
           <BrandVisualIdentityInput
             value={parseBrandVisualIdentityValue(field.value)}
             onChange={(next) => field.onChange(serializeBrandVisualIdentityValue(next))}
-            hasError={hasError}
+            hasError={Boolean(validationErrors && hasStepValidationErrors(validationErrors))}
+            fieldErrors={fieldErrors}
           />
         )}
       />
@@ -754,7 +664,7 @@ function StepField({
           <PersonaFieldsInput
             value={parsePersonaFieldsValue(field.value)}
             onChange={(next) => field.onChange(serializePersonaFieldsValue(next))}
-            hasError={hasError}
+            fieldErrors={fieldErrors}
           />
         )}
       />
@@ -770,7 +680,8 @@ function StepField({
           <GeoLocationInput
             value={parseGeoLocationValue(field.value)}
             onChange={(next) => field.onChange(serializeGeoLocationValue(next))}
-            hasError={hasError}
+            hasError={Boolean(validationErrors && hasStepValidationErrors(validationErrors))}
+            fieldErrors={fieldErrors}
             single={step.geoLocationSingle}
           />
         )}
@@ -795,7 +706,7 @@ function StepField({
             onChange={(next) =>
               field.onChange(serializePercentageAllocationValue(next))
             }
-            hasError={hasError}
+            hasError={Boolean(validationErrors && hasStepValidationErrors(validationErrors))}
           />
         )}
       />
@@ -808,15 +719,19 @@ function StepField({
         name={name}
         control={control}
         render={({ field }) => (
-          <FileUploadInput
-            value={parseFileUploadValue(field.value)}
-            onChange={(next) => field.onChange(serializeFileUploadValue(next))}
-            hasError={hasError}
-            accept={step.fileAccept}
-            uploadHint={step.uploadHint}
-            descriptionPlaceholder={step.placeholder}
-            maxFiles={step.maxFiles}
-          />
+          <>
+            <FileUploadInput
+              value={parseFileUploadValue(field.value)}
+              onChange={(next) => field.onChange(serializeFileUploadValue(next))}
+              hasError={hasFieldError("description") || hasFieldError("files")}
+              descriptionError={fieldErrors.description}
+              filesError={fieldErrors.files}
+              accept={step.fileAccept}
+              uploadHint={step.uploadHint}
+              descriptionPlaceholder={step.placeholder}
+              maxFiles={step.maxFiles}
+            />
+          </>
         )}
       />
     );
@@ -824,6 +739,7 @@ function StepField({
 
   if (step.type === "repeater") {
     const fields = getRepeaterFields(step);
+    const repeaterHasError = Boolean(validationErrors && hasStepValidationErrors(validationErrors));
     if (step.repeaterVariant === "journeyFunnel") {
       return (
         <Controller
@@ -835,7 +751,8 @@ function StepField({
               onChange={(next) => field.onChange(serializeRepeaterValue(next))}
               fields={fields}
               minRows={Math.max(step.repeaterMinRows ?? 3, 1)}
-              hasError={hasError}
+              hasError={repeaterHasError}
+              fieldErrors={fieldErrors}
             />
           )}
         />
@@ -858,7 +775,8 @@ function StepField({
               fields={fields}
               syncConfig={syncConfig}
               parentPlatforms={parentPlatforms}
-              hasError={hasError}
+              hasError={repeaterHasError}
+              fieldErrors={fieldErrors}
             />
           )}
         />
@@ -873,7 +791,8 @@ function StepField({
             value={parseRepeaterValue(field.value, fields)}
             onChange={(next) => field.onChange(serializeRepeaterValue(next))}
             fields={fields}
-            hasError={hasError}
+            hasError={repeaterHasError}
+            fieldErrors={fieldErrors}
           />
         )}
       />
@@ -892,7 +811,8 @@ function StepField({
             value={parseNestedRepeaterValue(field.value, config)}
             onChange={(next) => field.onChange(serializeNestedRepeaterValue(next))}
             config={config}
-            hasError={hasError}
+            hasError={Boolean(validationErrors && hasStepValidationErrors(validationErrors))}
+            fieldErrors={fieldErrors}
           />
         )}
       />
@@ -958,12 +878,15 @@ function StepField({
             });
           }
 
+          const checkboxListError = validationErrors?.stepMessage;
+          const selectedListError = fieldErrors.selected;
+
           return (
             <div className="flex flex-col gap-3">
               <div
                 className={cn(
                   "checkbox-list max-h-80 overflow-y-auto rounded-lg border border-input p-2",
-                  hasError && "border-destructive",
+                  (checkboxListError || selectedListError) && "border-destructive",
                 )}
               >
                 {step.options?.map((option) => {
@@ -973,6 +896,12 @@ function StepField({
                     ? (value.subSelections[subConfig.parentOption] ?? [])
                     : [];
                   const showSubOptions = Boolean(subConfig && checked);
+                  const subError = subConfig
+                    ? fieldErrors[`sub.${subConfig.parentOption}`]
+                    : undefined;
+                  const subOtherError = subConfig
+                    ? fieldErrors[`subOther.${subConfig.parentOption}`]
+                    : undefined;
 
                   return (
                     <div key={option}>
@@ -998,7 +927,12 @@ function StepField({
                       </Label>
 
                       {showSubOptions && subConfig ? (
-                        <div className="mr-7 mt-1 mb-2 rounded-lg border border-input bg-muted/20 p-3">
+                        <div
+                          className={cn(
+                            "mr-7 mt-1 mb-2 rounded-lg border border-input bg-muted/20 p-3",
+                            subError && "border-destructive",
+                          )}
+                        >
                           <p className="mb-2 text-xs font-semibold text-foreground">
                             {subConfig.label ?? subConfig.parentOption}
                           </p>
@@ -1032,25 +966,32 @@ function StepField({
                                     </span>
                                   </Label>
                                   {showSubOtherInput ? (
-                                    <Input
-                                      value={value.subOther[subConfig.parentOption] ?? ""}
-                                      onChange={(event) =>
-                                        updateSubOther(subConfig.parentOption, event.target.value)
-                                      }
-                                      placeholder={
-                                        subConfig.otherPlaceholder || "توضیح دهید"
-                                      }
-                                      aria-invalid={hasError}
-                                      className={cn(
-                                        "mr-7 mt-1 mb-2 h-11 bg-white text-base text-foreground",
-                                        hasError && "border-destructive",
-                                      )}
-                                    />
+                                    <>
+                                      <Input
+                                        value={value.subOther[subConfig.parentOption] ?? ""}
+                                        onChange={(event) =>
+                                          updateSubOther(subConfig.parentOption, event.target.value)
+                                        }
+                                        placeholder={
+                                          subConfig.otherPlaceholder || "توضیح دهید"
+                                        }
+                                        aria-invalid={Boolean(subOtherError)}
+                                        className={cn(
+                                          "mr-7 mt-1 mb-2 h-11 bg-white text-base text-foreground",
+                                          subOtherError && "border-destructive",
+                                        )}
+                                      />
+                                      <FieldErrorMessage
+                                        message={subOtherError}
+                                        className="mr-7"
+                                      />
+                                    </>
                                   ) : null}
                                 </div>
                               );
                             })}
                           </div>
+                          <FieldErrorMessage message={subError} />
                         </div>
                       ) : null}
                     </div>
@@ -1065,6 +1006,8 @@ function StepField({
         const selected = Array.isArray(parsed) ? parsed : parsed.selected;
         const otherText = Array.isArray(parsed) ? "" : parsed.other;
         const showOtherInput = stepHasOtherOption(step) && selected.includes(step.otherOption);
+        const otherError = fieldErrors.other;
+        const checkboxListError = validationErrors?.stepMessage;
         const parentAnswer = step.optionsFromParent
           ? getAnswerByQuestion(steps, watchedValues ?? {}, step.optionsFromParent.parentQuestion)
           : "";
@@ -1116,7 +1059,7 @@ function StepField({
             <div
               className={cn(
                 "checkbox-list max-h-80 overflow-y-auto rounded-lg border border-input p-2",
-                hasError && "border-destructive",
+                checkboxListError && "border-destructive",
               )}
             >
               {checkboxOptions.map((option) => {
@@ -1154,10 +1097,14 @@ function StepField({
                           value={otherText}
                           onChange={(event) => updateCheckbox(visibleSelected, event.target.value)}
                           placeholder={step.otherPlaceholder || "توضیحات خود را بنویسید"}
-                          aria-invalid={hasError}
-                          className={cn("h-11 bg-white text-base text-foreground", errorClass)}
+                          aria-invalid={Boolean(otherError)}
+                          className={cn(
+                            "h-11 bg-white text-base text-foreground",
+                            otherError && "border-destructive",
+                          )}
                           autoFocus
                         />
+                        <FieldErrorMessage message={otherError} />
                       </div>
                     ) : null}
                   </div>
@@ -1174,8 +1121,10 @@ function StepField({
 export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
   const [currentStepId, setCurrentStepId] = useState(survey.steps[0]?.id ?? 1);
   const [isFinished, setIsFinished] = useState(false);
-  const [fieldError, setFieldError] = useState<string | null>(null);
-  const [fieldErrorStepId, setFieldErrorStepId] = useState<number | null>(null);
+  const [stepValidation, setStepValidation] = useState<{
+    stepId: number;
+    errors: StepValidationErrors;
+  } | null>(null);
 
   const form = useForm<FormValues>({
     defaultValues: buildDefaultValues(survey.steps),
@@ -1202,26 +1151,26 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
     ? 100
     : Math.min(100, Math.round((currentStep.id / lastStepId) * 100));
 
-  const activeFieldError = useMemo(() => {
-    if (!fieldError || fieldErrorStepId === null) {
-      return { message: null as string | null, stepId: null as number | null };
-    }
-    const errorStep = survey.steps.find((step) => step.id === fieldErrorStepId);
-    if (!errorStep) {
-      return { message: null, stepId: null };
-    }
+  const activeStepValidation = useMemo(() => {
+    if (!stepValidation) return null;
+    const errorStep = survey.steps.find((step) => step.id === stepValidation.stepId);
+    if (!errorStep) return null;
     if (isStepAnswerValid(errorStep, watchedValues ?? {}, survey.steps)) {
-      return { message: null, stepId: null };
+      return null;
     }
-    return { message: fieldError, stepId: fieldErrorStepId };
-  }, [fieldError, fieldErrorStepId, watchedValues, survey.steps]);
+    return stepValidation;
+  }, [stepValidation, watchedValues, survey.steps]);
+
+  function getValidationErrorsForStep(stepId: number): StepValidationErrors | undefined {
+    if (activeStepValidation?.stepId !== stepId) return undefined;
+    return activeStepValidation.errors;
+  }
 
   useEffect(() => {
     form.reset(buildDefaultValues(survey.steps));
     setCurrentStepId(survey.steps[0]?.id ?? 1);
     setIsFinished(false);
-    setFieldError(null);
-    setFieldErrorStepId(null);
+    setStepValidation(null);
   }, [survey.id, survey.steps, form]);
 
   useEffect(() => {
@@ -1235,20 +1184,18 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
     if (!currentStep) return false;
     const stepsToValidate = [currentStep, ...inlineChildSteps];
     for (const step of stepsToValidate) {
-      const error = getStepValidationError(
+      const errors = getStepValidationErrors(
         step,
         values[fieldName(step.id)],
         values,
         survey.steps,
       );
-      if (error) {
-        setFieldError(error);
-        setFieldErrorStepId(step.id);
+      if (hasStepValidationErrors(errors)) {
+        setStepValidation({ stepId: step.id, errors });
         return false;
       }
     }
-    setFieldError(null);
-    setFieldErrorStepId(null);
+    setStepValidation(null);
     return true;
   }
 
@@ -1256,12 +1203,12 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
     const allVisibleSteps = getAllVisibleSteps(survey.steps, values);
     const invalidStep = allVisibleSteps.find(
       (step) =>
-        getStepValidationError(step, values[fieldName(step.id)], values, survey.steps) !==
-        null,
+        hasStepValidationErrors(
+          getStepValidationErrors(step, values[fieldName(step.id)], values, survey.steps),
+        ),
     );
     if (!invalidStep) {
-      setFieldError(null);
-      setFieldErrorStepId(null);
+      setStepValidation(null);
       return true;
     }
     setCurrentStepId(
@@ -1269,15 +1216,15 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
         getParentStepForInlineChild(invalidStep, survey.steps)?.id ??
         invalidStep.id,
     );
-    setFieldError(
-      getStepValidationError(
+    setStepValidation({
+      stepId: invalidStep.id,
+      errors: getStepValidationErrors(
         invalidStep,
         values[fieldName(invalidStep.id)],
         values,
         survey.steps,
       ),
-    );
-    setFieldErrorStepId(invalidStep.id);
+    });
     return false;
   }
 
@@ -1311,8 +1258,7 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
 
     if (index < visibleSteps.length - 1) {
       setCurrentStepId(visibleSteps[index + 1].id);
-      setFieldError(null);
-      setFieldErrorStepId(null);
+      setStepValidation(null);
       return;
     }
 
@@ -1321,8 +1267,7 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
 
   function goPrev() {
     if (!currentStep) return;
-    setFieldError(null);
-    setFieldErrorStepId(null);
+    setStepValidation(null);
     const index = visibleSteps.findIndex((step) => step.id === currentStep.id);
     if (index > 0) {
       setCurrentStepId(visibleSteps[index - 1].id);
@@ -1364,8 +1309,13 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
           step={currentStep}
           steps={survey.steps}
           control={form.control}
-          hasError={activeFieldError.stepId === currentStep.id}
+          validationErrors={getValidationErrorsForStep(currentStep.id)}
         />
+        {getValidationErrorsForStep(currentStep.id)?.stepMessage ? (
+          <FieldErrorMessage
+            message={getValidationErrorsForStep(currentStep.id)?.stepMessage}
+          />
+        ) : null}
         {inlineChildSteps.map((childStep) => (
           <div key={childStep.id} className="mt-6 border-t border-border pt-6">
             <Label className="question mb-3 block text-base font-semibold">
@@ -1378,15 +1328,15 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
               step={childStep}
               steps={survey.steps}
               control={form.control}
-              hasError={activeFieldError.stepId === childStep.id}
+              validationErrors={getValidationErrorsForStep(childStep.id)}
             />
+            {getValidationErrorsForStep(childStep.id)?.stepMessage ? (
+              <FieldErrorMessage
+                message={getValidationErrorsForStep(childStep.id)?.stepMessage}
+              />
+            ) : null}
           </div>
         ))}
-        {activeFieldError.message && (
-          <p className="field-error" role="alert">
-            {activeFieldError.message}
-          </p>
-        )}
       </div>
 
       <div className="survey-actions">

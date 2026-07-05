@@ -12,6 +12,7 @@ import {
   type RepeaterFieldConfig,
   type RepeaterValue,
 } from "../lib/repeater";
+import { repeaterFieldKey } from "../lib/surveyValidation";
 import { RepeaterFieldCell, RepeaterFieldLabel } from "./RepeaterFieldCell";
 
 export default function RepeaterInput({
@@ -19,11 +20,13 @@ export default function RepeaterInput({
   onChange,
   fields,
   hasError,
+  fieldErrors = {},
 }: {
   value: RepeaterValue;
   onChange: (value: RepeaterValue) => void;
   fields: RepeaterFieldConfig[];
   hasError?: boolean;
+  fieldErrors?: Record<string, string>;
 }) {
   const hasLabels = fields.some((field) => field.label);
   const hasPercentageField = hasRepeaterPercentageField(fields);
@@ -118,6 +121,7 @@ export default function RepeaterInput({
             <div className="grid gap-3 sm:grid-cols-2">
               {fields.map((field) => {
                 const fieldId = `repeater-${index}-${field.key}`;
+                const cellError = fieldErrors[repeaterFieldKey(index, field.key)];
                 return (
                   <div key={field.key}>
                     <RepeaterFieldLabel field={field} htmlFor={fieldId} />
@@ -127,7 +131,8 @@ export default function RepeaterInput({
                       row={row}
                       value={row[field.key] ?? ""}
                       onChange={(next) => updateRow(index, field.key, next)}
-                      hasError={hasError}
+                      hasError={Boolean(cellError)}
+                      errorMessage={cellError}
                     />
                   </div>
                 );
@@ -137,18 +142,22 @@ export default function RepeaterInput({
         ) : (
           <div key={`repeater-row-${index}`} className="flex items-center gap-2">
             {rowControls(index)}
-            {fields.map((field, fieldIndex) => (
-              <RepeaterFieldCell
-                key={field.key}
-                field={field}
-                id={`repeater-${index}-${field.key}`}
-                row={row}
-                value={row[field.key] ?? ""}
-                onChange={(next) => updateRow(index, field.key, next)}
-                hasError={hasError}
-                className={fieldIndex === 0 ? "flex-2" : "flex-3"}
-              />
-            ))}
+            {fields.map((field, fieldIndex) => {
+              const cellError = fieldErrors[repeaterFieldKey(index, field.key)];
+              return (
+                <RepeaterFieldCell
+                  key={field.key}
+                  field={field}
+                  id={`repeater-${index}-${field.key}`}
+                  row={row}
+                  value={row[field.key] ?? ""}
+                  onChange={(next) => updateRow(index, field.key, next)}
+                  hasError={Boolean(cellError)}
+                  errorMessage={cellError}
+                  className={fieldIndex === 0 ? "flex-2" : "flex-3"}
+                />
+              );
+            })}
           </div>
         ),
       )}

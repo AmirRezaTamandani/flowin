@@ -7,18 +7,21 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import ShamsiDateInput from "./ShamsiDateInput";
+import FieldErrorMessage from "./FieldErrorMessage";
 import type { NamedShamsiDatesValue } from "../lib/namedShamsiDates";
 
 export default function NamedShamsiDatesInput({
   value,
   onChange,
   hasError,
+  fieldErrors = {},
   namePlaceholder = "نام رویداد یا مناسبت",
   datePlaceholder = "تاریخ را انتخاب کنید",
 }: {
   value: NamedShamsiDatesValue;
   onChange: (value: NamedShamsiDatesValue) => void;
   hasError?: boolean;
+  fieldErrors?: Record<string, string>;
   namePlaceholder?: string;
   datePlaceholder?: string;
 }) {
@@ -48,7 +51,10 @@ export default function NamedShamsiDatesInput({
         hasError && "rounded-xl border border-destructive p-3",
       )}
     >
-      {value.events.map((event, index) => (
+      {value.events.map((event, index) => {
+        const nameError = fieldErrors[`${index}.name`];
+        const dateError = fieldErrors[`${index}.date`];
+        return (
         <div
           key={`event-${index}`}
           className="rounded-xl border border-input bg-white p-4"
@@ -76,8 +82,13 @@ export default function NamedShamsiDatesInput({
                 value={event.name}
                 onChange={(changeEvent) => updateEvent(index, { name: changeEvent.target.value })}
                 placeholder={namePlaceholder}
-                className="h-11 bg-white text-base text-foreground"
+                aria-invalid={Boolean(nameError)}
+                className={cn(
+                  "h-11 bg-white text-base text-foreground",
+                  nameError && "border-destructive",
+                )}
               />
+              <FieldErrorMessage message={nameError} />
             </div>
 
             <div className="flex flex-col gap-2">
@@ -86,11 +97,14 @@ export default function NamedShamsiDatesInput({
                 value={event.date}
                 onChange={(date) => updateEvent(index, { date })}
                 placeholder={datePlaceholder}
+                hasError={Boolean(dateError)}
               />
+              <FieldErrorMessage message={dateError} />
             </div>
           </div>
         </div>
-      ))}
+      );
+      })}
 
       <Button
         type="button"

@@ -14,6 +14,7 @@ import {
   getPersonaProvinceOptions,
   type PersonaFieldsValue,
 } from "../lib/personaFields";
+import FieldErrorMessage from "./FieldErrorMessage";
 
 function PersonaSelect({
   id,
@@ -21,7 +22,7 @@ function PersonaSelect({
   value,
   options,
   onChange,
-  hasError,
+  errorMessage,
   placeholder = "انتخاب کنید",
   disabled,
 }: {
@@ -30,10 +31,12 @@ function PersonaSelect({
   value: string;
   options: readonly string[];
   onChange: (value: string) => void;
-  hasError?: boolean;
+  errorMessage?: string;
   placeholder?: string;
   disabled?: boolean;
 }) {
+  const showError = Boolean(errorMessage);
+
   return (
     <div className="flex flex-col gap-2">
       <Label htmlFor={id} className="text-sm font-medium text-foreground">
@@ -45,10 +48,10 @@ function PersonaSelect({
           value={value}
           disabled={disabled}
           onChange={(event) => onChange(event.target.value)}
-          aria-invalid={hasError}
+          aria-invalid={showError}
           className={cn(
             "h-11 w-full appearance-none rounded-lg border border-input bg-white px-3 pl-10 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:bg-muted/40 disabled:text-muted-foreground",
-            hasError && "border-destructive ring-destructive/20",
+            showError && "border-destructive ring-destructive/20",
           )}
         >
           <option value="">{placeholder}</option>
@@ -63,6 +66,7 @@ function PersonaSelect({
           aria-hidden="true"
         />
       </div>
+      <FieldErrorMessage message={errorMessage} />
     </div>
   );
 }
@@ -70,11 +74,11 @@ function PersonaSelect({
 export default function PersonaFieldsInput({
   value,
   onChange,
-  hasError,
+  fieldErrors = {},
 }: {
   value: PersonaFieldsValue;
   onChange: (value: PersonaFieldsValue) => void;
-  hasError?: boolean;
+  fieldErrors?: Record<string, string>;
 }) {
   function updateField<K extends keyof PersonaFieldsValue>(key: K, next: string) {
     onChange({ ...value, [key]: next });
@@ -82,6 +86,8 @@ export default function PersonaFieldsInput({
 
   const provinceOptions = getPersonaProvinceOptions(value.country);
   const cityOptions = getPersonaCityOptions(value.country, value.province);
+  const provinceValue = provinceOptions.includes(value.province) ? value.province : "";
+  const cityValue = cityOptions.includes(value.city) ? value.city : "";
 
   return (
     <div className="flex flex-col gap-4">
@@ -91,7 +97,7 @@ export default function PersonaFieldsInput({
         value={value.ageRange}
         options={PERSONA_AGE_OPTIONS}
         onChange={(next) => updateField("ageRange", next)}
-        hasError={hasError}
+        errorMessage={fieldErrors.ageRange}
       />
       <PersonaSelect
         id="persona-gender"
@@ -99,7 +105,7 @@ export default function PersonaFieldsInput({
         value={value.gender}
         options={PERSONA_GENDER_OPTIONS}
         onChange={(next) => updateField("gender", next)}
-        hasError={hasError}
+        errorMessage={fieldErrors.gender}
       />
       <div className="flex flex-col gap-3 rounded-xl border border-input bg-white p-4">
         <Label className="text-sm font-medium text-foreground">موقعیت جغرافیایی</Label>
@@ -112,27 +118,27 @@ export default function PersonaFieldsInput({
             onChange={(next) =>
               onChange({ ...value, country: next, province: "", city: "" })
             }
-            hasError={hasError}
+            errorMessage={fieldErrors.country}
           />
           <PersonaSelect
             id="persona-province"
             label="استان"
-            value={provinceOptions.includes(value.province) ? value.province : ""}
+            value={provinceValue}
             options={provinceOptions}
             onChange={(next) => onChange({ ...value, province: next, city: "" })}
-            hasError={hasError}
+            errorMessage={fieldErrors.province}
             placeholder={value.country ? "استان را انتخاب کنید" : "ابتدا کشور را انتخاب کنید"}
             disabled={!value.country}
           />
           <PersonaSelect
             id="persona-city"
             label="شهر"
-            value={cityOptions.includes(value.city) ? value.city : ""}
+            value={cityValue}
             options={cityOptions}
             onChange={(next) => updateField("city", next)}
-            hasError={hasError}
-            placeholder={value.province ? "شهر را انتخاب کنید" : "ابتدا استان را انتخاب کنید"}
-            disabled={!value.province}
+            errorMessage={fieldErrors.city}
+            placeholder={provinceValue ? "شهر را انتخاب کنید" : "ابتدا استان را انتخاب کنید"}
+            disabled={!provinceValue}
           />
         </div>
       </div>
@@ -142,7 +148,7 @@ export default function PersonaFieldsInput({
         value={value.job}
         options={PERSONA_JOB_OPTIONS}
         onChange={(next) => updateField("job", next)}
-        hasError={hasError}
+        errorMessage={fieldErrors.job}
       />
       <PersonaSelect
         id="persona-income"
@@ -150,7 +156,7 @@ export default function PersonaFieldsInput({
         value={value.incomeLevel}
         options={PERSONA_INCOME_OPTIONS}
         onChange={(next) => updateField("incomeLevel", next)}
-        hasError={hasError}
+        errorMessage={fieldErrors.incomeLevel}
       />
     </div>
   );

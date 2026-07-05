@@ -22,6 +22,8 @@ import {
   type RepeaterFieldConfig,
   type RepeaterValue,
 } from "../lib/repeater";
+import { repeaterFieldKey } from "../lib/surveyValidation";
+import FieldErrorMessage from "./FieldErrorMessage";
 
 const previewIcons = [
   Search,
@@ -49,12 +51,14 @@ export default function JourneyFunnelInput({
   fields,
   hasError,
   minRows = 3,
+  fieldErrors = {},
 }: {
   value: RepeaterValue;
   onChange: (value: RepeaterValue) => void;
   fields: RepeaterFieldConfig[];
   hasError?: boolean;
   minRows?: number;
+  fieldErrors?: Record<string, string>;
 }) {
   const titleField = fields[0];
   const descriptionField = fields[1];
@@ -102,6 +106,8 @@ export default function JourneyFunnelInput({
 
         {value.rows.map((row, index) => {
           const isRequired = index < minRows;
+          const titleError = fieldErrors[repeaterFieldKey(index, titleField.key)];
+          const descriptionError = fieldErrors[repeaterFieldKey(index, descriptionField.key)];
           return (
             <div
               key={`journey-row-${index}`}
@@ -141,9 +147,13 @@ export default function JourneyFunnelInput({
                       updateRow(index, titleField.key, event.target.value)
                     }
                     placeholder={titleField.placeholder ?? "مثلاً آشنایی"}
-                    aria-invalid={hasError}
-                    className={cn("h-11 bg-white text-base", hasError && "border-destructive")}
+                    aria-invalid={Boolean(titleError)}
+                    className={cn(
+                      "h-11 bg-white text-base",
+                      titleError && "border-destructive",
+                    )}
                   />
+                  <FieldErrorMessage message={titleError} />
                 </div>
 
                 <div className="space-y-1.5">
@@ -160,12 +170,13 @@ export default function JourneyFunnelInput({
                       descriptionField.placeholder ?? "مثلاً آشنایی با محصول از طریق سرچ گوگل"
                     }
                     rows={2}
-                    aria-invalid={hasError}
+                    aria-invalid={Boolean(descriptionError)}
                     className={cn(
                       "min-h-24 resize-y bg-white text-base",
-                      hasError && "border-destructive",
+                      descriptionError && "border-destructive",
                     )}
                   />
+                  <FieldErrorMessage message={descriptionError} />
                 </div>
               </div>
             </div>

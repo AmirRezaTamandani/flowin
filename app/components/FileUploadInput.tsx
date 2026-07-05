@@ -11,6 +11,7 @@ import {
   DEFAULT_TEMPLATE_FILE_ACCEPT,
   type FileUploadValue,
 } from "../lib/fileUpload";
+import FieldErrorMessage from "./FieldErrorMessage";
 
 function readFileAsDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -29,6 +30,8 @@ export default function FileUploadInput({
   value,
   onChange,
   hasError,
+  descriptionError,
+  filesError,
   accept = DEFAULT_TEMPLATE_FILE_ACCEPT,
   uploadHint = "فایل تمپلیت یا نمونه دیزاین (تصویر، PDF، HTML، ZIP و ...)",
   descriptionPlaceholder = "یا لینک / توضیح نمونه مورد تأیید خود را بنویسید",
@@ -37,6 +40,8 @@ export default function FileUploadInput({
   value: FileUploadValue;
   onChange: (value: FileUploadValue) => void;
   hasError?: boolean;
+  descriptionError?: string;
+  filesError?: string;
   accept?: string;
   uploadHint?: string;
   descriptionPlaceholder?: string;
@@ -83,15 +88,21 @@ export default function FileUploadInput({
           value={value.description}
           onChange={(event) => onChange({ ...value, description: event.target.value })}
           placeholder={descriptionPlaceholder}
-          aria-invalid={hasError}
+          aria-invalid={Boolean(descriptionError || hasError)}
           className={cn(
             "min-h-24 resize-y text-base text-foreground bg-white",
-            hasError && "border-destructive ring-destructive/20",
+            (descriptionError || hasError) && "border-destructive ring-destructive/20",
           )}
         />
+        <FieldErrorMessage message={descriptionError} />
       </div>
 
-      <div className="rounded-xl border border-input bg-white p-4">
+      <div
+        className={cn(
+          "rounded-xl border border-input bg-white p-4",
+          filesError && "border-destructive",
+        )}
+      >
         <div className="mb-3">
           <p className="text-sm font-semibold text-foreground">بارگذاری فایل</p>
           <p className="mt-1 text-xs text-muted-foreground">{uploadHint}</p>
@@ -156,6 +167,7 @@ export default function FileUploadInput({
           <Upload className="size-4" />
           {value.files.length ? "افزودن فایل دیگر" : "بارگذاری فایل"}
         </Button>
+        <FieldErrorMessage message={filesError} />
       </div>
     </div>
   );

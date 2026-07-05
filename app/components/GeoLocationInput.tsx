@@ -15,6 +15,8 @@ import {
   type GeoLocationEntry,
   type GeoLocationValue,
 } from "../lib/geoLocation";
+import { geoFieldKey } from "../lib/surveyValidation";
+import FieldErrorMessage from "./FieldErrorMessage";
 
 function GeoSelect({
   id,
@@ -23,6 +25,7 @@ function GeoSelect({
   options,
   onChange,
   hasError,
+  errorMessage,
   disabled,
 }: {
   id: string;
@@ -31,6 +34,7 @@ function GeoSelect({
   options: readonly string[];
   onChange: (value: string) => void;
   hasError?: boolean;
+  errorMessage?: string;
   disabled?: boolean;
 }) {
   return (
@@ -56,6 +60,7 @@ function GeoSelect({
           </option>
         ))}
       </select>
+      <FieldErrorMessage message={errorMessage} />
     </div>
   );
 }
@@ -67,6 +72,7 @@ function GeoLocationRow({
   onRemove,
   canRemove,
   hasError,
+  fieldErrors = {},
   single,
 }: {
   index: number;
@@ -75,6 +81,7 @@ function GeoLocationRow({
   onRemove: () => void;
   canRemove: boolean;
   hasError?: boolean;
+  fieldErrors?: Record<string, string>;
   single?: boolean;
 }) {
   const countrySelectValue = isKnownCountry(entry.country)
@@ -85,6 +92,9 @@ function GeoLocationRow({
   const showCustomCountry = countrySelectValue === "سایر";
   const customCountry =
     showCustomCountry && !isKnownCountry(entry.country) ? entry.country : "";
+  const countryError = fieldErrors[geoFieldKey(index, "country")];
+  const provinceError = fieldErrors[geoFieldKey(index, "province")];
+  const cityError = fieldErrors[geoFieldKey(index, "city")];
 
   function updateCountry(next: string) {
     onChange({ country: next, province: "", city: "" });
@@ -122,7 +132,8 @@ function GeoLocationRow({
           value={countrySelectValue}
           options={GEO_COUNTRY_OPTIONS}
           onChange={updateCountry}
-          hasError={hasError}
+          hasError={Boolean(countryError)}
+          errorMessage={countryError}
         />
 
         {showCustomCountry ? (
@@ -144,12 +155,13 @@ function GeoLocationRow({
                 })
               }
               placeholder="نام کشور را وارد کنید"
-              aria-invalid={hasError}
+              aria-invalid={Boolean(countryError)}
               className={cn(
                 "bg-white h-11 text-base",
-                hasError && "border-destructive",
+                countryError && "border-destructive",
               )}
             />
+            <FieldErrorMessage message={countryError} />
           </div>
         ) : null}
 
@@ -160,7 +172,8 @@ function GeoLocationRow({
             value={entry.province}
             options={IRAN_PROVINCE_OPTIONS}
             onChange={(next) => onChange({ province: next, city: entry.city })}
-            hasError={hasError}
+            hasError={Boolean(provinceError)}
+            errorMessage={provinceError}
             disabled={!entry.country}
           />
         ) : (
@@ -177,12 +190,13 @@ function GeoLocationRow({
               onChange={(event) => onChange({ province: event.target.value })}
               placeholder="استان یا ایالت"
               disabled={!entry.country || entry.country === "سایر"}
-              aria-invalid={hasError}
+              aria-invalid={Boolean(provinceError)}
               className={cn(
                 "bg-white h-11 text-base",
-                hasError && "border-destructive",
+                provinceError && "border-destructive",
               )}
             />
+            <FieldErrorMessage message={provinceError} />
           </div>
         )}
 
@@ -199,12 +213,13 @@ function GeoLocationRow({
             onChange={(event) => onChange({ city: event.target.value })}
             placeholder="شهر"
             disabled={!entry.province}
-            aria-invalid={hasError}
+            aria-invalid={Boolean(cityError)}
             className={cn(
               "bg-white h-11 text-base",
-              hasError && "border-destructive",
+              cityError && "border-destructive",
             )}
           />
+          <FieldErrorMessage message={cityError} />
         </div>
       </div>
     </div>
@@ -215,11 +230,13 @@ export default function GeoLocationInput({
   value,
   onChange,
   hasError,
+  fieldErrors = {},
   single = false,
 }: {
   value: GeoLocationValue;
   onChange: (value: GeoLocationValue) => void;
   hasError?: boolean;
+  fieldErrors?: Record<string, string>;
   single?: boolean;
 }) {
   const locations = single ? value.locations.slice(0, 1) : value.locations;
@@ -266,6 +283,7 @@ export default function GeoLocationInput({
           onRemove={() => removeLocation(index)}
           canRemove={!single && displayLocations.length > 1}
           hasError={hasError}
+          fieldErrors={fieldErrors}
           single={single}
         />
       ))}
