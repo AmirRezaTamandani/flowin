@@ -123,12 +123,17 @@ export default function RepeaterInput({
                 const fieldId = `repeater-${index}-${field.key}`;
                 const cellError = fieldErrors[repeaterFieldKey(index, field.key)];
                 return (
-                  <div key={field.key}>
+                  <div
+                    key={field.key}
+                    className={field.numberFormat === "percentage" ? "sm:col-span-2" : undefined}
+                  >
                     <RepeaterFieldLabel field={field} htmlFor={fieldId} />
                     <RepeaterFieldCell
                       field={field}
                       id={fieldId}
                       row={row}
+                      repeaterRows={value.rows}
+                      rowIndex={index}
                       value={row[field.key] ?? ""}
                       onChange={(next) => updateRow(index, field.key, next)}
                       hasError={Boolean(cellError)}
@@ -150,6 +155,8 @@ export default function RepeaterInput({
                   field={field}
                   id={`repeater-${index}-${field.key}`}
                   row={row}
+                  repeaterRows={value.rows}
+                  rowIndex={index}
                   value={row[field.key] ?? ""}
                   onChange={(next) => updateRow(index, field.key, next)}
                   hasError={Boolean(cellError)}

@@ -19,7 +19,7 @@ export type RepeaterFieldConfig = {
   };
   numberMin?: number;
   numberMax?: number;
-  numberFormat?: "default" | "phone";
+  numberFormat?: "default" | "phone" | "percentage";
   numberSuffix?: string;
   inputDir?: "ltr" | "rtl";
   readOnly?: boolean;
@@ -268,7 +268,24 @@ export function countCompleteRepeaterRows(
 }
 
 export function hasRepeaterPercentageField(fields: RepeaterFieldConfig[]): boolean {
-  return fields.some((field) => field.key === "percentage" && field.type === "number");
+  return fields.some(
+    (field) => field.type === "number" && field.numberFormat === "percentage",
+  );
+}
+
+export function getRepeaterPercentageMaxForRow(
+  value: RepeaterValue,
+  rowIndex: number,
+  percentageKey = "percentage",
+): number {
+  const othersTotal = value.rows.reduce((sum, row, index) => {
+    if (index === rowIndex) return sum;
+    const raw = row[percentageKey]?.trim() ?? "";
+    if (!raw) return sum;
+    const parsed = Number.parseFloat(raw);
+    return Number.isFinite(parsed) ? sum + parsed : sum;
+  }, 0);
+  return Math.max(0, 100 - othersTotal);
 }
 
 export function getRepeaterPercentageTotal(value: RepeaterValue): number {

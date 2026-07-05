@@ -4,9 +4,12 @@ import React from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import type { RepeaterFieldConfig, RepeaterRow } from "../lib/repeater";
 import {
+  getRepeaterPercentageMaxForRow,
   parseRepeaterMultiCheckboxValue,
   resolveRepeaterSelectOptions,
   serializeRepeaterMultiCheckboxValue,
@@ -24,6 +27,8 @@ export function RepeaterFieldCell({
   errorMessage,
   className,
   row,
+  repeaterRows,
+  rowIndex,
 }: {
   field: RepeaterFieldConfig;
   value: string;
@@ -33,8 +38,43 @@ export function RepeaterFieldCell({
   errorMessage?: string;
   className?: string;
   row?: RepeaterRow;
+  repeaterRows?: RepeaterRow[];
+  rowIndex?: number;
 }) {
   const showError = hasError || Boolean(errorMessage);
+  if (field.type === "number" && field.numberFormat === "percentage") {
+    const itemValue = Number.parseFloat(value) || 0;
+    const min = field.numberMin ?? 0;
+    const maxAllowed =
+      repeaterRows !== undefined && rowIndex !== undefined
+        ? getRepeaterPercentageMaxForRow({ rows: repeaterRows }, rowIndex, field.key)
+        : (field.numberMax ?? 100);
+
+    return (
+      <div className={cn("min-w-0", className)}>
+        <div className="mb-1 flex items-center justify-end">
+          <span className="text-sm font-medium tabular-nums text-foreground">{itemValue}%</span>
+        </div>
+        <div className="space-y-3" dir="ltr">
+          <Progress value={itemValue} aria-hidden="true" />
+          <Slider
+            value={[itemValue]}
+            min={min}
+            max={maxAllowed}
+            step={1}
+            onValueChange={(next) => {
+              const amount = Array.isArray(next) ? next[0] : next;
+              const clamped = Math.max(min, Math.min(maxAllowed, Math.round(amount ?? 0)));
+              onChange(String(clamped));
+            }}
+            aria-label={field.label ?? field.placeholder ?? "درصد"}
+          />
+        </div>
+        <FieldErrorMessage message={errorMessage} />
+      </div>
+    );
+  }
+
   if (field.type === "number") {
     return (
       <div className={cn("min-w-0", className)}>
@@ -45,7 +85,7 @@ export function RepeaterFieldCell({
           min={field.numberMin}
           max={field.numberMax}
           suffix={field.numberSuffix}
-          format={field.numberFormat ?? "default"}
+          format={field.numberFormat === "phone" ? "phone" : "default"}
           hasError={showError}
         />
         <FieldErrorMessage message={errorMessage} />
