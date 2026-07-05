@@ -3,7 +3,11 @@
 import React from "react";
 import { Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Progress, ProgressLabel, ProgressValue } from "@/components/ui/progress";
+import {
+  Progress,
+  ProgressLabel,
+  ProgressValue,
+} from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import {
   createEmptyRepeaterRow,
@@ -56,12 +60,12 @@ export default function RepeaterInput({
   }
 
   const rowControls = (index: number) => (
-    <div className="flex shrink-0 items-center gap-1.5">
+    <div className="flex items-center gap-1.5 shrink-0">
       <Button
         type="button"
         variant="secondary"
         size="icon"
-        className="size-9 rounded-full"
+        className="rounded-full size-9"
         onClick={() => removeRow(index)}
         aria-label={`حذف ردیف ${index + 1}`}
       >
@@ -71,7 +75,7 @@ export default function RepeaterInput({
         type="button"
         variant="secondary"
         size="icon"
-        className="size-9 rounded-full"
+        className="rounded-full size-9"
         onClick={() => addRowAfter(index)}
         aria-label="افزودن ردیف"
       >
@@ -88,9 +92,9 @@ export default function RepeaterInput({
       )}
     >
       {hasPercentageField ? (
-        <div className="rounded-xl border border-input bg-white p-4">
+        <div className="bg-white p-4 border border-input rounded-xl">
           <Progress value={percentageTotal} className="gap-2">
-            <div className="flex w-full items-center justify-between gap-3 text-sm">
+            <div className="flex justify-between items-center gap-3 w-full text-sm">
               <ProgressLabel>مجموع تخصیص</ProgressLabel>
               <ProgressValue />
             </div>
@@ -98,12 +102,14 @@ export default function RepeaterInput({
           <p
             className={cn(
               "mt-2 text-xs",
-              remainingPercentage === 0 ? "text-muted-foreground" : "text-destructive",
+              remainingPercentage === 0
+                ? "text-muted-foreground"
+                : "text-destructive",
             )}
           >
             {remainingPercentage > 0
-              ? `${remainingPercentage}% باقی‌مانده است. مجموع باید دقیقاً ۱۰۰٪ شود.`
-              : "مجموع درصدها کامل و برابر با ۱۰۰٪ است."}
+              ? `${remainingPercentage}% باقی‌مانده است. مجموع باید دقیقاً %100 شود.`
+              : "مجموع درصدها کامل و برابر با %100 است."}
           </p>
         </div>
       ) : null}
@@ -112,20 +118,27 @@ export default function RepeaterInput({
         hasLabels ? (
           <div
             key={`repeater-row-${index}`}
-            className="rounded-xl border border-input bg-white p-4"
+            className="bg-white p-4 border border-input rounded-xl"
           >
-            <div className="mb-3 flex items-center justify-between gap-3">
-              <p className="text-sm font-semibold text-foreground">فرد {index + 1}</p>
+            <div className="flex justify-between items-center gap-3 mb-3">
+              <p className="font-semibold text-foreground text-sm">
+                فرد {index + 1}
+              </p>
               {rowControls(index)}
             </div>
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="gap-3 grid sm:grid-cols-2">
               {fields.map((field) => {
                 const fieldId = `repeater-${index}-${field.key}`;
-                const cellError = fieldErrors[repeaterFieldKey(index, field.key)];
+                const cellError =
+                  fieldErrors[repeaterFieldKey(index, field.key)];
                 return (
                   <div
                     key={field.key}
-                    className={field.numberFormat === "percentage" ? "sm:col-span-2" : undefined}
+                    className={
+                      field.numberFormat === "percentage"
+                        ? "sm:col-span-2"
+                        : undefined
+                    }
                   >
                     <RepeaterFieldLabel field={field} htmlFor={fieldId} />
                     <RepeaterFieldCell
@@ -145,7 +158,10 @@ export default function RepeaterInput({
             </div>
           </div>
         ) : (
-          <div key={`repeater-row-${index}`} className="flex items-center gap-2">
+          <div
+            key={`repeater-row-${index}`}
+            className="flex items-center gap-2"
+          >
             {rowControls(index)}
             {fields.map((field, fieldIndex) => {
               const cellError = fieldErrors[repeaterFieldKey(index, field.key)];

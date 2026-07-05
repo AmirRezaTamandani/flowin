@@ -2,7 +2,11 @@
 
 import React from "react";
 import { Slider } from "@/components/ui/slider";
-import { Progress, ProgressLabel, ProgressValue } from "@/components/ui/progress";
+import {
+  Progress,
+  ProgressLabel,
+  ProgressValue,
+} from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import {
   getPercentageAllocationItems,
@@ -29,9 +33,9 @@ export default function PercentageAllocationInput({
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="rounded-xl border border-input bg-white p-4">
+      <div className="bg-white p-4 border border-input rounded-xl">
         <Progress value={total} className="gap-2">
-          <div className="flex w-full items-center justify-between gap-3 text-sm">
+          <div className="flex justify-between items-center gap-3 w-full text-sm">
             <ProgressLabel>مجموع تخصیص</ProgressLabel>
             <ProgressValue />
           </div>
@@ -43,8 +47,8 @@ export default function PercentageAllocationInput({
           )}
         >
           {remaining > 0
-            ? `${remaining}% باقی‌مانده است. مجموع باید دقیقاً ۱۰۰٪ شود.`
-            : "مجموع درصدها کامل و برابر با ۱۰۰٪ است."}
+            ? `${remaining}% باقی‌مانده است. مجموع باید دقیقاً %100 شود.`
+            : "مجموع درصدها کامل و برابر با %100 است."}
         </p>
       </div>
 
@@ -57,25 +61,30 @@ export default function PercentageAllocationInput({
             <div
               key={item.id}
               className={cn(
-                "rounded-xl border border-input bg-white p-4",
-                hasError && itemValue === 0 && total === 0 && "border-destructive/50",
+                "bg-white p-4 border border-input rounded-xl",
+                hasError &&
+                  itemValue === 0 &&
+                  total === 0 &&
+                  "border-destructive/50",
               )}
             >
-              <div className="mb-1 flex items-start justify-between gap-3">
+              <div className="flex justify-between items-start gap-3 mb-1">
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-foreground">{item.label}</p>
+                  <p className="font-semibold text-foreground text-sm">
+                    {item.label}
+                  </p>
                   {item.description ? (
-                    <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                    <p className="mt-1 text-muted-foreground text-xs leading-5">
                       {item.description}
                     </p>
                   ) : null}
                 </div>
-                <span className="shrink-0 text-sm font-medium tabular-nums text-foreground">
+                <span className="font-medium tabular-nums text-foreground text-sm shrink-0">
                   {itemValue}%
                 </span>
               </div>
 
-              <div className="mt-3 space-y-3" dir="ltr">
+              <div className="space-y-3 mt-3" dir="ltr">
                 <Progress value={itemValue} aria-hidden="true" />
                 <Slider
                   value={[itemValue]}
