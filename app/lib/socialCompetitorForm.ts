@@ -166,7 +166,7 @@ export const socialCompetitorFormSurvey: SurveyConfig = {
 
             label: "اولویت",
 
-            placeholder: "از ۰ تا ۱۰",
+            placeholder: "از ۱ تا ۱۰",
 
             numberMin: 1,
 
