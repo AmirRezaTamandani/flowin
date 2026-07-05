@@ -9,7 +9,16 @@ export type PlatformPatternKey =
   | "reddit"
   | "facebook"
   | "youtube"
-  | "tiktok";
+  | "tiktok"
+  | "whatsapp"
+  | "x"
+  | "pinterest"
+  | "discord"
+  | "twitch"
+  | "threads"
+  | "bale"
+  | "eitaa"
+  | "soroushplus";
 
 export const PLATFORM_URL_PATTERNS: Record<
   PlatformPatternKey,
@@ -28,7 +37,7 @@ export const PLATFORM_URL_PATTERNS: Record<
     example: "https://instagram.com/username",
   },
   telegram: {
-    regex: /^https?:\/\/(t\.me|telegram\.me)\/.+/i,
+    regex: /^https?:\/\/(t\.me|telegram\.me|web\.telegram\.org)\/.+/i,
     example: "https://t.me/username",
   },
   aparat: {
@@ -48,8 +57,45 @@ export const PLATFORM_URL_PATTERNS: Record<
     example: "https://youtube.com/@channel",
   },
   tiktok: {
-    regex: /^https?:\/\/(www\.)?tiktok\.com\/.+/i,
+    regex: /^https?:\/\/((www\.)?tiktok\.com|vm\.tiktok\.com)\/.+/i,
     example: "https://tiktok.com/@username",
+  },
+  whatsapp: {
+    regex:
+      /^https?:\/\/(wa\.me|chat\.whatsapp\.com|api\.whatsapp\.com|(www\.)?whatsapp\.com)\/.+/i,
+    example: "https://wa.me/989123456789",
+  },
+  x: {
+    regex: /^https?:\/\/(www\.)?(x\.com|twitter\.com)\/.+/i,
+    example: "https://x.com/username",
+  },
+  pinterest: {
+    regex: /^https?:\/\/(www\.)?pinterest\.com\/.+/i,
+    example: "https://pinterest.com/username",
+  },
+  discord: {
+    regex: /^https?:\/\/(discord\.gg|(www\.)?discord\.com)\/.+/i,
+    example: "https://discord.gg/invite",
+  },
+  twitch: {
+    regex: /^https?:\/\/(www\.)?twitch\.tv\/.+/i,
+    example: "https://twitch.tv/username",
+  },
+  threads: {
+    regex: /^https?:\/\/(www\.)?threads\.net\/.+/i,
+    example: "https://threads.net/@username",
+  },
+  bale: {
+    regex: /^https?:\/\/(ble\.ir|bale\.ai)\/.+/i,
+    example: "https://ble.ir/username",
+  },
+  eitaa: {
+    regex: /^https?:\/\/(web\.)?eitaa\.com\/.+/i,
+    example: "https://eitaa.com/username",
+  },
+  soroushplus: {
+    regex: /^https?:\/\/((www\.)?splus\.ir|profile\.splus\.ir|soroushplus\.com)\/.+/i,
+    example: "https://splus.ir/username",
   },
 };
 
@@ -58,7 +104,7 @@ const PLATFORM_LABEL_TO_KEY: Record<string, PlatformPatternKey> = {
   rubika: "rubika",
   لینکدین: "linkedin",
   linkedin: "linkedin",
-  "اینستاگرام": "instagram",
+  اینستاگرام: "instagram",
   instagram: "instagram",
   تلگرام: "telegram",
   telegram: "telegram",
@@ -72,6 +118,28 @@ const PLATFORM_LABEL_TO_KEY: Record<string, PlatformPatternKey> = {
   youtube: "youtube",
   "تیک‌تاک": "tiktok",
   tiktok: "tiktok",
+  واتساپ: "whatsapp",
+  whatsapp: "whatsapp",
+  "ایکس (توئیتر)": "x",
+  ایکس: "x",
+  توئیتر: "x",
+  twitter: "x",
+  x: "x",
+  پینترست: "pinterest",
+  pinterest: "pinterest",
+  دیسکورد: "discord",
+  discord: "discord",
+  توئیچ: "twitch",
+  twitch: "twitch",
+  تردز: "threads",
+  threads: "threads",
+  بله: "bale",
+  bale: "bale",
+  ایتا: "eitaa",
+  eitaa: "eitaa",
+  سروش‌پلاس: "soroushplus",
+  soroushplus: "soroushplus",
+  "سروش پلاس": "soroushplus",
 };
 
 export const INVALID_SOCIAL_LINK_MESSAGE =
@@ -116,7 +184,9 @@ export function isValidPlatformUrl(
     return false;
   }
 
-  const pattern = platform?.trim() ? getPlatformUrlPattern(platform) : null;
+  const platformLabel = platform?.trim() ?? "";
+  const pattern = platformLabel ? getPlatformUrlPattern(platformLabel) : null;
+
   if (pattern) {
     return pattern.regex.test(normalizeWebsiteUrl(trimmed));
   }

@@ -76,6 +76,15 @@ const FEEDBACK_QUESTION =
 const FEEDBACK_SAMPLE_QUESTION =
   "لطفاً چند نمونه از این بازخوردها را ذکر کنید.";
 
+const CONTENT_STYLE_REASON_OPTIONS = [
+  "طراحی و زیبایی بصری",
+  "کپی‌رایت و لحن",
+  "جذابیت ویدئوها",
+  "تعامل باکیفیت با مخاطب",
+  "استمرار و نظم در انتشار محتوا",
+  "ایده‌های جذاب محتوا",
+] as const;
+
 const SOCIAL_PAGE_REPEATER_FIELDS = [
   {
     key: "platform",
@@ -186,31 +195,35 @@ export const socialCompetitorFormSurvey: SurveyConfig = {
 
       type: "repeater",
       repeaterFields: [
-        { key: "name", type: "text", placeholder: "نام برند" },
+        {
+          key: "name",
+          type: "text",
+          placeholder: "نام برند",
+          inputDir: "rtl",
+        },
         {
           key: "platform",
           type: "select",
-          placeholder: "دلیل انتخاب",
-          options: [
-            "طراحی و زیبایی بصری",
-            "کپی‌رایت و لحن",
-            "جذابیت ویدئوها",
-            "تعامل باکیفیت با مخاطب",
-            "استمرار و نظم در انتشار محتوا",
-            "ایده‌های جذاب محتوا",
-          ],
+          placeholder: "پلتفرم",
+          options: [...SOCIAL_PLATFORM_OPTIONS],
         },
-        { key: "url", type: "url", placeholder: "https://example.com" },
+        {
+          key: "url",
+          type: "url",
+          placeholder: "لینک صفحه",
+          inputDir: "rtl",
+          urlPlatformDependsOnKey: "platform",
+        },
         {
           key: "reason",
-          type: "text",
-          placeholder:
-            "چه چیزی را می‌پسندید (طراحی، لحن، ویدئوها، تعامل، نظم انتشار، ایده‌های محتوا)",
+          type: "select",
+          placeholder: "دلیل انتخاب",
+          options: [...CONTENT_STYLE_REASON_OPTIONS],
         },
       ],
 
       placeholder:
-        "هر صفحه در یک خط:\nنام برند یا صفحه | دلیل انتخاب | لینک | چه چیزی را می‌پسندید (طراحی، لحن، ویدئوها، تعامل، نظم انتشار، ایده‌های محتوا)\nمثال:\nبرند نمونه | کپی‌رایت و لحن | https://instagram.com/sample | لحن صمیمی و ویدئوهای آموزشی",
+        "هر صفحه در یک خط:\nنام برند | پلتفرم | لینک صفحه | دلیل انتخاب\nمثال:\nبرند نمونه | اینستاگرام | https://instagram.com/sample | کپی‌رایت و لحن",
 
       isAllowedEmpty: true,
     },

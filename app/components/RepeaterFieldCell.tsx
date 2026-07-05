@@ -70,11 +70,11 @@ export function RepeaterFieldCell({
           inputMode="url"
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          placeholder={platformExample ?? field.placeholder ?? "https://example.com"}
+          placeholder={field.placeholder ?? platformExample ?? "https://example.com"}
           aria-invalid={showError}
           dir={inputDir}
           className={cn(
-            "h-11 bg-white text-base text-foreground",
+            "h-11 bg-white text-base text-foreground placeholder:text-muted-foreground",
             inputDir === "rtl" ? "text-right" : "text-left",
             showError && "border-destructive",
           )}
@@ -95,6 +95,7 @@ export function RepeaterFieldCell({
           aria-invalid={showError}
           className={cn(
             "h-11 w-full rounded-lg border border-input bg-white px-3 text-base text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50",
+            !value && "text-muted-foreground",
             showError && "border-destructive ring-destructive/20",
           )}
         >
@@ -193,8 +194,11 @@ export function RepeaterFieldCell({
         onChange={(event) => onChange(event.target.value)}
         placeholder={field.placeholder}
         aria-invalid={showError}
+        dir={field.inputDir}
         className={cn(
-          "h-11 bg-white text-base text-foreground",
+          "h-11 bg-white text-base text-foreground placeholder:text-muted-foreground",
+          field.inputDir === "rtl" && "text-right",
+          field.inputDir === "ltr" && "text-left",
           showError && "border-destructive",
         )}
       />
