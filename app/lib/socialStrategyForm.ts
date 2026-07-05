@@ -413,7 +413,12 @@ export const socialStrategyFormSurvey: SurveyConfig = {
         "لینک حداکثر ۵ نمونه از محتواهایی که فکر می‌کنید در ۳ ماه اخیر عملکرد خوبی داشته‌اند یا شخصاً از نتیجه آن‌ها راضی بوده‌اید را ارسال کنید.",
       type: "repeater",
       repeaterFields: [
-        { key: "platform", type: "text", placeholder: "نام پلتفرم" },
+        {
+          key: "platform",
+          type: "select",
+          placeholder: "پلتفرم",
+          options: [...INTENDED_SOCIAL_PLATFORMS_OPTIONS],
+        },
         {
           key: "url",
           type: "url",
