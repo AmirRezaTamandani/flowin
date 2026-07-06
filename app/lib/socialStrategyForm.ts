@@ -233,7 +233,7 @@ export const socialStrategyFormSurvey: SurveyConfig = {
           key: "product",
           type: "text",
           label: "محصول یا خدمت",
-          placeholder: "نام محصول یا خدمت",
+          placeholder: "نام محصول یا خدمت را وارد کنید",
         },
         {
           key: "percentage",
