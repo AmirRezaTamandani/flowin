@@ -122,7 +122,7 @@ export default function RepeaterInput({
           >
             <div className="flex justify-between items-center gap-3 mb-3">
               <p className="font-semibold text-foreground text-sm">
-                فرد {index + 1}
+                محصول/خدمت {index + 1}
               </p>
               {rowControls(index)}
             </div>
