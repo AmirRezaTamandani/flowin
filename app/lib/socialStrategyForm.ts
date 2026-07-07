@@ -16,7 +16,6 @@ const PLATFORM_ACTIVITY_STATUS_OPTIONS = [
   "قبلاً فعال بوده‌ایم",
   "تازه می‌خواهیم شروع کنیم",
   "حساب کاربری داریم ولی تا‌کنون فعالیت مؤثری نداشته‌ایم",
-  "این پلتفرم در حال حاضر در اولویت ما نیست",
 ] as const;
 
 const SOCIAL_MEDIA_GOALS_OPTIONS = [
