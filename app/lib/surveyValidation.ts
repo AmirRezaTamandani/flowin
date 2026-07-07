@@ -28,6 +28,7 @@ import {
   getNestedRepeaterConfig,
   hasIncompleteNestedRepeaterRows,
   isNestedRepeaterEmpty,
+  isNestedRowFieldsComplete,
   isNestedRowFieldsPartial,
   parseNestedRepeaterValue,
 } from "./nestedRepeater";
@@ -52,6 +53,7 @@ import {
   hasRepeaterPercentageField,
   isRepeaterCellValid,
   isRepeaterEmpty,
+  isRepeaterRowComplete,
   isRepeaterRowPartial,
   isRepeaterTimeValueValid,
   isSyncedRepeaterEmpty,
@@ -111,6 +113,18 @@ export function geoFieldKey(index: number, field: string): string {
   return `${index}.${field}`;
 }
 
+export function getRepeaterFieldDisplayName(field: RepeaterFieldConfig): string {
+  return field.label?.trim() || field.placeholder?.trim() || field.key;
+}
+
+export function formatRepeaterFieldError(
+  field: RepeaterFieldConfig,
+  message: string,
+): string {
+  if (!message) return "";
+  return `${getRepeaterFieldDisplayName(field)}: ${message}`;
+}
+
 export function getRepeaterCellErrorMessage(
   field: RepeaterFieldConfig,
   value: string,
@@ -154,7 +168,22 @@ export function getRepeaterCellErrorMessage(
     }
     return INVALID_TIME_MESSAGE;
   }
-  if (field.type === "number") return INVALID_NUMBER_MESSAGE;
+  if (field.type === "number") {
+    if (!trimmed) return EMPTY_FIELD_MESSAGE;
+    const parsed = Number.parseFloat(trimmed);
+    if (Number.isNaN(parsed)) return INVALID_NUMBER_MESSAGE;
+    if (field.numberMin !== undefined && parsed < field.numberMin) {
+      return field.numberMax !== undefined
+        ? `مقدار باید بین ${field.numberMin} تا ${field.numberMax} باشد.`
+        : `مقدار باید حداقل ${field.numberMin} باشد.`;
+    }
+    if (field.numberMax !== undefined && parsed > field.numberMax) {
+      return field.numberMin !== undefined
+        ? `مقدار باید بین ${field.numberMin} تا ${field.numberMax} باشد.`
+        : `مقدار باید حداکثر ${field.numberMax} باشد.`;
+    }
+    return INVALID_NUMBER_MESSAGE;
+  }
   if (field.type === "select") return INVALID_SELECT_MESSAGE;
   if (field.type === "multiCheckbox") return INVALID_MULTI_CHECKBOX_MESSAGE;
   return EMPTY_FIELD_MESSAGE;
@@ -275,7 +304,10 @@ function collectRepeaterValidationErrors(
       if (isRepeaterCellValid(field, cellValue, row)) continue;
       const message = getRepeaterCellErrorMessage(field, cellValue, row);
       if (message) {
-        result.fields[repeaterFieldKey(rowIndex, field.key)] = message;
+        result.fields[repeaterFieldKey(rowIndex, field.key)] = formatRepeaterFieldError(
+          field,
+          message,
+        );
       }
     }
   });
@@ -297,7 +329,10 @@ function collectNestedRepeaterValidationErrors(
   if (!config) return result;
 
   const parsed = parseNestedRepeaterValue(value, config);
-  const completelyEmpty = isNestedRepeaterEmpty(parsed, config) && !hasIncompleteNestedRepeaterRows(parsed, config);
+  const nestedFields = config.nestedFields.filter((field) => !field.readOnly);
+  const completelyEmpty =
+    isNestedRepeaterEmpty(parsed, config) &&
+    !hasIncompleteNestedRepeaterRows(parsed, config);
 
   if (completelyEmpty && !step.isAllowedEmpty) {
     result.stepMessage = EMPTY_ANSWER_MESSAGE;
@@ -305,32 +340,59 @@ function collectNestedRepeaterValidationErrors(
   }
 
   parsed.rows.forEach((row, rowIndex) => {
-    if (isNestedRowFieldsPartial(row, config)) {
-      for (const field of config.fields) {
-        if (!row.fields[field.key]?.trim()) {
-          result.fields[nestedParentFieldKey(rowIndex, field.key)] = EMPTY_FIELD_MESSAGE;
-        }
+    const parentStarted = config.fields.some((field) => row.fields[field.key]?.trim());
+    const nestedStarted = row.nested.some((child) =>
+      nestedFields.some((field) => child[field.key]?.trim()),
+    );
+    if (!parentStarted && !nestedStarted) return;
+
+    for (const field of config.fields) {
+      const cellValue = row.fields[field.key] ?? "";
+      if (isRepeaterCellValid(field, cellValue)) continue;
+      const message = getRepeaterCellErrorMessage(field, cellValue);
+      if (message) {
+        result.fields[nestedParentFieldKey(rowIndex, field.key)] = formatRepeaterFieldError(
+          field,
+          message,
+        );
       }
     }
 
+    const hasCompleteNestedPage = row.nested.some((child) =>
+      isRepeaterRowComplete(child, nestedFields),
+    );
+
     row.nested.forEach((child, nestedIndex) => {
-      const nestedFields = config.nestedFields.filter((field) => !field.readOnly);
-      const nestedHasAny = nestedFields.some((field) => child[field.key]?.trim());
-      if (!nestedHasAny) return;
+      const childHasAny = nestedFields.some((field) => child[field.key]?.trim());
+
+      if (!childHasAny) {
+        if (isNestedRowFieldsComplete(row, config) && !hasCompleteNestedPage) {
+          for (const field of nestedFields) {
+            result.fields[nestedChildFieldKey(rowIndex, nestedIndex, field.key)] =
+              formatRepeaterFieldError(field, EMPTY_FIELD_MESSAGE);
+          }
+        }
+        return;
+      }
 
       for (const field of nestedFields) {
         const cellValue = child[field.key] ?? "";
         if (isRepeaterCellValid(field, cellValue, child)) continue;
         const message = getRepeaterCellErrorMessage(field, cellValue, child);
         if (message) {
-          result.fields[nestedChildFieldKey(rowIndex, nestedIndex, field.key)] = message;
+          result.fields[nestedChildFieldKey(rowIndex, nestedIndex, field.key)] =
+            formatRepeaterFieldError(field, message);
         }
       }
     });
   });
 
   const completeCount = countCompleteNestedRows(parsed, config);
-  if (config.minRows !== undefined && completeCount < config.minRows && !hasIncompleteNestedRepeaterRows(parsed, config)) {
+  if (
+    config.minRows !== undefined &&
+    completeCount < config.minRows &&
+    !hasIncompleteNestedRepeaterRows(parsed, config)
+  ) {
     if (!hasStepValidationErrors(result)) {
       result.stepMessage = NESTED_REPEATER_MIN_ROWS_MESSAGE;
     }

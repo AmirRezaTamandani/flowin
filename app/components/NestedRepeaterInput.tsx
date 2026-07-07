@@ -185,6 +185,7 @@ export default function NestedRepeaterInput({
                       key={`${rowIndex}-${nestedIndex}-${field.key}`}
                       field={field}
                       id={`nested-${rowIndex}-${nestedIndex}-${field.key}`}
+                      row={child}
                       value={child[field.key] ?? ""}
                       onChange={(next) =>
                         updateNestedCell(rowIndex, nestedIndex, field.key, next)

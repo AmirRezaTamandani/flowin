@@ -110,7 +110,11 @@ export function isNestedRowFieldsPartial(
   const filledCount = config.fields.filter((field) =>
     Boolean(row.fields[field.key]?.trim()),
   ).length;
-  return filledCount > 0 && filledCount < config.fields.length;
+  if (filledCount === 0) return false;
+  if (filledCount < config.fields.length) return true;
+  return config.fields.some(
+    (field) => !isRepeaterCellValid(field, row.fields[field.key] ?? ""),
+  );
 }
 
 export function isNestedCompetitorRowComplete(
