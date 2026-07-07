@@ -304,6 +304,20 @@ export function hasIncompleteRepeaterRows(
   return value.rows.some((row) => isRepeaterRowPartial(row, fields));
 }
 
+export function hasInvalidRepeaterUrls(
+  value: RepeaterValue,
+  fields: RepeaterFieldConfig[],
+): boolean {
+  return value.rows.some((row) =>
+    fields.some(
+      (field) =>
+        field.type === "url" &&
+        Boolean(row[field.key]?.trim()) &&
+        !isRepeaterCellValid(field, row[field.key] ?? "", row),
+    ),
+  );
+}
+
 export function getRepeaterFields(step: {
   repeaterFields?: RepeaterFieldConfig[];
 }): RepeaterFieldConfig[] {

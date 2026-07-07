@@ -1,4 +1,5 @@
 import type { SurveyConfig } from "./surveys";
+import { SOCIAL_PLATFORM_URL_REPEATER_FIELDS } from "./socialPlatformRepeaterFields";
 import {
   CONTENT_TIME_PERIOD_OPTIONS,
   SOCIAL_PLATFORM_OPTIONS,
@@ -425,19 +426,15 @@ export const socialStrategyFormSurvey: SurveyConfig = {
         "لینک حداکثر ۵ نمونه از محتواهایی که فکر می‌کنید در ۳ ماه اخیر عملکرد خوبی داشته‌اند یا شخصاً از نتیجه آن‌ها راضی بوده‌اید را ارسال کنید.",
       type: "repeater",
       repeaterFields: [
-        {
-          key: "platform",
-          type: "select",
-          placeholder: "پلتفرم",
-          options: [...INTENDED_SOCIAL_PLATFORMS_OPTIONS],
-        },
-        {
-          key: "url",
-          type: "url",
-          placeholder: "لینک محتوا",
-          inputDir: "rtl",
-          urlPlatformDependsOnKey: "platform",
-        },
+        ...SOCIAL_PLATFORM_URL_REPEATER_FIELDS.map((field) =>
+          field.key === "url"
+            ? {
+                ...field,
+                placeholder: "لینک محتوا",
+                inputDir: "rtl" as const,
+              }
+            : field,
+        ),
         { key: "reason", type: "text", placeholder: "دلیل انتخاب این محتوا" },
       ],
 

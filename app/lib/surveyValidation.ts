@@ -48,6 +48,7 @@ import {
   getRepeaterFields,
   getRepeaterPercentageTotal,
   hasIncompleteRepeaterRows,
+  hasInvalidRepeaterUrls,
   hasRepeaterPercentageField,
   isRepeaterCellValid,
   isRepeaterEmpty,
@@ -235,7 +236,7 @@ function collectRepeaterValidationErrors(
     }
   }
 
-  if (step.isAllowedEmpty && !hasIncompleteRepeaterRows(parsed, fields)) {
+  if (step.isAllowedEmpty && !hasIncompleteRepeaterRows(parsed, fields) && !hasInvalidRepeaterUrls(parsed, fields)) {
     const editableFields = fields.filter((field) => !field.readOnly);
     const allEditableEmpty = parsed.rows.every((row) =>
       editableFields.every((field) => !row[field.key]?.trim()),

@@ -1,6 +1,6 @@
 import type { SurveyConfig } from "./surveys";
 
-import { SOCIAL_PLATFORM_OPTIONS } from "./socialPlatforms";
+import { SOCIAL_PLATFORM_URL_REPEATER_FIELDS } from "./socialPlatformRepeaterFields";
 
 const SOCIAL_COMPETITOR_ANALYZE_GOAL_OPTIONS = [
   "پیدا کردن ایده محتوا و شناخت راه‌های ایجاد تمایز",
@@ -85,27 +85,7 @@ const CONTENT_STYLE_REASON_OPTIONS = [
   "ایده‌های جذاب محتوا",
 ] as const;
 
-const SOCIAL_PAGE_REPEATER_FIELDS = [
-  {
-    key: "platform",
-
-    type: "select" as const,
-
-    placeholder: "پلتفرم",
-
-    options: [...SOCIAL_PLATFORM_OPTIONS],
-  },
-
-  {
-    key: "url",
-
-    type: "url" as const,
-
-    placeholder: "لینک صفحه",
-
-    urlPlatformDependsOnKey: "platform",
-  },
-];
+const SOCIAL_PAGE_REPEATER_FIELDS = SOCIAL_PLATFORM_URL_REPEATER_FIELDS;
 
 export const socialCompetitorFormSurvey: SurveyConfig = {
   id: "social-competitor",
@@ -201,19 +181,9 @@ export const socialCompetitorFormSurvey: SurveyConfig = {
           placeholder: "نام برند",
           inputDir: "rtl",
         },
-        {
-          key: "platform",
-          type: "select",
-          placeholder: "پلتفرم",
-          options: [...SOCIAL_PLATFORM_OPTIONS],
-        },
-        {
-          key: "url",
-          type: "url",
-          placeholder: "لینک صفحه",
-          inputDir: "rtl",
-          urlPlatformDependsOnKey: "platform",
-        },
+        ...SOCIAL_PLATFORM_URL_REPEATER_FIELDS.map((field) =>
+          field.key === "url" ? { ...field, inputDir: "rtl" as const } : field,
+        ),
         {
           key: "reason",
           type: "select",
