@@ -450,7 +450,16 @@ export function getStepValidationErrors(
 
   if (step.isAllowedEmpty) {
     const isEmpty = isStepValueEmpty(step, value, steps, values);
-    if (isEmpty) return emptyErrors();
+    if (isEmpty) {
+      if (step.type === "repeater") {
+        const fields = getRepeaterFields(step);
+        const parsed = parseRepeaterValue(value, fields);
+        if (hasInvalidRepeaterUrls(parsed, fields)) {
+          return collectRepeaterValidationErrors(step, value, values, steps);
+        }
+      }
+      return emptyErrors();
+    }
   }
 
   if (step.type === "repeater") {
@@ -638,6 +647,7 @@ function isStepValueEmpty(
   if (step.type === "repeater") {
     const fields = getRepeaterFields(step);
     const parsed = parseRepeaterValue(value, fields);
+    if (hasInvalidRepeaterUrls(parsed, fields)) return false;
     if (step.repeaterSyncFromParent) {
       const parent = steps.find(
         (item) => item.question === step.repeaterSyncFromParent!.parentQuestion,

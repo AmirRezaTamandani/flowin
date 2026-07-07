@@ -253,7 +253,11 @@ export function isRepeaterRowPartial(
   const editableFields = fields.filter((field) => !field.readOnly);
   if (editableFields.length === 0) return false;
   const filledCount = editableFields.filter((field) => Boolean(row[field.key]?.trim())).length;
-  return filledCount > 0 && filledCount < editableFields.length;
+  if (filledCount === 0) return false;
+  if (filledCount < editableFields.length) return true;
+  return editableFields.some(
+    (field) => !isRepeaterCellValid(field, row[field.key] ?? "", row),
+  );
 }
 
 export function isRepeaterEmpty(value: RepeaterValue, fields: RepeaterFieldConfig[]): boolean {
