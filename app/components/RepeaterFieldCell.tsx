@@ -17,6 +17,7 @@ import {
 import { getPlatformUrlPattern } from "../lib/platformUrlValidation";
 import NumericInput from "./NumericInput";
 import FieldErrorMessage from "./FieldErrorMessage";
+import TimePickerInput from "./TimePickerInput";
 
 export function RepeaterFieldCell({
   field,
@@ -42,6 +43,20 @@ export function RepeaterFieldCell({
   rowIndex?: number;
 }) {
   const showError = hasError || Boolean(errorMessage);
+
+  if (field.type === "time") {
+    return (
+      <TimePickerInput
+        id={id}
+        value={value}
+        onChange={onChange}
+        hasError={showError}
+        errorMessage={errorMessage}
+        className={className}
+      />
+    );
+  }
+
   if (field.type === "number" && field.numberFormat === "percentage") {
     const itemValue = Number.parseFloat(value) || 0;
     const min = field.numberMin ?? 0;
@@ -187,27 +202,6 @@ export function RepeaterFieldCell({
             );
           })}
         </div>
-        <FieldErrorMessage message={errorMessage} />
-      </div>
-    );
-  }
-
-  if (field.type === "time") {
-    return (
-      <div className={cn("min-w-0", className)}>
-        <Input
-          id={id}
-          type="time"
-          inputMode="numeric"
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-          placeholder={field.placeholder}
-          aria-invalid={showError}
-          className={cn(
-            "h-11 bg-white text-base text-foreground",
-            showError && "border-destructive",
-          )}
-        />
         <FieldErrorMessage message={errorMessage} />
       </div>
     );
