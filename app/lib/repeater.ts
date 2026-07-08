@@ -4,7 +4,8 @@ import { isPhoneStepValueValid } from "./phoneValidation";
 export type RepeaterConditionalOption = {
   option: string;
   whenDependsOnIncludes: string[];
-  insertAfter?: string;
+  /** Preferred insert anchors — first match in current options wins. */
+  insertAfter?: string | string[];
 };
 
 export type RepeaterFieldConfig = {
@@ -50,9 +51,20 @@ export function resolveRepeaterSelectOptions(
     if (!extra.whenDependsOnIncludes.includes(dependsOnValue)) continue;
     if (options.includes(extra.option)) continue;
 
-    const anchorIndex = extra.insertAfter
-      ? options.indexOf(extra.insertAfter)
-      : options.length - 1;
+    const insertAfterCandidates = Array.isArray(extra.insertAfter)
+      ? extra.insertAfter
+      : extra.insertAfter
+        ? [extra.insertAfter]
+        : [];
+    let anchorIndex = -1;
+    for (const candidate of insertAfterCandidates) {
+      anchorIndex = options.indexOf(candidate);
+      if (anchorIndex >= 0) break;
+    }
+    if (anchorIndex < 0 && insertAfterCandidates.length === 0) {
+      anchorIndex = options.length - 1;
+    }
+
     if (anchorIndex >= 0) {
       options.splice(anchorIndex + 1, 0, extra.option);
     } else {

@@ -162,7 +162,6 @@ const CONTENT_TYPE_LIVE_PLATFORMS = [
   "اینستاگرام",
   "فیسبوک",
   "یوتیوب",
-  "تلگرام",
   "تیک‌تاک",
   "ایکس (توئیتر)",
   "لینکدین",
@@ -298,7 +297,7 @@ export const socialStrategyFormSurvey: SurveyConfig = {
               {
                 option: "لایو",
                 whenDependsOnIncludes: [...CONTENT_TYPE_LIVE_PLATFORMS],
-                insertAfter: "استوری",
+                insertAfter: ["استوری", "استتوس", "پست"],
               },
             ],
           },
@@ -322,6 +321,7 @@ export const socialStrategyFormSurvey: SurveyConfig = {
       repeaterSyncFromParent: {
         parentQuestion: INTENDED_SOCIAL_PLATFORMS_QUESTION,
         platformFieldKey: "platform",
+        allowMultipleRowsPerPlatform: true,
       },
     },
     {

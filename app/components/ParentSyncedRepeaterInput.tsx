@@ -174,7 +174,7 @@ export default function ParentSyncedRepeaterInput({
                       size="icon"
                       className="size-9 rounded-full"
                       onClick={() => removeRowAt(rowIndex, platform)}
-                      aria-label={`حذف بازه زمانی ${slotIndex + 1} برای ${platform}`}
+                      aria-label={`حذف ردیف ${slotIndex + 1} برای ${platform}`}
                     >
                       <Minus className="size-4" />
                     </Button>
@@ -186,7 +186,7 @@ export default function ParentSyncedRepeaterInput({
                       size="icon"
                       className="size-9 rounded-full"
                       onClick={() => addRowForPlatform(platform)}
-                      aria-label={`افزودن بازه زمانی برای ${platform}`}
+                      aria-label={`افزودن ردیف برای ${platform}`}
                     >
                       <Plus className="size-4" />
                     </Button>
