@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   createEmptyRepeaterRow,
+  getRepeaterMaxRowsPerPlatform,
   type RepeaterFieldConfig,
   type RepeaterSyncFromParentConfig,
   type RepeaterValue,
@@ -67,6 +68,19 @@ export default function ParentSyncedRepeaterInput({
   }
 
   function addRowForPlatform(platform: string) {
+    const platformRowCount = value.rows.filter(
+      (row) => row[platformFieldKey] === platform,
+    ).length;
+    const maxRows = syncConfig.maxRowsPerPlatformFieldKey
+      ? getRepeaterMaxRowsPerPlatform(
+          platform,
+          fields,
+          platformFieldKey,
+          syncConfig.maxRowsPerPlatformFieldKey,
+        )
+      : undefined;
+    if (maxRows !== undefined && platformRowCount >= maxRows) return;
+
     const lastIndex = value.rows.reduce(
       (last, row, index) => (row[platformFieldKey] === platform ? index : last),
       -1,
@@ -90,6 +104,19 @@ export default function ParentSyncedRepeaterInput({
     const row = value.rows[rowIndex];
     const fieldId = `synced-repeater-${rowIndex}-${field.key}`;
     const cellError = fieldErrors[repeaterFieldKey(rowIndex, field.key)];
+    const platform = row[platformFieldKey];
+    const excludeSelectOptions =
+      syncConfig.maxRowsPerPlatformFieldKey &&
+      field.key === syncConfig.maxRowsPerPlatformFieldKey &&
+      platform
+        ? value.rows
+            .filter(
+              (otherRow, otherIndex) =>
+                otherIndex !== rowIndex && otherRow[platformFieldKey] === platform,
+            )
+            .map((otherRow) => otherRow[field.key]?.trim() ?? "")
+            .filter(Boolean)
+        : undefined;
     return (
       <div key={field.key}>
         <RepeaterFieldLabel field={field} htmlFor={fieldId} />
@@ -101,6 +128,7 @@ export default function ParentSyncedRepeaterInput({
           onChange={(next) => updateRow(rowIndex, field.key, next)}
           hasError={Boolean(cellError)}
           errorMessage={cellError}
+          excludeSelectOptions={excludeSelectOptions}
         />
       </div>
     );
@@ -151,7 +179,18 @@ export default function ParentSyncedRepeaterInput({
         hasError && "rounded-xl border border-destructive p-3",
       )}
     >
-      {platformGroups.map(({ platform, rowIndices }) => (
+      {platformGroups.map(({ platform, rowIndices }) => {
+        const maxRows = syncConfig.maxRowsPerPlatformFieldKey
+          ? getRepeaterMaxRowsPerPlatform(
+              platform,
+              fields,
+              platformFieldKey,
+              syncConfig.maxRowsPerPlatformFieldKey,
+            )
+          : undefined;
+        const canAddRow = maxRows === undefined || rowIndices.length < maxRows;
+
+        return (
         <div
           key={platform}
           className="rounded-xl border border-input bg-white p-4"
@@ -179,7 +218,7 @@ export default function ParentSyncedRepeaterInput({
                       <Minus className="size-4" />
                     </Button>
                   ) : null}
-                  {slotIndex === rowIndices.length - 1 ? (
+                  {slotIndex === rowIndices.length - 1 && canAddRow ? (
                     <Button
                       type="button"
                       variant="secondary"
@@ -196,7 +235,8 @@ export default function ParentSyncedRepeaterInput({
             ))}
           </div>
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

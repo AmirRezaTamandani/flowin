@@ -30,6 +30,7 @@ export function RepeaterFieldCell({
   row,
   repeaterRows,
   rowIndex,
+  excludeSelectOptions,
 }: {
   field: RepeaterFieldConfig;
   value: string;
@@ -41,6 +42,8 @@ export function RepeaterFieldCell({
   row?: RepeaterRow;
   repeaterRows?: RepeaterRow[];
   rowIndex?: number;
+  /** Hide these options in select fields (e.g. content types already used in sibling rows). */
+  excludeSelectOptions?: string[];
 }) {
   const showError = hasError || Boolean(errorMessage);
 
@@ -140,7 +143,11 @@ export function RepeaterFieldCell({
   }
 
   if (field.type === "select") {
-    const options = row ? resolveRepeaterSelectOptions(field, row) : (field.options ?? []);
+    const resolved = row ? resolveRepeaterSelectOptions(field, row) : (field.options ?? []);
+    const excluded = new Set(excludeSelectOptions ?? []);
+    const options = resolved.filter(
+      (option) => !excluded.has(option) || option === value.trim(),
+    );
     return (
       <div className={cn("min-w-0", className)}>
         <select

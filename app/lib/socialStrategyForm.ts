@@ -322,6 +322,7 @@ export const socialStrategyFormSurvey: SurveyConfig = {
         parentQuestion: INTENDED_SOCIAL_PLATFORMS_QUESTION,
         platformFieldKey: "platform",
         allowMultipleRowsPerPlatform: true,
+        maxRowsPerPlatformFieldKey: "contentType",
       },
     },
     {

@@ -37,6 +37,11 @@ export type RepeaterSyncFromParentConfig = {
   platformFieldKey: string;
   /** Allow multiple time slots per synced platform (e.g. Sat 12:00 and Mon 14:00). */
   allowMultipleRowsPerPlatform?: boolean;
+  /**
+   * Cap rows per platform to the number of select options available for this field
+   * on that platform (e.g. contentType → Telegram max 2 rows).
+   */
+  maxRowsPerPlatformFieldKey?: string;
 };
 
 export function resolveRepeaterSelectOptions(
@@ -73,6 +78,20 @@ export function resolveRepeaterSelectOptions(
   }
 
   return options;
+}
+
+export function getRepeaterMaxRowsPerPlatform(
+  platform: string,
+  fields: RepeaterFieldConfig[],
+  platformFieldKey: string,
+  limitFieldKey: string,
+): number {
+  const limitField = fields.find((field) => field.key === limitFieldKey);
+  if (!limitField || limitField.type !== "select") return 1;
+
+  const row = createEmptyRepeaterRow(fields);
+  row[platformFieldKey] = platform;
+  return resolveRepeaterSelectOptions(limitField, row).length;
 }
 
 export function parseRepeaterMultiCheckboxValue(value: string): string[] {
@@ -383,10 +402,20 @@ export function syncRepeaterWithParentPlatforms(
     const orderedRows: RepeaterRow[] = [];
     for (const platform of parentPlatforms) {
       const existing = rowsByPlatform.get(platform);
+      const maxRows = syncConfig.maxRowsPerPlatformFieldKey
+        ? getRepeaterMaxRowsPerPlatform(
+            platform,
+            fields,
+            platformFieldKey,
+            syncConfig.maxRowsPerPlatformFieldKey,
+          )
+        : undefined;
+
       if (existing?.length) {
-        orderedRows.push(
-          ...existing.map((row) => ({ ...row, [platformFieldKey]: platform })),
-        );
+        const platformRows = existing
+          .slice(0, maxRows)
+          .map((row) => ({ ...row, [platformFieldKey]: platform }));
+        orderedRows.push(...platformRows);
       } else {
         const empty = createEmptyRepeaterRow(fields);
         empty[platformFieldKey] = platform;
