@@ -5,14 +5,7 @@ export const brandFormSurvey: SurveyConfig = {
   label: "افزودن اطلاعات برند",
   title: "افزودن اطلاعات برند",
   description: "",
-  pageCount: 5,
-  pageLabels: [
-    "اطلاعات پایه",
-    "فروش و محصولات",
-    "هویت برند",
-    "مخاطب و رقابت",
-    "چالش‌ها و اهداف",
-  ],
+
   steps: [
     { id: 1, question: "نام برند شما چیست؟", type: "text" },
     {

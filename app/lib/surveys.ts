@@ -1,6 +1,9 @@
 import type { CheckboxSubOptionsConfig } from "./checkboxWithSubOptions";
 import type { NestedRepeaterConfig } from "./nestedRepeater";
-import type { RepeaterFieldConfig, RepeaterSyncFromParentConfig } from "./repeater";
+import type {
+  RepeaterFieldConfig,
+  RepeaterSyncFromParentConfig,
+} from "./repeater";
 import { brandFormSurvey } from "./brandForm";
 import { campaignFormSurvey } from "./campaignForm";
 import { emailFormSurvey } from "./emailForm";
@@ -22,7 +25,23 @@ export type SurveyStep = {
   id: number;
   page?: number;
   question: string;
-  type: "text" | "textarea" | "radio" | "select" | "checkbox" | "brandVisualIdentity" | "personaFields" | "percentageAllocation" | "geoLocation" | "fileUpload" | "repeater" | "nestedRepeater" | "shamsiDate" | "namedShamsiDates" | "number" | "url";
+  type:
+    | "text"
+    | "textarea"
+    | "radio"
+    | "select"
+    | "checkbox"
+    | "brandVisualIdentity"
+    | "personaFields"
+    | "percentageAllocation"
+    | "geoLocation"
+    | "fileUpload"
+    | "repeater"
+    | "nestedRepeater"
+    | "shamsiDate"
+    | "namedShamsiDates"
+    | "number"
+    | "url";
   /** MIME/extensions for `fileUpload` steps. */
   fileAccept?: string;
   uploadHint?: string;
@@ -77,8 +96,6 @@ export type SurveyConfig = {
   label: string;
   title: string;
   description: string;
-  pageCount?: number;
-  pageLabels?: string[];
   steps: SurveyStep[];
 };
 

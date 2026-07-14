@@ -15,10 +15,8 @@ export const campaignFormSurvey: SurveyConfig = {
   label: "فرم کمپین",
   title: "فرم کمپین",
   description: "",
-  pageCount: 1,
-  pageLabels: ["فرم کمپین"],
-  steps: [
 
+  steps: [
     {
       id: 1,
       question: CAMPAIGN_TYPE_QUESTION,
