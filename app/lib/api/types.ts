@@ -164,12 +164,18 @@ export type CreateSubmissionRequest = {
   status: SubmissionStatus;
   answers: Record<string, string>;
   completedAt?: string;
+  normalizedAnswers?: NormalizedAnswer[];
 };
 
 export type UpdateSubmissionRequest = {
   status?: SubmissionStatus;
   answers?: Record<string, string>;
   completedAt?: string | null;
+};
+
+export type DraftSubmissionRequest = {
+  surveyId: SurveyId;
+  answers: Record<string, string>;
 };
 
 export type CreateSubmissionResponse = SurveySubmission;

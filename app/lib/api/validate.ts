@@ -1,4 +1,99 @@
-import { isSurveyId, type CreateSubmissionRequest, type SubmissionStatus } from "./types";
+import {
+  isSurveyId,
+  type CreateSubmissionRequest,
+  type DraftSubmissionRequest,
+  type SubmissionStatus,
+  type UpdateSubmissionRequest,
+} from "./types";
+import type { NormalizedAnswer } from "./types";
+
+function parseAnswersObject(
+  answers: unknown,
+): { ok: true; data: Record<string, string> } | { ok: false; message: string } {
+  if (!answers || typeof answers !== "object" || Array.isArray(answers)) {
+    return { ok: false, message: "answers must be an object keyed by step_{id}" };
+  }
+  for (const [key, value] of Object.entries(answers)) {
+    if (!key.startsWith("step_")) {
+      return { ok: false, message: `Invalid answer key "${key}" — expected step_{id}` };
+    }
+    if (typeof value !== "string") {
+      return { ok: false, message: `Answer "${key}" must be a string` };
+    }
+  }
+  return { ok: true, data: answers as Record<string, string> };
+}
+
+function parseNormalizedAnswers(
+  value: unknown,
+): NormalizedAnswer[] | undefined {
+  if (value === undefined) return undefined;
+  if (!Array.isArray(value)) return undefined;
+  return value as NormalizedAnswer[];
+}
+
+export function parseDraftSubmissionRequest(
+  body: unknown,
+): { ok: true; data: DraftSubmissionRequest & { normalizedAnswers?: NormalizedAnswer[] } } | { ok: false; message: string } {
+  if (!body || typeof body !== "object") {
+    return { ok: false, message: "Request body must be a JSON object" };
+  }
+  const record = body as Record<string, unknown>;
+  const surveyId = record.surveyId;
+  if (typeof surveyId !== "string" || !isSurveyId(surveyId)) {
+    return { ok: false, message: "surveyId must be a valid survey slug" };
+  }
+  const parsedAnswers = parseAnswersObject(record.answers);
+  if (!parsedAnswers.ok) return parsedAnswers;
+  return {
+    ok: true,
+    data: {
+      surveyId,
+      answers: parsedAnswers.data,
+      normalizedAnswers: parseNormalizedAnswers(record.normalizedAnswers),
+    },
+  };
+}
+
+export function parseUpdateSubmissionRequest(
+  body: unknown,
+):
+  | { ok: true; data: UpdateSubmissionRequest & { normalizedAnswers?: NormalizedAnswer[] } }
+  | { ok: false; message: string } {
+  if (!body || typeof body !== "object") {
+    return { ok: false, message: "Request body must be a JSON object" };
+  }
+  const record = body as Record<string, unknown>;
+  const result: UpdateSubmissionRequest & { normalizedAnswers?: NormalizedAnswer[] } = {};
+
+  if (record.status !== undefined) {
+    if (record.status !== "draft" && record.status !== "completed") {
+      return { ok: false, message: "status must be draft or completed" };
+    }
+    result.status = record.status as SubmissionStatus;
+  }
+
+  if (record.answers !== undefined) {
+    const parsedAnswers = parseAnswersObject(record.answers);
+    if (!parsedAnswers.ok) return parsedAnswers;
+    result.answers = parsedAnswers.data;
+  }
+
+  if (record.completedAt !== undefined) {
+    if (record.completedAt !== null && typeof record.completedAt !== "string") {
+      return { ok: false, message: "completedAt must be an ISO date string or null" };
+    }
+    result.completedAt = record.completedAt as string | null;
+  }
+
+  if (result.status === "completed" && result.completedAt === undefined) {
+    result.completedAt = new Date().toISOString();
+  }
+
+  result.normalizedAnswers = parseNormalizedAnswers(record.normalizedAnswers);
+
+  return { ok: true, data: result };
+}
 
 export function parseCreateSubmissionRequest(
   body: unknown,
@@ -24,14 +119,8 @@ export function parseCreateSubmissionRequest(
     return { ok: false, message: "answers must be an object keyed by step_{id}" };
   }
 
-  for (const [key, value] of Object.entries(answers)) {
-    if (!key.startsWith("step_")) {
-      return { ok: false, message: `Invalid answer key "${key}" — expected step_{id}` };
-    }
-    if (typeof value !== "string") {
-      return { ok: false, message: `Answer "${key}" must be a string` };
-    }
-  }
+  const parsedAnswers = parseAnswersObject(answers);
+  if (!parsedAnswers.ok) return parsedAnswers;
 
   const completedAt =
     record.completedAt === undefined
@@ -53,8 +142,9 @@ export function parseCreateSubmissionRequest(
     data: {
       surveyId,
       status: status as SubmissionStatus,
-      answers: answers as Record<string, string>,
+      answers: parsedAnswers.data,
       completedAt,
+      normalizedAnswers: parseNormalizedAnswers(record.normalizedAnswers),
     },
   };
 }

@@ -8,7 +8,7 @@ Dense context for AI agents working on **Flowin** (Next.js 16, RTL Persian surve
 
 ## Product in one paragraph
 
-Users log in (mock OTP), fill **8 surveys** (`branding`, `campaign`, `email`, `sms`, `push`, `seo`, `social-competitor`, `social-strategy`). Survey **definitions** live in `app/lib/*Form.ts`. Answers persist to **localStorage**; API routes under `app/api/v1/**` are mostly **501 stubs**. Types/contracts: `app/lib/api/*`.
+Users log in (mock OTP), fill **8 surveys** (`branding`, `campaign`, `email`, `sms`, `push`, `seo`, `social-competitor`, `social-strategy`). Survey **definitions** live in `app/lib/*Form.ts`. Answers save to **API** (`data/flowin-store.json` dev store) + **localStorage** backup. Types/contracts: `app/lib/api/*`, client: `app/lib/api/submitSurvey.ts`.
 
 ---
 
@@ -25,7 +25,9 @@ Users log in (mock OTP), fill **8 surveys** (`branding`, `campaign`, `email`, `s
 | Time picker (custom) | `app/components/TimePickerInput.tsx` |
 | Social platform lists | `app/lib/socialPlatforms.ts` |
 | Platform+URL fields | `app/lib/socialPlatformRepeaterFields.ts` |
-| Answer normalize | `app/lib/api/normalizeSubmission.ts` |
+| Answer normalize + payload | `app/lib/api/normalizeSubmission.ts`, `app/lib/stepVisibility.ts` |
+| Submit client | `app/lib/api/submitSurvey.ts` |
+| Dev persistence | `app/lib/db/*` → `data/flowin-store.json` |
 
 ---
 

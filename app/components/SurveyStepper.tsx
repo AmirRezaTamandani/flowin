@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -109,6 +110,14 @@ import {
   stepHasCheckboxSubOptions,
   type CheckboxWithSubOptionsValue,
 } from "../lib/checkboxWithSubOptions";
+import { buildSubmissionPayload } from "../lib/api/normalizeSubmission";
+import {
+  completeSubmission,
+  ensureBrand,
+  fetchDraftSubmission,
+  saveDraftSubmission,
+} from "../lib/api/submitSurvey";
+import { useAuthStore } from "../lib/authStore";
 
 function getCheckboxSelectionsForStep(
   step: SurveyStep,
@@ -198,6 +207,17 @@ function getNavigableSteps(steps: SurveyStep[], values: FormValues): SurveyStep[
 
 function getAllVisibleSteps(steps: SurveyStep[], values: FormValues): SurveyStep[] {
   return steps.filter((step) => isStepVisible(step, steps, values));
+}
+
+function mergeDraftAnswers(
+  defaults: FormValues,
+  answers: Record<string, string>,
+): FormValues {
+  const merged = { ...defaults };
+  for (const [key, value] of Object.entries(answers)) {
+    merged[key] = value;
+  }
+  return merged;
 }
 
 function buildDefaultValues(steps: SurveyStep[]): FormValues {
@@ -1119,12 +1139,18 @@ function StepField({
 }
 
 export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
+  const token = useAuthStore((state) => state.token);
   const [currentStepId, setCurrentStepId] = useState(survey.steps[0]?.id ?? 1);
   const [isFinished, setIsFinished] = useState(false);
   const [stepValidation, setStepValidation] = useState<{
     stepId: number;
     errors: StepValidationErrors;
   } | null>(null);
+  const [brandId, setBrandId] = useState<string | null>(null);
+  const [draftSubmissionId, setDraftSubmissionId] = useState<string | null>(null);
+  const [isLoadingDraft, setIsLoadingDraft] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const form = useForm<FormValues>({
     defaultValues: buildDefaultValues(survey.steps),
@@ -1171,7 +1197,52 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
     setCurrentStepId(survey.steps[0]?.id ?? 1);
     setIsFinished(false);
     setStepValidation(null);
+    setBrandId(null);
+    setDraftSubmissionId(null);
+    setSaveError(null);
   }, [survey.id, survey.steps, form]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function bootstrapDraft() {
+      if (!token) {
+        setIsLoadingDraft(false);
+        return;
+      }
+
+      setIsLoadingDraft(true);
+      setSaveError(null);
+
+      try {
+        const brand = await ensureBrand(token);
+        if (cancelled) return;
+        setBrandId(brand.id);
+
+        const draft = await fetchDraftSubmission(token, brand.id, survey.id);
+        if (cancelled) return;
+
+        if (draft) {
+          setDraftSubmissionId(draft.id);
+          const merged = { ...buildDefaultValues(survey.steps), ...draft.answers };
+          form.reset(merged);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          const message =
+            error instanceof Error ? error.message : "بارگذاری پاسخ‌ها ناموفق بود.";
+          setSaveError(message);
+        }
+      } finally {
+        if (!cancelled) setIsLoadingDraft(false);
+      }
+    }
+
+    void bootstrapDraft();
+    return () => {
+      cancelled = true;
+    };
+  }, [survey.id, survey.steps, token, form]);
 
   useEffect(() => {
     if (!visibleSteps.length) return;
@@ -1228,28 +1299,63 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
     return false;
   }
 
-  function completeSurvey(values: FormValues) {
-    if (!validateAllVisibleSteps(values)) return;
-    const answers = Object.fromEntries(
-      Object.entries(values).map(([key, value]) => [
-        key,
-        Array.isArray(value) ? JSON.stringify(value) : value,
-      ]),
-    );
-
-    const payload = {
-      surveyId: survey.id,
-      surveyLabel: survey.label,
-      answers,
-      completedAt: new Date().toISOString(),
-    };
-    const json = JSON.stringify(payload, null, 2);
-    localStorage.setItem(`survey-${survey.id}-answers`, json);
-    console.log("Saved survey answers:", json);
-    setIsFinished(true);
+  function backupToLocalStorage(values: FormValues, status: "draft" | "completed") {
+    const payload = buildSubmissionPayload(survey, values, status);
+    localStorage.setItem(`survey-${survey.id}-answers`, JSON.stringify(payload, null, 2));
   }
 
-  function goNext() {
+  async function persistDraft(values: FormValues): Promise<boolean> {
+    backupToLocalStorage(values, "draft");
+    if (!token || !brandId) return true;
+
+    setIsSaving(true);
+    setSaveError(null);
+    try {
+      const payload = buildSubmissionPayload(survey, values, "draft");
+      const saved = await saveDraftSubmission(token, brandId, payload);
+      setDraftSubmissionId(saved.id);
+      return true;
+    } catch (error) {
+      setSaveError(
+        error instanceof Error ? error.message : "ذخیره پیش‌نویس ناموفق بود.",
+      );
+      return false;
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  async function completeSurvey(values: FormValues) {
+    if (!validateAllVisibleSteps(values)) return;
+
+    setIsSaving(true);
+    setSaveError(null);
+    try {
+      const payload = buildSubmissionPayload(survey, values, "completed");
+      backupToLocalStorage(values, "completed");
+
+      if (token && brandId) {
+        const saved = await completeSubmission(
+          token,
+          brandId,
+          draftSubmissionId,
+          payload,
+        );
+        setDraftSubmissionId(saved.id);
+      }
+
+      console.log("Saved survey answers:", JSON.stringify(payload, null, 2));
+      setIsFinished(true);
+    } catch (error) {
+      setSaveError(
+        error instanceof Error ? error.message : "ذخیره پاسخ‌ها ناموفق بود.",
+      );
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  async function goNext() {
     if (!currentStep) return;
     const values = form.getValues();
     if (!validateCurrentStep(values)) return;
@@ -1257,12 +1363,14 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
     const index = visibleSteps.findIndex((step) => step.id === currentStep.id);
 
     if (index < visibleSteps.length - 1) {
+      const saved = await persistDraft(values);
+      if (!saved) return;
       setCurrentStepId(visibleSteps[index + 1].id);
       setStepValidation(null);
       return;
     }
 
-    completeSurvey(values);
+    await completeSurvey(values);
   }
 
   function goPrev() {
@@ -1299,6 +1407,13 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
       </Progress>
 
       <div className="survey-step-panel">
+        {isLoadingDraft ? (
+          <div className="flex min-h-[180px] flex-col items-center justify-center gap-3 text-muted-foreground">
+            <Loader2 className="size-7 animate-spin" aria-hidden="true" />
+            <p className="text-sm">در حال بارگذاری پاسخ‌های ذخیره‌شده...</p>
+          </div>
+        ) : (
+          <>
         <Label className="question mb-3 block text-base font-semibold">
           {currentStep.question}
           {!currentStep.isAllowedEmpty && (
@@ -1337,7 +1452,13 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
             ) : null}
           </div>
         ))}
+          </>
+        )}
       </div>
+
+      {saveError ? (
+        <FieldErrorMessage message={saveError} className="mt-4" />
+      ) : null}
 
       <div className="survey-actions">
         {!isFinished && currentIndex > 0 && (
@@ -1345,6 +1466,7 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
             type="button"
             variant="outline"
             onClick={goPrev}
+            disabled={isSaving || isLoadingDraft}
             className="btn-prev h-10 min-w-28 rounded-xl font-semibold"
           >
             قبلی
@@ -1353,10 +1475,20 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
         {!isFinished ? (
           <Button
             type="button"
-            onClick={goNext}
+            onClick={() => void goNext()}
+            disabled={isSaving || isLoadingDraft}
             className="btn-next h-10 min-w-28 rounded-xl font-semibold"
           >
-            {currentIndex === visibleSteps.length - 1 ? "پایان" : "بعدی"}
+            {isSaving ? (
+              <>
+                <Loader2 className="size-4 animate-spin" />
+                در حال ذخیره...
+              </>
+            ) : currentIndex === visibleSteps.length - 1 ? (
+              "پایان"
+            ) : (
+              "بعدی"
+            )}
           </Button>
         ) : (
           <>
@@ -1367,16 +1499,25 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
                 setIsFinished(false);
                 setCurrentStepId(visibleSteps[0]?.id ?? 1);
               }}
+              disabled={isSaving}
               className="btn-prev h-10 min-w-28 rounded-xl font-semibold"
             >
               ویرایش پاسخ‌ها
             </Button>
             <Button
               type="button"
-              onClick={() => completeSurvey(form.getValues())}
+              onClick={() => void completeSurvey(form.getValues())}
+              disabled={isSaving}
               className="btn-next h-10 min-w-28 rounded-xl font-semibold"
             >
-              ذخیره تغییرات
+              {isSaving ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" />
+                  در حال ذخیره...
+                </>
+              ) : (
+                "ذخیره تغییرات"
+              )}
             </Button>
           </>
         )}

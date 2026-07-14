@@ -1,13 +1,9 @@
 import { stepHasCheckboxSubOptions } from "../checkboxWithSubOptions";
 import { stepHasOtherOption } from "../checkboxWithOther";
 import type { SurveyConfig, SurveyStep } from "../surveys";
+import { fieldName, getVisibleFormAnswers, isStepVisible } from "../stepVisibility";
 import type { FormValues } from "./formValues";
 import type { NormalizedAnswer, ParsedAnswerValue } from "./types";
-
-function fieldName(stepId: number): string {
-  return `step_${stepId}`;
-}
-
 function parseAnswerValue(step: SurveyStep, raw: string): ParsedAnswerValue {
   if (!raw) return "";
 
@@ -45,41 +41,7 @@ function parseAnswerValue(step: SurveyStep, raw: string): ParsedAnswerValue {
   }
 }
 
-function getParentValue(
-  condition: NonNullable<SurveyStep["showIf"]>,
-  steps: SurveyStep[],
-  values: FormValues,
-): string | string[] {
-  const parent = steps.find((step) => step.question === condition.parentQuestion);
-  if (!parent) return "";
-  return values[fieldName(parent.id)] ?? "";
-}
-
-function isStepVisible(step: SurveyStep, steps: SurveyStep[], values: FormValues): boolean {
-  if (!step.showIf) return true;
-  const parentValue = getParentValue(step.showIf, steps, values);
-  if (step.showIf.equals !== undefined) {
-    return parentValue === step.showIf.equals;
-  }
-  if (step.showIf.includes !== undefined) {
-    const parent = steps.find((item) => item.question === step.showIf!.parentQuestion);
-    if (!parent) return false;
-    const selected = typeof parentValue === "string" ? tryParseArray(parentValue) : parentValue;
-    return Array.isArray(selected) && selected.includes(step.showIf.includes);
-  }
-  return true;
-}
-
-function tryParseArray(value: string): string[] {
-  try {
-    const parsed = JSON.parse(value);
-    return Array.isArray(parsed) ? parsed : value ? [value] : [];
-  } catch {
-    return value ? [value] : [];
-  }
-}
-
-/** Convert raw form values to normalized answers for API storage. */
+/** Build the submission payload the frontend will POST to the API. */
 export function normalizeSubmissionAnswers(
   survey: SurveyConfig,
   values: FormValues,
@@ -112,18 +74,12 @@ export function normalizeSubmissionAnswers(
   return results;
 }
 
-/** Build the submission payload the frontend will POST to the API. */
 export function buildSubmissionPayload(
   survey: SurveyConfig,
   values: FormValues,
   status: "draft" | "completed",
 ) {
-  const answers = Object.fromEntries(
-    Object.entries(values).map(([key, value]) => [
-      key,
-      Array.isArray(value) ? JSON.stringify(value) : value,
-    ]),
-  ) as Record<string, string>;
+  const answers = getVisibleFormAnswers(survey.steps, values);
 
   return {
     surveyId: survey.id,

@@ -20,3 +20,13 @@ export function unauthorized(message = "Authentication required") {
   const body: ApiError = { error: "unauthorized", message };
   return NextResponse.json(body, { status: 401 });
 }
+
+export function notFound(message = "Resource not found") {
+  const body: ApiError = { error: "not_found", message };
+  return NextResponse.json(body, { status: 404 });
+}
+
+export function conflict(message: string) {
+  const body: ApiError = { error: "conflict", message };
+  return NextResponse.json(body, { status: 409 });
+}
