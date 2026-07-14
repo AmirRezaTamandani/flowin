@@ -23,13 +23,15 @@ export default function Home() {
       <Header />
       <div className="page-body">
         {!hasHydrated ? (
-          <div className="flex min-h-[60vh] items-center justify-center">
-            <div className="w-full max-w-md rounded-3xl border border-border bg-card px-6 py-10 text-center shadow-sm">
-              <p className="text-sm text-muted-foreground">در حال بارگذاری وضعیت ورود...</p>
+          <div className="flex justify-center items-center min-h-[60vh]">
+            <div className="bg-card shadow-sm px-6 py-10 border border-border rounded-3xl w-full max-w-md text-center">
+              <p className="text-muted-foreground text-sm">
+                در حال بارگذاری وضعیت ورود...
+              </p>
             </div>
           </div>
         ) : !token ? (
-          <div className="flex min-h-[60vh] items-center justify-center">
+          <div className="flex justify-center items-center min-h-[60vh]">
             <MockOtpAuth />
           </div>
         ) : (

@@ -14,24 +14,24 @@ export const brandFormSurvey: SurveyConfig = {
     "چالش‌ها و اهداف",
   ],
   steps: [
-    { id: 1, page: 1, question: "نام برند شما چیست؟", type: "text" },
+    { id: 1, question: "نام برند شما چیست؟", type: "text" },
     {
       id: 2,
-      page: 1,
+
       question: "آدرس سایت خود را وارد کنید.",
       type: "url",
       placeholder: "https://example.com",
     },
     {
       id: 3,
-      page: 1,
+
       question: "شرکت شما در چه تاریخی تاسیس شده‌است؟",
       type: "shamsiDate",
       placeholder: "تاریخ تاسیس را انتخاب کنید",
     },
     {
       id: 4,
-      page: 1,
+
       question: "انداز فعلی سازمان/تیم شما چقدر است ؟",
       type: "radio",
       options: [
@@ -43,7 +43,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 5,
-      page: 1,
+
       question: "حوزه اصلی کسب‌وکار شما چیست؟",
       type: "checkbox",
       checkboxMaxSelections: 5,
@@ -164,7 +164,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 6,
-      page: 1,
+
       question: "مدل ارتباط تجاری کسب‌وکار با مشتریان چیست؟",
       type: "checkbox",
       options: [
@@ -184,7 +184,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 7,
-      page: 1,
+
       question: "مدل درآمدی کسب‌وکار شما کدام است ؟",
       type: "checkbox",
       options: [
@@ -213,14 +213,14 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 8,
-      page: 2,
+
       question: "مشتریان از چه طریقی از شما خرید می‌کنند؟",
       type: "radio",
       options: ["آنلاین", "آفلاین", "هر دو"],
     },
     {
       id: 9,
-      page: 2,
+
       question: "کدام روش های فروش آنلاین براش شما فعال هستند",
       type: "checkbox",
       options: ["وبسایت", "سوشال مدیا", "اپلیکیشن"],
@@ -231,7 +231,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 10,
-      page: 2,
+
       question: "کدام روش های فروش آفلاین براش شما فعال هستند",
       type: "checkbox",
       options: [
@@ -250,7 +250,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 11,
-      page: 2,
+
       question: "کدام روش های فروش براش شما فعال هستند",
       type: "checkbox",
       options: [
@@ -272,7 +272,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 12,
-      page: 2,
+
       question: "در حال حاضر بیشترین فروش از کدام کانال است؟",
       type: "radio",
       options: [
@@ -289,21 +289,21 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 13,
-      page: 2,
+
       question:
         "پرفروش‌ترین محصول یا خدمت شما کدام است؟ نام ببرید یا لینک محصول را قرار دهید.",
       type: "textarea",
     },
     {
       id: 14,
-      page: 2,
+
       question:
         "سودآورترین محصول یا خدمت شما چیست؟ نام ببرید یا لینک محصول را قرار دهید.",
       type: "textarea",
     },
     {
       id: 15,
-      page: 2,
+
       question:
         "مهم‌ترین زمان فروش برای کسب‌و‌کار شما در سال کدام یک از موقعیت‌های زیر است؟.",
       otherOption: "سایر",
@@ -328,7 +328,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 16,
-      page: 2,
+
       question:
         "مسیر خرید مشتری شما چیست؟ (معمولاً از چه مسیری با برند شما آشنا می‌شود و به خرید می‌رسد؟)",
       type: "repeater",
@@ -351,7 +351,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 17,
-      page: 2,
+
       question: "کانال‌های مارکتینگی خود را مشخص کنید.",
       type: "checkbox",
       options: [
@@ -414,40 +414,40 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 18,
-      page: 3,
+
       question:
         "جمله زیر را تکمیل کنید: «من با کسب‌وکارم به افراد کمک می‌کنم تا …»",
       type: "textarea",
     },
     {
       id: 19,
-      page: 3,
+
       question: "دلیل و فلسفه انتخاب نام برند شما چه بوده‌است؟",
       type: "textarea",
     },
     {
       id: 20,
-      page: 3,
+
       question: "داستان شکل‌گیری برند خود را شرح دهید.",
       type: "textarea",
     },
     {
       id: 21,
-      page: 3,
+
       question:
         "آیا هویت بصری مکتوب شامل لوگو، رنگ‌ها و فونت دارید؟ لطفاً هر یک را به‌صورت جداگانه بارگذاری کنید.",
       type: "brandVisualIdentity",
     },
     {
       id: 22,
-      page: 3,
+
       question: "شعار برند خود را در صورت وجود، بنویسید.",
       type: "text",
       isAllowedEmpty: true,
     },
     {
       id: 23,
-      page: 3,
+
       question: "آرکی‌تایپ یا شخصیت اصلی برند شما چیست؟",
       type: "percentageAllocation",
       options: [
@@ -479,7 +479,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 24,
-      page: 3,
+
       question:
         "چه موضوعاتی را نمی‌خواهید به هیچ عنوان در محتوای شما، چه متنی و چه تصویری، مطرح شوند؟",
       type: "checkbox",
@@ -501,21 +501,21 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 25,
-      page: 3,
+
       question: "رویدادها و مناسبت‌های کلیدی برند شما کدام‌اند؟",
       type: "namedShamsiDates",
       placeholder: "مثال: سالگرد تأسیس، جشنواره فروش",
     },
     {
       id: 26,
-      page: 4,
+
       question: "مصرف کننده نهایی محصول / خدمت شما چه کسی است؟",
       type: "radio",
       options: ["خود خریدار", "شخص دیگری"],
     },
     {
       id: 27,
-      page: 4,
+
       question: "پرسونای خریدار/مصرف کننده شما چیست؟",
       type: "personaFields",
       showIf: {
@@ -525,7 +525,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 28,
-      page: 4,
+
       question: "پرسونای مخاطب محتوا/تبلیغات شما چیست؟",
       type: "personaFields",
       showIf: {
@@ -535,34 +535,34 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 29,
-      page: 4,
+
       question: "مزیت‌های رقابتی اصلی شما در بازار کدام‌اند؟",
       type: "textarea",
       options: ["مثال راهنما :‌گارانتی،"],
     },
     {
       id: 30,
-      page: 4,
+
       question: "رقبای اصلی شما کدام برندها هستند؟ لطفاً نام ببرید.",
       type: "textarea",
     },
     {
       id: 31,
-      page: 4,
+
       question:
         "در ۶ ماه اخیر، چه بازخوردهای مثبتی درباره‌ی برند، خدمات یا محصولات خود از مشتریان‌تان در پلتفرم‌های مختلف دریافت کرده‌اید؟",
       type: "textarea",
     },
     {
       id: 32,
-      page: 4,
+
       question:
         "در ۶ ماه اخیر، چه بازخوردهای منفی درباره‌ی برند، خدمات یا محصولات خود از مشتریان‌تان در پلتفرم‌های مختلف دریافت کرده‌اید؟",
       type: "textarea",
     },
     {
       id: 33,
-      page: 4,
+
       question:
         "به نظر شما، در حال حاضر چند درصد از سهم بازارِ حوزه‌ی کسب‌وکارتان را در اختیار دارید؟",
       type: "number",
@@ -573,7 +573,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 34,
-      page: 4,
+
       question:
         "فکر می‌کنید در آینده چند درصدِ دیگر از سهم بازار را به دست خواهید آورد؟",
       type: "number",
@@ -584,21 +584,21 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 35,
-      page: 5,
+
       question:
         "مهم‌ترین بحران اجتماعی، سیاسی، حتی درون سازمانی و … که ممکن است بیزینس شما را تحت تاثیر قرار دهد چیست؟ در چنین شرایطی چه راهکاری دارید؟",
       type: "textarea",
     },
     {
       id: 36,
-      page: 5,
+
       question:
         "اصلی‌ترین چالشی که در حال حاضر بیزینس شما با آن دست‌وپنجه نرم می‌کند چیست؟ آیا برای این چالش به راه‌حلی رسیده‌اید؟",
       type: "textarea",
     },
     {
       id: 37,
-      page: 5,
+
       question:
         "در حال حاضر، مهم‌ترین هدفی که برای رشد کسب‌وکار خود دارید چیست؟",
       type: "checkbox",
@@ -626,14 +626,14 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 38,
-      page: 5,
+
       question: "آیا از سیستم CRM استفاده می‌کنید؟",
       type: "radio",
       options: ["بله", "خیر"],
     },
     {
       id: 39,
-      page: 5,
+
       question:
         "در حال حاضر از کدام ابزارها و پنل‌ها در کسب‌وکار خود استفاده می‌کنید؟",
       type: "checkbox",
@@ -641,7 +641,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 40,
-      page: 5,
+
       question: "ابزارهای مارکتینگی خود را از لیست انتخاب کنید.",
       type: "checkbox",
       options: [
@@ -700,7 +700,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 41,
-      page: 5,
+
       question: "ابزارهای تبلیغاتی خود را از لیست انتخاب کنید.",
       type: "checkbox",
       options: [
@@ -725,14 +725,14 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 42,
-      page: 5,
+
       question: "آیا قصد دارید مدل تجاری جدیدی با مشتریان خود داشته باشید؟",
       type: "radio",
       options: ["بله", "خیر"],
     },
     {
       id: 43,
-      page: 5,
+
       question: "مدل تجاری جدید مدنظر خود را مشخص کنید.",
       type: "checkbox",
       options: [
@@ -757,14 +757,14 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 44,
-      page: 5,
+
       question: "آیا قصد ورود به حوزه یا حوزه‌های جدید کسب‌وکار را دارید؟",
       type: "radio",
       options: ["بله", "خیر"],
     },
     {
       id: 45,
-      page: 5,
+
       question: "حوزه یا حوزه‌های مدنظر خود را مشخص کنید.",
       type: "checkbox",
       options: [
@@ -889,7 +889,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 46,
-      page: 5,
+
       question:
         "آیا قصد دارید از روش جدیدی برای فروش محصول یا خدمات خود استفاده کنید؟",
       type: "radio",
@@ -897,7 +897,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 47,
-      page: 5,
+
       question: "روش‌های فروش مدنظر خود را مشخص کنید.",
       type: "checkbox",
       options: ["آنلاین", "آفلاین", "سایر"],
@@ -911,14 +911,14 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 48,
-      page: 5,
+
       question: "آیا قصد دارید از روش جدیدی برای پرداخت استفاده کنید؟",
       type: "radio",
       options: ["بله", "خیر"],
     },
     {
       id: 49,
-      page: 5,
+
       question: "روش‌های پرداخت مدنظر خود را مشخص کنید.",
       type: "checkbox",
       options: [
@@ -956,14 +956,14 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 50,
-      page: 5,
+
       question: "آیا قصد اضافه کردن مدل درآمدی جدید دارید؟",
       type: "radio",
       options: ["بله", "خیر"],
     },
     {
       id: 51,
-      page: 5,
+
       question: "مدل یا مدل‌های درآمدی مدنظر خود را انتخاب کنید.",
       type: "checkbox",
       options: [
