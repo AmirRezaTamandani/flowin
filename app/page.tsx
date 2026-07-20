@@ -58,7 +58,7 @@ export default function Home() {
                     >
                       <SurveyStepper survey={activeSurvey} />
                     </Suspense>
-                    {showBrandFooter && <BrandFormFooter />}
+                    {/* {showBrandFooter && <BrandFormFooter />} */}
                   </>
                 ) : (
                   <p className="section-empty">این بخش هنوز آماده نیست.</p>
