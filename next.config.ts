@@ -1,9 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  basePath: "/customer_form",
+  basePath: "/form",
   env: {
-    NEXT_PUBLIC_BASE_PATH: "/customer_form",
+    NEXT_PUBLIC_BASE_PATH: "/form",
   },
 };
 
