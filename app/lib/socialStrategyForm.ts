@@ -4,6 +4,16 @@ import {
   CONTENT_TIME_PERIOD_OPTIONS,
   SOCIAL_PLATFORM_OPTIONS,
 } from "./socialPlatforms";
+import {
+  COMPETITORS_ENGAGEMENT_OPTIONS,
+  COMPETITORS_SOCIAL_FEEDBACK_OPTIONS,
+  COMPETITORS_SOCIAL_LACKS_OPTIONS,
+  CONTENT_STYLE_REASON_OPTIONS,
+  FEEDBACK_QUESTION,
+  FEEDBACK_SAMPLE_QUESTION,
+  SOCIAL_COMPETITOR_ANALYZE_GOAL_OPTIONS,
+  SOCIAL_PAGE_REPEATER_FIELDS,
+} from "./socialCompetitorForm";
 
 const INTENDED_SOCIAL_PLATFORMS_QUESTION =
   "قصد دارید روی کدام شبکه‌های اجتماعی فعالیت داشته باشید؟";
@@ -466,6 +476,192 @@ export const socialStrategyFormSurvey: SurveyConfig = {
           options: [...CONTENT_PROCESS_ROLE_OPTIONS],
         },
       ],
+    },
+    {
+      id: 17,
+
+      question: "با چه هدفی می‌خواهید تحلیل رقبای شبکه‌های اجتماعی انجام دهید؟",
+
+      type: "checkbox",
+
+      options: [...SOCIAL_COMPETITOR_ANALYZE_GOAL_OPTIONS],
+    },
+
+    {
+      id: 18,
+
+      question:
+        "لینک صفحات رسمی و فعال برند خود در شبکه‌های اجتماعی را وارد کنید.",
+
+      type: "repeater",
+
+      repeaterFields: SOCIAL_PAGE_REPEATER_FIELDS,
+    },
+
+    {
+      id: 19,
+
+      question:
+        "مهم‌ترین رقبای شما در شبکه‌های اجتماعی به ترتیب کدام برندها هستند؟ حداقل ۲ و حداکثر ۱۰ مورد وارد کنید و برای هر رقیب، لینک صفحات فعال او را بنویسید.",
+
+      type: "nestedRepeater",
+
+      nestedRepeaterConfig: {
+        minRows: 2,
+
+        maxRows: 10,
+
+        minNestedPerRow: 1,
+
+        nestedKey: "pages",
+
+        nestedAddLabel: "افزودن صفحه اجتماعی",
+
+        fields: [
+          {
+            key: "name",
+
+            type: "text",
+
+            label: "نام رقیب",
+
+            placeholder: "نام رقیب",
+          },
+
+          {
+            key: "priority",
+
+            type: "number",
+
+            label: "اولویت",
+
+            placeholder: "از ۱ تا ۱۰",
+
+            numberMin: 1,
+
+            numberMax: 10,
+          },
+        ],
+
+        nestedFields: SOCIAL_PAGE_REPEATER_FIELDS,
+      },
+    },
+
+    {
+      id: 20,
+
+      question:
+        "آیا صفحه یا صفحاتی (چه رقیب و چه برند غیر رقیب) وجود دارد که سبک محتوایی آن‌ها را برای برند خود می‌پسندید؟ اگر بله، نام و لینک صفحه را وارد کنید.",
+
+      type: "repeater",
+      repeaterFields: [
+        {
+          key: "name",
+          type: "text",
+          placeholder: "نام برند",
+          inputDir: "rtl",
+        },
+        ...SOCIAL_PLATFORM_URL_REPEATER_FIELDS.map((field) =>
+          field.key === "url" ? { ...field, inputDir: "rtl" as const } : field,
+        ),
+        {
+          key: "reason",
+          type: "select",
+          placeholder: "دلیل انتخاب",
+          options: [...CONTENT_STYLE_REASON_OPTIONS],
+        },
+      ],
+
+      placeholder:
+        "هر صفحه در یک خط:\nنام برند | پلتفرم | لینک صفحه | دلیل انتخاب\nمثال:\nبرند نمونه | اینستاگرام | https://instagram.com/sample | کپی‌رایت و لحن",
+
+      isAllowedEmpty: true,
+    },
+
+    {
+      id: 21,
+
+      question:
+        "به نظر شما رقبا در شبکه‌های اجتماعی چه ضعف‌ها یا فرصت‌های استفاده‌نشده‌ای دارند که برند شما می‌تواند از آن‌ها برای تمایز استفاده کند؟",
+
+      type: "checkbox",
+
+      options: [...COMPETITORS_SOCIAL_LACKS_OPTIONS],
+    },
+
+    {
+      id: 22,
+
+      question: FEEDBACK_QUESTION,
+
+      type: "radio",
+
+      options: [...COMPETITORS_SOCIAL_FEEDBACK_OPTIONS],
+    },
+
+    {
+      id: 23,
+
+      question: FEEDBACK_SAMPLE_QUESTION,
+
+      type: "textarea",
+
+      placeholder: "نمونه بازخوردهای مثبت را بنویسید",
+
+      isAllowedEmpty: true,
+
+      showIf: {
+        parentQuestion: FEEDBACK_QUESTION,
+
+        equals: "فقط بازخورد مثبت دیده یا شنیده‌ام",
+      },
+    },
+
+    {
+      id: 24,
+
+      question: FEEDBACK_SAMPLE_QUESTION,
+
+      type: "textarea",
+
+      placeholder: "نمونه بازخوردهای منفی را بنویسید",
+
+      isAllowedEmpty: true,
+
+      showIf: {
+        parentQuestion: FEEDBACK_QUESTION,
+
+        equals: "فقط بازخورد منفی دیده یا شنیده‌ام",
+      },
+    },
+
+    {
+      id: 25,
+
+      question: FEEDBACK_SAMPLE_QUESTION,
+
+      type: "textarea",
+
+      placeholder: "نمونه بازخوردهای مثبت و منفی را بنویسید",
+
+      isAllowedEmpty: true,
+
+      showIf: {
+        parentQuestion: FEEDBACK_QUESTION,
+
+        equals: "هم بازخورد مثبت و هم منفی دیده یا شنیده‌ام",
+      },
+    },
+
+    {
+      id: 26,
+
+      question:
+        "در مجموع، تعامل رقبای اصلی با مخاطبان را چگونه ارزیابی می‌کنید؟",
+
+      type: "radio",
+
+      options: [...COMPETITORS_ENGAGEMENT_OPTIONS],
     },
   ],
 };

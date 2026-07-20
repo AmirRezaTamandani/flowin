@@ -2,7 +2,7 @@ import type { SurveyConfig } from "./surveys";
 
 import { SOCIAL_PLATFORM_URL_REPEATER_FIELDS } from "./socialPlatformRepeaterFields";
 
-const SOCIAL_COMPETITOR_ANALYZE_GOAL_OPTIONS = [
+export const SOCIAL_COMPETITOR_ANALYZE_GOAL_OPTIONS = [
   "پیدا کردن ایده محتوا و شناخت راه‌های ایجاد تمایز",
 
   "مقایسه جایگاه برند با رقبا و شناسایی نقاط ضعف و قوت",
@@ -14,7 +14,7 @@ const SOCIAL_COMPETITOR_ANALYZE_GOAL_OPTIONS = [
   "شناسایی محتواهای موفق و علل موفقیت آن‌ها (دلایل افزایش بازدید، جذب فالوئر، ورود به اکسپلور و ...) ",
 ] as const;
 
-const COMPETITORS_SOCIAL_LACKS_OPTIONS = [
+export const COMPETITORS_SOCIAL_LACKS_OPTIONS = [
   "پاسخگویی ضعیف به کامنت‌ها و دایرکت‌ها",
 
   "تعامل پایین با مخاطبان",
@@ -46,7 +46,7 @@ const COMPETITORS_SOCIAL_LACKS_OPTIONS = [
   "نمی‌دانم / نیاز به بررسی شما دارم",
 ] as const;
 
-const COMPETITORS_SOCIAL_FEEDBACK_OPTIONS = [
+export const COMPETITORS_SOCIAL_FEEDBACK_OPTIONS = [
   "فقط بازخورد مثبت دیده یا شنیده‌ام",
 
   "فقط بازخورد منفی دیده یا شنیده‌ام",
@@ -56,7 +56,7 @@ const COMPETITORS_SOCIAL_FEEDBACK_OPTIONS = [
   "خیر / اطلاعی ندارم",
 ] as const;
 
-const COMPETITORS_ENGAGEMENT_OPTIONS = [
+export const COMPETITORS_ENGAGEMENT_OPTIONS = [
   "خیلی ضعیف",
 
   "ضعیف",
@@ -70,13 +70,13 @@ const COMPETITORS_ENGAGEMENT_OPTIONS = [
   "اطلاعی ندارم",
 ] as const;
 
-const FEEDBACK_QUESTION =
+export const FEEDBACK_QUESTION =
   "آیا بازخورد مثبت یا منفی مشخصی از مخاطبان درباره صفحات یا محتوای رقبا دیده یا شنیده‌اید؟";
 
-const FEEDBACK_SAMPLE_QUESTION =
+export const FEEDBACK_SAMPLE_QUESTION =
   "لطفاً چند نمونه از این بازخوردها را ذکر کنید.";
 
-const CONTENT_STYLE_REASON_OPTIONS = [
+export const CONTENT_STYLE_REASON_OPTIONS = [
   "طراحی و زیبایی بصری",
   "کپی‌رایت و لحن",
   "جذابیت ویدئوها",
@@ -85,7 +85,7 @@ const CONTENT_STYLE_REASON_OPTIONS = [
   "ایده‌های جذاب محتوا",
 ] as const;
 
-const SOCIAL_PAGE_REPEATER_FIELDS = SOCIAL_PLATFORM_URL_REPEATER_FIELDS;
+export const SOCIAL_PAGE_REPEATER_FIELDS = SOCIAL_PLATFORM_URL_REPEATER_FIELDS;
 
 export const socialCompetitorFormSurvey: SurveyConfig = {
   id: "social-competitor",
