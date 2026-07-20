@@ -55,6 +55,8 @@ export async function submitFormToN8n(
       ? { normalizedAnswers: body.normalizedAnswers }
       : {}),
     user_id: claims.userId || null,
+    wp_user_id: claims.userId || null,
+    purpose: claims.purpose,
     order_id: claims.orderId,
     order_sku: claims.orderSku,
   };

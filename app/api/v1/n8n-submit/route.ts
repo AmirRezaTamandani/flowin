@@ -7,7 +7,10 @@ import {
   unauthorized,
 } from "@/app/lib/api/responses";
 import { isSurveyId, type SurveyId } from "@/app/lib/api/types";
-import { verifyWpHandoffToken } from "@/app/lib/api/wpToken";
+import {
+  isHandoffSecretConfigured,
+  verifyWpHandoffToken,
+} from "@/app/lib/api/wpToken";
 
 export const runtime = "nodejs";
 
@@ -76,6 +79,13 @@ export async function POST(request: Request) {
 
   const verified = verifyWpHandoffToken(token);
   if (!verified.ok) {
+    // Server-only diagnostic — never logs the secret or full token.
+    console.error("[n8n-submit] handoff token rejected", {
+      reason: verified.reason,
+      secretConfigured: isHandoffSecretConfigured(),
+      tokenPresent: Boolean(token),
+      tokenParts: token ? token.split(".").length : 0,
+    });
     return unauthorized(
       "لطفاً به صفحه‌ی سفارش‌ها برگردید و دوباره روی دکمه کلیک کنید",
     );
@@ -91,23 +101,31 @@ export async function POST(request: Request) {
   const parsed = parseBody(json);
   if (!parsed.ok) return badRequest(parsed.message);
 
-  const orderIdFromUrl = url.searchParams.get("order_id");
-  const orderSkuFromUrl = url.searchParams.get("order_sku");
+  const orderIdFromUrl = url.searchParams.get("order_id")?.trim() || null;
+  const orderSkuFromUrl = url.searchParams.get("order_sku")?.trim() || null;
 
-  // Prefer URL params when present (they match the signed token per handoff).
-  const claims = {
-    ...verified.claims,
-    orderId: orderIdFromUrl?.trim() || verified.claims.orderId,
-    orderSku: orderSkuFromUrl?.trim() || verified.claims.orderSku,
-  };
-
+  // Signed token claims are authoritative. URL may fill gaps, never override.
   if (
     orderIdFromUrl &&
     verified.claims.orderId &&
-    orderIdFromUrl.trim() !== verified.claims.orderId
+    orderIdFromUrl !== verified.claims.orderId
   ) {
     return badRequest("order_id does not match handoff token");
   }
+
+  if (
+    orderSkuFromUrl &&
+    verified.claims.orderSku &&
+    orderSkuFromUrl !== verified.claims.orderSku
+  ) {
+    return badRequest("order_sku does not match handoff token");
+  }
+
+  const claims = {
+    ...verified.claims,
+    orderId: verified.claims.orderId ?? orderIdFromUrl,
+    orderSku: verified.claims.orderSku ?? orderSkuFromUrl,
+  };
 
   const result = await submitFormToN8n(claims, parsed.data);
 

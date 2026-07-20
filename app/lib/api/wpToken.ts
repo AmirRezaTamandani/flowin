@@ -4,6 +4,7 @@ export type WpHandoffClaims = {
   userId: string;
   orderId: string | null;
   orderSku: string | null;
+  purpose: string | null;
   exp: number | null;
   raw: Record<string, unknown>;
 };
@@ -11,6 +12,11 @@ export type WpHandoffClaims = {
 export type VerifyWpTokenResult =
   | { ok: true; claims: WpHandoffClaims }
   | { ok: false; reason: "missing_secret" | "malformed" | "bad_signature" | "expired" };
+
+/** Whether a handoff secret env var is configured (does not return the value). */
+export function isHandoffSecretConfigured(): boolean {
+  return getHandoffSecret() !== null;
+}
 
 function getHandoffSecret(): string | null {
   const secret =
@@ -49,30 +55,49 @@ function hmacHex(secret: string, message: string): string {
   return createHmac("sha256", secret).update(message, "utf8").digest("hex");
 }
 
+function hmacBase64(secret: string, message: string): string {
+  return createHmac("sha256", secret).update(message, "utf8").digest("base64");
+}
+
 function hmacBase64Url(secret: string, message: string): string {
-  return createHmac("sha256", secret)
-    .update(message, "utf8")
-    .digest("base64")
+  return hmacBase64(secret, message)
     .replace(/\+/g, "-")
     .replace(/\//g, "_")
     .replace(/=+$/g, "");
 }
 
 function signatureMatches(secret: string, payloadPart: string, signature: string): boolean {
-  const candidates = [
-    hmacHex(secret, payloadPart),
-    hmacBase64Url(secret, payloadPart),
-  ];
+  const normalizedSig = signature.trim();
+  const messages = [payloadPart];
 
   // Also accept HMAC over the decoded JSON string (some WP helpers sign raw JSON).
   try {
-    const rawJson = Buffer.from(normalizeBase64(payloadPart), "base64").toString("utf8");
-    candidates.push(hmacHex(secret, rawJson), hmacBase64Url(secret, rawJson));
+    messages.push(Buffer.from(normalizeBase64(payloadPart), "base64").toString("utf8"));
   } catch {
     // ignore decode errors — payload validation happens separately
   }
 
-  return candidates.some((candidate) => safeEqualStrings(candidate, signature));
+  for (const message of messages) {
+    const candidates = [
+      hmacHex(secret, message),
+      hmacHex(secret, message).toUpperCase(),
+      hmacBase64(secret, message),
+      hmacBase64Url(secret, message),
+    ];
+    for (const candidate of candidates) {
+      if (safeEqualStrings(candidate, normalizedSig)) return true;
+      // Hex digests are sometimes compared case-insensitively.
+      if (
+        /^[0-9a-f]+$/i.test(candidate) &&
+        /^[0-9a-f]+$/i.test(normalizedSig) &&
+        safeEqualStrings(candidate.toLowerCase(), normalizedSig.toLowerCase())
+      ) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }
 
 function readStringClaim(
@@ -101,11 +126,19 @@ function readExpClaim(raw: Record<string, unknown>): number | null {
 
 function toClaims(raw: Record<string, unknown>): WpHandoffClaims {
   return {
+    // Deployed WP tokens use wp_user_id (see production handoff payload).
     userId:
-      readStringClaim(raw, ["user_id", "userId", "uid", "customer_id", "customerId"]) ??
-      "",
+      readStringClaim(raw, [
+        "wp_user_id",
+        "user_id",
+        "userId",
+        "uid",
+        "customer_id",
+        "customerId",
+      ]) ?? "",
     orderId: readStringClaim(raw, ["order_id", "orderId", "oid"]),
     orderSku: readStringClaim(raw, ["order_sku", "orderSku", "sku"]),
+    purpose: readStringClaim(raw, ["purpose"]),
     exp: readExpClaim(raw),
     raw,
   };
