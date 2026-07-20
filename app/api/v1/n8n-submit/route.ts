@@ -4,7 +4,6 @@ import {
   badRequest,
   conflict,
   notFound,
-  unauthorized,
 } from "@/app/lib/api/responses";
 import { isSurveyId, type SurveyId } from "@/app/lib/api/types";
 import {
@@ -86,8 +85,17 @@ export async function POST(request: Request) {
       tokenPresent: Boolean(token),
       tokenParts: token ? token.split(".").length : 0,
     });
-    return unauthorized(
-      "لطفاً به صفحه‌ی سفارش‌ها برگردید و دوباره روی دکمه کلیک کنید",
+    return NextResponse.json(
+      {
+        error: "unauthorized",
+        message:
+          "لطفاً به صفحه‌ی سفارش‌ها برگردید و دوباره روی دکمه کلیک کنید",
+        details: {
+          reason: verified.reason,
+          secretConfigured: isHandoffSecretConfigured(),
+        },
+      },
+      { status: 401 },
     );
   }
 
