@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Header from "./components/Header";
 import DashboardStats from "./components/DashboardStats";
 import AccountSidebar from "./components/AccountSidebar";
@@ -49,7 +49,15 @@ export default function Home() {
               <main className="main-panel">
                 {activeSurvey ? (
                   <>
-                    <SurveyStepper survey={activeSurvey} />
+                    <Suspense
+                      fallback={
+                        <p className="text-muted-foreground text-sm">
+                          در حال بارگذاری فرم...
+                        </p>
+                      }
+                    >
+                      <SurveyStepper survey={activeSurvey} />
+                    </Suspense>
                     {showBrandFooter && <BrandFormFooter />}
                   </>
                 ) : (

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -116,6 +117,7 @@ import {
   ensureBrand,
   fetchDraftSubmission,
   saveDraftSubmission,
+  submitCompletedToN8n,
 } from "../lib/api/submitSurvey";
 import { useAuthStore } from "../lib/authStore";
 
@@ -1138,7 +1140,20 @@ function StepField({
   );
 }
 
-export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
+export default function SurveyStepper({
+  survey,
+  requireHandoffToken = false,
+}: {
+  survey: SurveyConfig;
+  /** When true (WP-embedded form pages), require `?token=` and submit via n8n. */
+  requireHandoffToken?: boolean;
+}) {
+  const searchParams = useSearchParams();
+  const handoffToken = searchParams.get("token");
+  const orderId = searchParams.get("order_id");
+  const orderSku = searchParams.get("order_sku");
+  const isHandoffMode = Boolean(handoffToken);
+
   const token = useAuthStore((state) => state.token);
   const [currentStepId, setCurrentStepId] = useState(survey.steps[0]?.id ?? 1);
   const [isFinished, setIsFinished] = useState(false);
@@ -1151,6 +1166,7 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
   const [isLoadingDraft, setIsLoadingDraft] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [handoffGateError, setHandoffGateError] = useState<string | null>(null);
 
   const form = useForm<FormValues>({
     defaultValues: buildDefaultValues(survey.steps),
@@ -1200,12 +1216,51 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
     setBrandId(null);
     setDraftSubmissionId(null);
     setSaveError(null);
+    setHandoffGateError(null);
   }, [survey.id, survey.steps, form]);
+
+  useEffect(() => {
+    if (requireHandoffToken && !handoffToken) {
+      setHandoffGateError(
+        "لطفاً به صفحه‌ی سفارش‌ها برگردید و دوباره روی دکمه کلیک کنید",
+      );
+      setIsLoadingDraft(false);
+      return;
+    }
+    setHandoffGateError(null);
+  }, [requireHandoffToken, handoffToken]);
 
   useEffect(() => {
     let cancelled = false;
 
     async function bootstrapDraft() {
+      if (requireHandoffToken && !handoffToken) {
+        setIsLoadingDraft(false);
+        return;
+      }
+
+      // WP handoff: drafts stay in localStorage only (no brand submissions API).
+      if (isHandoffMode) {
+        setIsLoadingDraft(true);
+        try {
+          const raw = localStorage.getItem(`survey-${survey.id}-answers`);
+          if (raw) {
+            const parsed = JSON.parse(raw) as { answers?: Record<string, string> };
+            if (parsed.answers) {
+              form.reset({
+                ...buildDefaultValues(survey.steps),
+                ...parsed.answers,
+              });
+            }
+          }
+        } catch {
+          // ignore corrupt local drafts
+        } finally {
+          if (!cancelled) setIsLoadingDraft(false);
+        }
+        return;
+      }
+
       if (!token) {
         setIsLoadingDraft(false);
         return;
@@ -1242,7 +1297,7 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
     return () => {
       cancelled = true;
     };
-  }, [survey.id, survey.steps, token, form]);
+  }, [survey.id, survey.steps, token, form, isHandoffMode, requireHandoffToken, handoffToken]);
 
   useEffect(() => {
     if (!visibleSteps.length) return;
@@ -1306,6 +1361,7 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
 
   async function persistDraft(values: FormValues): Promise<boolean> {
     backupToLocalStorage(values, "draft");
+    if (isHandoffMode) return true;
     if (!token || !brandId) return true;
 
     setIsSaving(true);
@@ -1328,11 +1384,38 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
   async function completeSurvey(values: FormValues) {
     if (!validateAllVisibleSteps(values)) return;
 
+    if (requireHandoffToken && !handoffToken) {
+      setSaveError(
+        "لطفاً به صفحه‌ی سفارش‌ها برگردید و دوباره روی دکمه کلیک کنید",
+      );
+      return;
+    }
+
     setIsSaving(true);
     setSaveError(null);
     try {
       const payload = buildSubmissionPayload(survey, values, "completed");
       backupToLocalStorage(values, "completed");
+
+      if (isHandoffMode && handoffToken) {
+        if (!payload.completedAt) {
+          throw new Error("completedAt is required");
+        }
+        await submitCompletedToN8n({
+          token: handoffToken,
+          orderId,
+          orderSku,
+          payload: {
+            surveyId: payload.surveyId,
+            status: "completed",
+            answers: payload.answers,
+            completedAt: payload.completedAt,
+            normalizedAnswers: payload.normalizedAnswers,
+          },
+        });
+        // Full-page redirect happens inside submitCompletedToN8n on 202.
+        return;
+      }
 
       if (token && brandId) {
         const saved = await completeSubmission(
@@ -1393,6 +1476,17 @@ export default function SurveyStepper({ survey }: { survey: SurveyConfig }) {
 
   if (!currentStep) {
     return null;
+  }
+
+  if (handoffGateError) {
+    return (
+      <section className="survey-wrap">
+        <h2 className="survey-section-title">{survey.label}</h2>
+        <div className="survey-step-panel">
+          <FieldErrorMessage message={handoffGateError} />
+        </div>
+      </section>
+    );
   }
 
   return (

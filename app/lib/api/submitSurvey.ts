@@ -2,12 +2,15 @@ import type {
   Brand,
   CreateSubmissionRequest,
   DraftSubmissionRequest,
+  SurveyId,
   SurveySubmission,
   UpdateSubmissionRequest,
 } from "./types";
 import type { NormalizedAnswer } from "./types";
+import { getSuccessRedirectUrl } from "./redirect";
 
-const API_BASE = "/api/v1";
+const APP_BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+const API_BASE = `${APP_BASE}/api/v1`;
 
 export class SurveyApiError extends Error {
   status: number;
@@ -49,6 +52,73 @@ async function apiFetch<T>(
 
   if (response.status === 204) return undefined as T;
   return (await response.json()) as T;
+}
+
+export function messageForN8nSubmitStatus(status: number): string {
+  switch (status) {
+    case 401:
+      return "لطفاً به صفحه‌ی سفارش‌ها برگردید و دوباره روی دکمه کلیک کنید";
+    case 404:
+      return "مشکلی در یافتن سفارش شما پیش آمد، با پشتیبانی تماس بگیرید";
+    case 409:
+      return "این فرم قبلاً ثبت شده است";
+    case 400:
+      return "مشکلی پیش آمد، دوباره تلاش کنید";
+    case 500:
+    case 502:
+      return "مشکلی پیش آمد، لطفاً کمی بعد دوباره امتحان کنید";
+    default:
+      return "مشکلی پیش آمد، دوباره تلاش کنید";
+  }
+}
+
+export type N8nClientSubmitPayload = {
+  surveyId: SurveyId | string;
+  status: "completed";
+  answers: Record<string, string>;
+  completedAt: string;
+  normalizedAnswers?: NormalizedAnswer[];
+};
+
+/**
+ * Final submit for WordPress-embedded forms → Next API → n8n.
+ * On 202, performs a full-page redirect to the WordPress destination.
+ */
+export async function submitCompletedToN8n(options: {
+  token: string;
+  orderId?: string | null;
+  orderSku?: string | null;
+  payload: N8nClientSubmitPayload;
+}): Promise<void> {
+  const params = new URLSearchParams({ token: options.token });
+  if (options.orderId) params.set("order_id", options.orderId);
+  if (options.orderSku) params.set("order_sku", options.orderSku);
+
+  const response = await fetch(`${API_BASE}/n8n-submit?${params.toString()}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(options.payload),
+  });
+
+  if (response.status === 202) {
+    const redirectUrl = getSuccessRedirectUrl(
+      options.payload.surveyId as SurveyId,
+      options.orderId,
+      options.orderSku,
+    );
+    window.location.href = redirectUrl;
+    return;
+  }
+
+  let message = messageForN8nSubmitStatus(response.status);
+  try {
+    const body = (await response.json()) as { message?: string };
+    if (body.message) message = body.message;
+  } catch {
+    // keep mapped message
+  }
+
+  throw new SurveyApiError(response.status, "n8n_submit_failed", message);
 }
 
 export async function ensureBrand(token: string): Promise<Brand> {

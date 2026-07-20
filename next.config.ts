@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  basePath: "/customer_form",
+  env: {
+    NEXT_PUBLIC_BASE_PATH: "/customer_form",
+  },
 };
 
 export default nextConfig;

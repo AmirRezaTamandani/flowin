@@ -171,6 +171,8 @@ b {
   justify-content: space-between;
   gap: 16px;
   flex-wrap: wrap;
+  display: flex;
+  justify-content: center;
 }
 
 .site-header-brand {
@@ -389,7 +391,9 @@ b {
   border-radius: var(--felowin-radius);
   cursor: pointer;
   text-align: right;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 .account-sidebar-group-btn {
@@ -497,7 +501,9 @@ b {
   box-shadow: 0 0 3px var(--primary-dark);
 }
 
-.shamsi-date-input .rmdp-day:not(.rmdp-disabled):not(.rmdp-day-hidden) span:hover {
+.shamsi-date-input
+  .rmdp-day:not(.rmdp-disabled):not(.rmdp-day-hidden)
+  span:hover {
   background-color: color-mix(in srgb, var(--primary-dark) 18%, white);
   color: var(--foreground);
 }
