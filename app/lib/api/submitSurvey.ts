@@ -74,17 +74,17 @@ export function messageForN8nSubmitStatus(status: number): string {
 
 export type N8nClientSubmitPayload = {
   surveyId: SurveyId | string;
-  status: "completed";
+  status: "draft" | "completed";
   answers: Record<string, string>;
-  completedAt: string;
+  completedAt?: string;
   normalizedAnswers?: NormalizedAnswer[];
 };
 
 /**
- * Final submit for WordPress-embedded forms → Next API → n8n.
- * On 202, performs a full-page redirect to the WordPress destination.
+ * Submit form answers to Next API → n8n.
+ * Drafts are sent on each Next; completed triggers a full-page WP redirect on 202.
  */
-export async function submitCompletedToN8n(options: {
+export async function submitToN8n(options: {
   token: string;
   orderId?: string | null;
   orderSku?: string | null;
@@ -101,12 +101,14 @@ export async function submitCompletedToN8n(options: {
   });
 
   if (response.status === 202) {
-    const redirectUrl = getSuccessRedirectUrl(
-      options.payload.surveyId as SurveyId,
-      options.orderId,
-      options.orderSku,
-    );
-    window.location.href = redirectUrl;
+    if (options.payload.status === "completed") {
+      const redirectUrl = getSuccessRedirectUrl(
+        options.payload.surveyId as SurveyId,
+        options.orderId,
+        options.orderSku,
+      );
+      window.location.href = redirectUrl;
+    }
     return;
   }
 
@@ -119,6 +121,16 @@ export async function submitCompletedToN8n(options: {
   }
 
   throw new SurveyApiError(response.status, "n8n_submit_failed", message);
+}
+
+/** Final-step helper — redirects to WordPress on 202. */
+export async function submitCompletedToN8n(options: {
+  token: string;
+  orderId?: string | null;
+  orderSku?: string | null;
+  payload: N8nClientSubmitPayload & { status: "completed"; completedAt: string };
+}): Promise<void> {
+  return submitToN8n(options);
 }
 
 export async function ensureBrand(token: string): Promise<Brand> {

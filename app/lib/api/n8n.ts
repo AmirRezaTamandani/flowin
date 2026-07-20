@@ -3,9 +3,9 @@ import type { WpHandoffClaims } from "./wpToken";
 
 export type N8nFormSubmitBody = {
   surveyId: SurveyId;
-  status: "completed";
+  status: "draft" | "completed";
   answers: Record<string, string>;
-  completedAt: string;
+  completedAt?: string;
   normalizedAnswers?: unknown;
 };
 
@@ -28,7 +28,7 @@ function mapN8nStatus(status: number): 404 | 409 | 500 | 502 | null {
 }
 
 /**
- * Forwards the completed form payload to n8n with the shared secret header.
+ * Forwards form payload (draft or completed) to n8n with the shared secret header.
  */
 export async function submitFormToN8n(
   claims: WpHandoffClaims,
@@ -48,7 +48,9 @@ export async function submitFormToN8n(
     surveyId: body.surveyId,
     status: body.status,
     answers: body.answers,
-    completedAt: body.completedAt,
+    ...(body.status === "completed" && body.completedAt
+      ? { completedAt: body.completedAt }
+      : {}),
     ...(body.normalizedAnswers !== undefined
       ? { normalizedAnswers: body.normalizedAnswers }
       : {}),

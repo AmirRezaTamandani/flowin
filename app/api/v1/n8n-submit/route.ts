@@ -13,9 +13,9 @@ export const runtime = "nodejs";
 
 type N8nSubmitRequestBody = {
   surveyId: SurveyId;
-  status: "completed";
+  status: "draft" | "completed";
   answers: Record<string, string>;
-  completedAt: string;
+  completedAt?: string;
   normalizedAnswers?: unknown;
 };
 
@@ -33,8 +33,8 @@ function parseBody(
     return { ok: false, message: "surveyId must be a valid survey slug" };
   }
 
-  if (status !== "completed") {
-    return { ok: false, message: 'status must be "completed"' };
+  if (status !== "draft" && status !== "completed") {
+    return { ok: false, message: 'status must be "draft" or "completed"' };
   }
 
   if (!answers || typeof answers !== "object" || Array.isArray(answers)) {
@@ -50,17 +50,21 @@ function parseBody(
     }
   }
 
-  if (typeof completedAt !== "string" || !completedAt.trim()) {
-    return { ok: false, message: "completedAt must be an ISO date string" };
+  if (status === "completed") {
+    if (typeof completedAt !== "string" || !completedAt.trim()) {
+      return { ok: false, message: "completedAt is required when status is completed" };
+    }
+  } else if (completedAt !== undefined && typeof completedAt !== "string") {
+    return { ok: false, message: "completedAt must be an ISO date string when provided" };
   }
 
   return {
     ok: true,
     data: {
       surveyId,
-      status: "completed",
+      status,
       answers: answers as Record<string, string>,
-      completedAt,
+      ...(typeof completedAt === "string" ? { completedAt } : {}),
       normalizedAnswers: record.normalizedAnswers,
     },
   };
