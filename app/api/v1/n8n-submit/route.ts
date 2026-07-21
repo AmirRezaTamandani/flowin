@@ -40,12 +40,20 @@ function parseBody(
   }
 
   if (!answers || typeof answers !== "object" || Array.isArray(answers)) {
-    return { ok: false, message: "answers must be an object keyed by step_{id}" };
+    return {
+      ok: false,
+      message: "answers must be an object keyed by backendKey or step_{id}",
+    };
   }
 
   for (const [key, value] of Object.entries(answers)) {
-    if (!key.startsWith("step_")) {
-      return { ok: false, message: `Invalid answer key "${key}" — expected step_{id}` };
+    const validKey =
+      /^step_\d+$/.test(key) || /^[a-z][a-z0-9_]*$/.test(key);
+    if (!validKey) {
+      return {
+        ok: false,
+        message: `Invalid answer key "${key}" — expected backendKey or step_{id}`,
+      };
     }
     if (typeof value !== "string") {
       return { ok: false, message: `Answer "${key}" must be a string` };

@@ -7,15 +7,25 @@ import {
 } from "./types";
 import type { NormalizedAnswer } from "./types";
 
+function isValidAnswerKey(key: string): boolean {
+  return /^step_\d+$/.test(key) || /^[a-z][a-z0-9_]*$/.test(key);
+}
+
 function parseAnswersObject(
   answers: unknown,
 ): { ok: true; data: Record<string, string> } | { ok: false; message: string } {
   if (!answers || typeof answers !== "object" || Array.isArray(answers)) {
-    return { ok: false, message: "answers must be an object keyed by step_{id}" };
+    return {
+      ok: false,
+      message: "answers must be an object keyed by backendKey or step_{id}",
+    };
   }
   for (const [key, value] of Object.entries(answers)) {
-    if (!key.startsWith("step_")) {
-      return { ok: false, message: `Invalid answer key "${key}" — expected step_{id}` };
+    if (!isValidAnswerKey(key)) {
+      return {
+        ok: false,
+        message: `Invalid answer key "${key}" — expected backendKey or step_{id}`,
+      };
     }
     if (typeof value !== "string") {
       return { ok: false, message: `Answer "${key}" must be a string` };
@@ -116,7 +126,10 @@ export function parseCreateSubmissionRequest(
   }
 
   if (!answers || typeof answers !== "object" || Array.isArray(answers)) {
-    return { ok: false, message: "answers must be an object keyed by step_{id}" };
+    return {
+      ok: false,
+      message: "answers must be an object keyed by backendKey or step_{id}",
+    };
   }
 
   const parsedAnswers = parseAnswersObject(answers);

@@ -19,12 +19,14 @@ export const campaignFormSurvey: SurveyConfig = {
   steps: [
     {
       id: 1,
+      backendKey: "campaign_type",
       question: CAMPAIGN_TYPE_QUESTION,
       type: "radio",
       options: [...CAMPAIGN_TYPES],
     },
     {
       id: 2,
+      backendKey: "campaign_type_second",
       question: CAMPAIGN_SUBTYPE_QUESTION,
       type: "radio",
       optionsFromParent: {
@@ -38,18 +40,21 @@ export const campaignFormSurvey: SurveyConfig = {
     },
     {
       id: 3,
+      backendKey: "campaign_start_date",
       question: "تاریخ شروع کمپین خود را انتخاب کنید",
       type: "shamsiDate",
       placeholder: "تاریخ شروع را انتخاب کنید",
     },
     {
       id: 4,
+      backendKey: "campaign_end_date",
       question: "تاریخ پایان کمپین خود را انتخاب کنید",
       type: "shamsiDate",
       placeholder: "تاریخ پایان را انتخاب کنید",
     },
     {
       id: 5,
+      backendKey: "campaign_budget",
       question: "بودجه کمپین را وارد کنید(تومان)",
       type: "number",
       placeholder: "0",
@@ -58,6 +63,7 @@ export const campaignFormSurvey: SurveyConfig = {
     },
     {
       id: 6,
+      backendKey: "campaign_limitation",
       question: "اصلی‌ترین محدودیت در اجرای کمپین چیست؟",
       type: "checkbox",
       options: [
@@ -75,6 +81,7 @@ export const campaignFormSurvey: SurveyConfig = {
     },
     {
       id: 7,
+      backendKey: "campaign_value_proposition",
       question: "در این کمپین چه ارزش یا پیشنهادی به کاربر ارائه می‌دهید؟",
       type: "checkbox",
       options: [
@@ -89,6 +96,7 @@ export const campaignFormSurvey: SurveyConfig = {
     },
     {
       id: 8,
+      backendKey: "discount_conditions",
       question:
         "شرایط تخفیف خود را توضیح دهید درصد تخفیف، محدودیت تخفیف ، سقف و کف،‌و هر اطلاعات مورد نیاز",
       type: "textarea",
@@ -100,6 +108,7 @@ export const campaignFormSurvey: SurveyConfig = {
     },
     {
       id: 9,
+      backendKey: "cashback_details",
       question:
         "چند درصد کش بک به کاربر میدهید و کاربر این کش بک را از چه طریق دریافت میکند",
       type: "textarea",
@@ -111,6 +120,7 @@ export const campaignFormSurvey: SurveyConfig = {
     },
     {
       id: 10,
+      backendKey: "gift_with_purchase",
       question: "چه جایزه یا هدیه خریدی به کاربر میدهید؟",
       type: "textarea",
       showIf: {
@@ -121,6 +131,7 @@ export const campaignFormSurvey: SurveyConfig = {
     },
     {
       id: 11,
+      backendKey: "raffle_details",
       question: "جایزه بزرگ را نام ببرید و شرایط قرعه کشی را نیز توضیح دهید",
       type: "textarea",
       showIf: {
@@ -131,6 +142,7 @@ export const campaignFormSurvey: SurveyConfig = {
     },
     {
       id: 12,
+      backendKey: "free_shipping_eligibility",
       question: "به چه کاربرانی ارسال رایگان تعلق میگیرد؟",
       type: "textarea",
       showIf: {
@@ -141,6 +153,7 @@ export const campaignFormSurvey: SurveyConfig = {
     },
     {
       id: 13,
+      backendKey: "loyalty_points_rules",
       question: "شرایط دریافت امتیاز و میزان امتیاز دریافتی را توضیح دهید",
       type: "textarea",
       showIf: {
@@ -151,6 +164,7 @@ export const campaignFormSurvey: SurveyConfig = {
     },
     {
       id: 14,
+      backendKey: "wallet_topup_conditions",
       question: "شرایط دریافت شارژ و میزان شارژ کیف پول را توضیح دهید",
       type: "textarea",
       showIf: {
@@ -161,6 +175,7 @@ export const campaignFormSurvey: SurveyConfig = {
     },
     {
       id: 15,
+      backendKey: "promoted_product_or_category",
       question:
         "آیا محصول خاصی و یا دسته بندی خاصی را برای پروموت در کمپین مدنظر دارید ؟",
       type: "radio",
@@ -168,6 +183,7 @@ export const campaignFormSurvey: SurveyConfig = {
     },
     {
       id: 16,
+      backendKey: "specific_product",
       question: "محصول را نام ببرید و یا لینک آن را بگذارید",
       type: "textarea",
       showIf: {
@@ -178,12 +194,14 @@ export const campaignFormSurvey: SurveyConfig = {
     },
     {
       id: 17,
+      backendKey: "campaign_persona_geographic",
       question: "پرسونای کمپین - موقعیت جغرافیایی",
       type: "geoLocation",
       geoLocationSingle: true,
     },
     {
       id: 18,
+      backendKey: "campaign_persona_social_status",
       question: "پرسونای کمپین- موقعیت اجتماعی",
       type: "checkbox",
       options: [
@@ -215,6 +233,7 @@ export const campaignFormSurvey: SurveyConfig = {
 
     {
       id: 19,
+      backendKey: "campaign_persona_age",
       question: "پرسونای کمپین-رده سنی",
       type: "checkbox",
       options: [
@@ -228,12 +247,14 @@ export const campaignFormSurvey: SurveyConfig = {
     },
     {
       id: 20,
+      backendKey: "campaign_persona_gender",
       question: "پرسونای کمپین-جنسیت",
       type: "radio",
       options: ["آقا", "خانم", "هر دو"],
     },
     {
       id: 21,
+      backendKey: "campaign_tone",
       question: "زبان و لحن کمپین",
       type: "radio",
       options: [
@@ -253,6 +274,7 @@ export const campaignFormSurvey: SurveyConfig = {
     },
     {
       id: 22,
+      backendKey: "campaign_channels",
       question: "چنل هایی که برای کمپین میخواهید استفاده کنید",
       type: "checkbox",
       options: [...CAMPAIGN_CHANNEL_PARENT_OPTIONS],
@@ -260,6 +282,7 @@ export const campaignFormSurvey: SurveyConfig = {
     },
     {
       id: 23,
+      backendKey: "campaign_landing",
       question:
         "اگر لندینگ و یا صفحه خاصی از سایت خود را برای کمپین مدنظر دارید لطفا لینک آن را در باکس قرار دهید.",
       type: "url",
@@ -268,6 +291,7 @@ export const campaignFormSurvey: SurveyConfig = {
     },
     {
       id: 24,
+      backendKey: "campaign_challenges",
       question:
         "از نظر شما بد ترین چالش و تجربه منفی در کمپین هایی که داشته اید چه بوده است ؟‌ علت آن را چه می دانید؟",
       type: "textarea",
@@ -275,12 +299,14 @@ export const campaignFormSurvey: SurveyConfig = {
     },
     {
       id: 25,
+      backendKey: "joint_campaign_experience",
       question: "آیا تا به حال تجربه کمپین مشترک با برند دیگری داشتید؟",
       type: "radio",
       options: ["بله", "خیر"],
     },
     {
       id: 26,
+      backendKey: "joint_campaign_experience_explain",
       question: "با چه برندی این تجربه را داشتید؟ توضیح دهید.",
       type: "textarea",
       showIf: {

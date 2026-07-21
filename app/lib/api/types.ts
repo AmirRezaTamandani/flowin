@@ -128,7 +128,7 @@ export type SurveySubmission = {
   brandId: string;
   surveyId: SurveyId;
   status: SubmissionStatus;
-  /** Raw answers keyed by `step_{id}` — matches current frontend payload. */
+  /** Raw answers keyed by `backendKey` when set, otherwise `step_{id}`. */
   answers: Record<string, string>;
   /** Parsed answers — optional denormalized column or separate table. */
   normalizedAnswers?: NormalizedAnswer[];
@@ -156,8 +156,8 @@ export type GetBrandResponse = Brand | null;
 
 /**
  * Primary submission payload from the frontend (current SurveyStepper output).
- * Keys in `answers` are `step_1`, `step_2`, … Values are strings; complex
- * types are JSON-encoded strings.
+ * Keys in `answers` use each step's `backendKey` when set, otherwise `step_{id}`.
+ * Values are strings; complex types are JSON-encoded strings.
  */
 export type CreateSubmissionRequest = {
   surveyId: SurveyId;

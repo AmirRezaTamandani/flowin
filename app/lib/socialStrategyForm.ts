@@ -4,16 +4,6 @@ import {
   CONTENT_TIME_PERIOD_OPTIONS,
   SOCIAL_PLATFORM_OPTIONS,
 } from "./socialPlatforms";
-import {
-  COMPETITORS_ENGAGEMENT_OPTIONS,
-  COMPETITORS_SOCIAL_FEEDBACK_OPTIONS,
-  COMPETITORS_SOCIAL_LACKS_OPTIONS,
-  CONTENT_STYLE_REASON_OPTIONS,
-  FEEDBACK_QUESTION,
-  FEEDBACK_SAMPLE_QUESTION,
-  SOCIAL_COMPETITOR_ANALYZE_GOAL_OPTIONS,
-  SOCIAL_PAGE_REPEATER_FIELDS,
-} from "./socialCompetitorForm";
 
 const INTENDED_SOCIAL_PLATFORMS_QUESTION =
   "قصد دارید روی کدام شبکه‌های اجتماعی فعالیت داشته باشید؟";
@@ -189,12 +179,14 @@ export const socialStrategyFormSurvey: SurveyConfig = {
   steps: [
     {
       id: 1,
+      backendKey: "intended_social_platforms",
       question: INTENDED_SOCIAL_PLATFORMS_QUESTION,
       type: "checkbox",
       options: [...INTENDED_SOCIAL_PLATFORMS_OPTIONS],
     },
     {
       id: 2,
+      backendKey: "priority_social_platforms",
       question: "درصد اهمیت و اولویت شبکه‌های اجتماعی مد نظرتان را مشخص کنید.",
       type: "percentageAllocation",
       percentageAllocationSyncFromParent: {
@@ -203,6 +195,7 @@ export const socialStrategyFormSurvey: SurveyConfig = {
     },
     {
       id: 3,
+      backendKey: "platform_activity_status",
       question: "برای هر پلتفرم، وضعیت فعلی فعالیت شما چگونه است؟",
       type: "repeater",
       repeaterFields: [
@@ -227,6 +220,7 @@ export const socialStrategyFormSurvey: SurveyConfig = {
     },
     {
       id: 4,
+      backendKey: "social_media_goals",
       question:
         "اهداف اصلی شما از فعالیت در شبکه‌های اجتماعی، به‌ترتیب اهمیت و اولویت، کدام‌اند؟ (حداکثر ۴ گزینه انتخاب کنید)",
       type: "percentageAllocation",
@@ -234,6 +228,7 @@ export const socialStrategyFormSurvey: SurveyConfig = {
     },
     {
       id: 5,
+      backendKey: "monthly_content_focus",
       question:
         "محصولات یا خدماتی که می‌خواهید در ماه آینده تمرکز محتوایی بیشتری روی آن‌ها داشته باشیم کدام‌اند؟ لطفاً برای هر مورد، سهم تقریبی آن از محتوای ماه آینده را مشخص کنید. (اگر کسب‌وکار شما چندبرندی یا مارکت‌پلیس است، نام محصول را همراه با جزئیاتی مثل دسته محصول یا برند وارد کنید.)",
       type: "repeater",
@@ -256,6 +251,7 @@ export const socialStrategyFormSurvey: SurveyConfig = {
     },
     {
       id: 6,
+      backendKey: "social_media_challenges",
       question:
         "در حال حاضر، بزرگ‌ترین چالش‌های شما در شبکه‌های اجتماعی چیست؟ (از هر نظر، مانند ایده‌پردازی، تولید محتوا، انتشار محتوا، مدیریت شبکه‌ها، تعامل، جذب مخاطب، تبدیل مخاطب به مشتری و ...)",
       type: "checkbox",
@@ -263,6 +259,7 @@ export const socialStrategyFormSurvey: SurveyConfig = {
     },
     {
       id: 7,
+      backendKey: "challenge_details",
       question: "اگر لازم می‌دانید، چالش‌های اصلی خود را کمی توضیح دهید.",
       type: "textarea",
       placeholder: "توضیحات تکمیلی درباره چالش‌های انتخاب‌شده",
@@ -270,6 +267,7 @@ export const socialStrategyFormSurvey: SurveyConfig = {
     },
     {
       id: 8,
+      backendKey: "best_content_posting_pattern",
       question:
         "بر اساس تجربیات قبلی شما، چه الگویی برای انتشار محتوا بهترین نتیجه را داشته است؟",
       type: "repeater",
@@ -337,6 +335,7 @@ export const socialStrategyFormSurvey: SurveyConfig = {
     },
     {
       id: 9,
+      backendKey: "best_posting_times",
       question:
         "در صورت وجود تجربه قبلی، چه زمان‌هایی بیشترین بازده را برای انتشار محتوا داشته‌اید؟",
       type: "repeater",
@@ -375,12 +374,14 @@ export const socialStrategyFormSurvey: SurveyConfig = {
     },
     {
       id: 10,
+      backendKey: "content_calendar_occasions",
       question: "چه نوع مناسبت‌هایی باید در تقویم محتوا پوشش داده شوند؟",
       type: "checkbox",
       options: [...CONTENT_CALENDAR_OCCASIONS_OPTIONS],
     },
     {
       id: 11,
+      backendKey: "preferred_content_tone",
       question: "چه لحن و سبک محتوایی را ترجیح می‌دهید؟",
       checkboxMaxSelections: 3,
       type: "checkbox",
@@ -388,6 +389,7 @@ export const socialStrategyFormSurvey: SurveyConfig = {
     },
     {
       id: 12,
+      backendKey: "desired_brand_perception",
       question:
         "سه ویژگی اصلی که دوست دارید مخاطبان پس از مشاهده محتوای شما به برندتان نسبت دهند چیست؟ (حداکثر ۳ گزینه)",
       type: "checkbox",
@@ -396,6 +398,7 @@ export const socialStrategyFormSurvey: SurveyConfig = {
     },
     {
       id: 13,
+      backendKey: "content_pillars",
       question:
         "چه موضوعات یا ستون‌های محتوایی باید حتماً در محتوای شما پوشش داده شوند؟ لطفاً برای هر مورد، سهم آن از محتوای ماه آینده را مشخص کنید. مجموع درصدها باید دقیقاً ۱۰۰٪ باشد.",
       type: "repeater",
@@ -432,6 +435,7 @@ export const socialStrategyFormSurvey: SurveyConfig = {
     },
     {
       id: 14,
+      backendKey: "top_performing_content_examples",
       question:
         "لینک حداکثر ۵ نمونه از محتواهایی که فکر می‌کنید در ۳ ماه اخیر عملکرد خوبی داشته‌اند یا شخصاً از نتیجه آن‌ها راضی بوده‌اید را ارسال کنید.",
       type: "repeater",
@@ -452,12 +456,14 @@ export const socialStrategyFormSurvey: SurveyConfig = {
     },
     {
       id: 15,
+      backendKey: "content_assets_available",
       question: "در حال حاضر چه دارایی‌هایی برای تولید محتوا در اختیار دارید؟",
       type: "checkbox",
       options: [...CONTENT_ASSETS_OPTIONS],
     },
     {
       id: 16,
+      backendKey: "content_team_members",
       question:
         "چه افرادی از سمت مجموعه در تولید یا تأیید محتوا مشارکت خواهند داشت؟",
       type: "repeater",
@@ -476,192 +482,6 @@ export const socialStrategyFormSurvey: SurveyConfig = {
           options: [...CONTENT_PROCESS_ROLE_OPTIONS],
         },
       ],
-    },
-    {
-      id: 17,
-
-      question: "با چه هدفی می‌خواهید تحلیل رقبای شبکه‌های اجتماعی انجام دهید؟",
-
-      type: "checkbox",
-
-      options: [...SOCIAL_COMPETITOR_ANALYZE_GOAL_OPTIONS],
-    },
-
-    {
-      id: 18,
-
-      question:
-        "لینک صفحات رسمی و فعال برند خود در شبکه‌های اجتماعی را وارد کنید.",
-
-      type: "repeater",
-
-      repeaterFields: SOCIAL_PAGE_REPEATER_FIELDS,
-    },
-
-    {
-      id: 19,
-
-      question:
-        "مهم‌ترین رقبای شما در شبکه‌های اجتماعی به ترتیب کدام برندها هستند؟ حداقل ۲ و حداکثر ۱۰ مورد وارد کنید و برای هر رقیب، لینک صفحات فعال او را بنویسید.",
-
-      type: "nestedRepeater",
-
-      nestedRepeaterConfig: {
-        minRows: 2,
-
-        maxRows: 10,
-
-        minNestedPerRow: 1,
-
-        nestedKey: "pages",
-
-        nestedAddLabel: "افزودن صفحه اجتماعی",
-
-        fields: [
-          {
-            key: "name",
-
-            type: "text",
-
-            label: "نام رقیب",
-
-            placeholder: "نام رقیب",
-          },
-
-          {
-            key: "priority",
-
-            type: "number",
-
-            label: "اولویت",
-
-            placeholder: "از ۱ تا ۱۰",
-
-            numberMin: 1,
-
-            numberMax: 10,
-          },
-        ],
-
-        nestedFields: SOCIAL_PAGE_REPEATER_FIELDS,
-      },
-    },
-
-    {
-      id: 20,
-
-      question:
-        "آیا صفحه یا صفحاتی (چه رقیب و چه برند غیر رقیب) وجود دارد که سبک محتوایی آن‌ها را برای برند خود می‌پسندید؟ اگر بله، نام و لینک صفحه را وارد کنید.",
-
-      type: "repeater",
-      repeaterFields: [
-        {
-          key: "name",
-          type: "text",
-          placeholder: "نام برند",
-          inputDir: "rtl",
-        },
-        ...SOCIAL_PLATFORM_URL_REPEATER_FIELDS.map((field) =>
-          field.key === "url" ? { ...field, inputDir: "rtl" as const } : field,
-        ),
-        {
-          key: "reason",
-          type: "select",
-          placeholder: "دلیل انتخاب",
-          options: [...CONTENT_STYLE_REASON_OPTIONS],
-        },
-      ],
-
-      placeholder:
-        "هر صفحه در یک خط:\nنام برند | پلتفرم | لینک صفحه | دلیل انتخاب\nمثال:\nبرند نمونه | اینستاگرام | https://instagram.com/sample | کپی‌رایت و لحن",
-
-      isAllowedEmpty: true,
-    },
-
-    {
-      id: 21,
-
-      question:
-        "به نظر شما رقبا در شبکه‌های اجتماعی چه ضعف‌ها یا فرصت‌های استفاده‌نشده‌ای دارند که برند شما می‌تواند از آن‌ها برای تمایز استفاده کند؟",
-
-      type: "checkbox",
-
-      options: [...COMPETITORS_SOCIAL_LACKS_OPTIONS],
-    },
-
-    {
-      id: 22,
-
-      question: FEEDBACK_QUESTION,
-
-      type: "radio",
-
-      options: [...COMPETITORS_SOCIAL_FEEDBACK_OPTIONS],
-    },
-
-    {
-      id: 23,
-
-      question: FEEDBACK_SAMPLE_QUESTION,
-
-      type: "textarea",
-
-      placeholder: "نمونه بازخوردهای مثبت را بنویسید",
-
-      isAllowedEmpty: true,
-
-      showIf: {
-        parentQuestion: FEEDBACK_QUESTION,
-
-        equals: "فقط بازخورد مثبت دیده یا شنیده‌ام",
-      },
-    },
-
-    {
-      id: 24,
-
-      question: FEEDBACK_SAMPLE_QUESTION,
-
-      type: "textarea",
-
-      placeholder: "نمونه بازخوردهای منفی را بنویسید",
-
-      isAllowedEmpty: true,
-
-      showIf: {
-        parentQuestion: FEEDBACK_QUESTION,
-
-        equals: "فقط بازخورد منفی دیده یا شنیده‌ام",
-      },
-    },
-
-    {
-      id: 25,
-
-      question: FEEDBACK_SAMPLE_QUESTION,
-
-      type: "textarea",
-
-      placeholder: "نمونه بازخوردهای مثبت و منفی را بنویسید",
-
-      isAllowedEmpty: true,
-
-      showIf: {
-        parentQuestion: FEEDBACK_QUESTION,
-
-        equals: "هم بازخورد مثبت و هم منفی دیده یا شنیده‌ام",
-      },
-    },
-
-    {
-      id: 26,
-
-      question:
-        "در مجموع، تعامل رقبای اصلی با مخاطبان را چگونه ارزیابی می‌کنید؟",
-
-      type: "radio",
-
-      options: [...COMPETITORS_ENGAGEMENT_OPTIONS],
-    },
+    }
   ],
 };

@@ -13,6 +13,7 @@ export const smsFormSurvey: SurveyConfig = {
   steps: [
     {
       id: 1,
+      backendKey: "sms_types_sent",
       question: "تا به حال چه نوع پیامک‌هایی ارسال کرده‌اید؟",
       type: "checkbox",
       options: [
@@ -26,6 +27,7 @@ export const smsFormSurvey: SurveyConfig = {
     },
     {
       id: 2,
+      backendKey: "sms_sending_times",
       question:
         "معمولاً در چه بازه‌های زمانی پیامک ارسال می‌کنید؟ (مثال: صبح ۹ تا ۱۲، بعدازظهر ۱۶ تا ۲۰)",
       type: "textarea",
@@ -33,6 +35,7 @@ export const smsFormSurvey: SurveyConfig = {
     },
     {
       id: 3,
+      backendKey: "previous_sms_panels",
       question: "تا به حال از کدام پنل‌های پیامکی استفاده کرده‌اید؟",
       type: "checkbox",
       otherOption: "سایر",
@@ -52,6 +55,7 @@ export const smsFormSurvey: SurveyConfig = {
     },
     {
       id: 4,
+      backendKey: "dedicated_service_line",
       question:
         "آیا خط خدماتی اختصاصی دارید؟ (منظور از خط خدماتی خطی است که با استفاده از آن برای مشتریان خود پیامک ارسال می‌کنید.)",
       type: "radio",
@@ -59,6 +63,7 @@ export const smsFormSurvey: SurveyConfig = {
     },
     {
       id: 5,
+      backendKey: "dedicated_service_line_number",
       question: "لطفاً شماره این خط خود را وارد کنید.",
       type: "number",
       numberSuffix: "شماره خط",
@@ -70,6 +75,7 @@ export const smsFormSurvey: SurveyConfig = {
     },
     {
       id: 6,
+      backendKey: "dedicated_transactional_line",
       question:
         "آیا خط خدماتی اختصاصی برای ارسال OTP یا پیامک‌های تراکنشی دارید؟",
       type: "radio",
@@ -77,6 +83,7 @@ export const smsFormSurvey: SurveyConfig = {
     },
     {
       id: 7,
+      backendKey: "dedicated_transactional_number",
       question: "لطفاً شماره این خط خود را وارد کنید.",
       type: "number",
       numberFormat: "phone",
@@ -89,6 +96,7 @@ export const smsFormSurvey: SurveyConfig = {
     },
     {
       id: 8,
+      backendKey: "dedicated_promotional_line",
       question:
         "آیا خط تبلیغاتی اختصاصی دارید؟ (منظور از خط تبلیغاتی اختصاصی خطی است که با استفاده از آن برای افرادی که مشتریان شما نیستند یا در لیست سیاه قرار دارند، پیامک ارسال می‌کنید.)",
       type: "radio",
@@ -122,18 +130,21 @@ export const smsFormSurvey: SurveyConfig = {
     },
     {
       id: 11,
+      backendKey: "rfm_analysis",
       question: "آیا تا به حال تحلیل RFM انجام داده‌اید؟",
       type: "radio",
       options: ["بله", "خیر"],
     },
     {
       id: 12,
+      backendKey: "sms_tracking",
       question: "آیا پیامک‌های ارسالی خود را ردیابی (Track) می‌کنید؟",
       type: "radio",
       options: ["بله", "خیر"],
     },
     {
       id: 13,
+      backendKey: "operator_user_distribution",
       question:
         "آیا اطلاع دارید که تعداد کاربران همراه اول و ایرانسل شما چقدر است؟",
       type: "radio",
@@ -141,6 +152,7 @@ export const smsFormSurvey: SurveyConfig = {
     },
     {
       id: 14,
+      backendKey: "operator_user_distribution_specific",
       question: "تعداد کاربران هر اپراتور را به تفکیک وارد کنید.",
       type: "repeater",
       repeaterFields: [
@@ -160,12 +172,14 @@ export const smsFormSurvey: SurveyConfig = {
     },
     {
       id: 15,
+      backendKey: "sms_satisfaction",
       question: "در حال حاضر از وضعیت پیامک‌های ارسالی راضی هستید؟",
       type: "radio",
       options: ["بله", "خیر"],
     },
     {
       id: 16,
+      backendKey: "sms_satisfaction_reason",
       question: "دلیل عدم رضایت خود را بنویسید.",
       type: "textarea",
       showIf: {
@@ -175,12 +189,14 @@ export const smsFormSurvey: SurveyConfig = {
     },
     {
       id: 17,
+      backendKey: "previous_monthly_sms_budget",
       question: "میانگین هزینه ماهانه شما چقدر بوده است؟",
       type: "radio",
       options: [...MONTHLY_BUDGET_OPTIONS],
     },
     {
       id: 18,
+      backendKey: "sends_sms_purchase_confirmation",
       question:
         "آیا پس از خرید یا تکمیل فرآیند خرید، به مشتری پیامک تأیید یا تشکر ارسال می‌شود؟",
       type: "radio",
@@ -188,12 +204,14 @@ export const smsFormSurvey: SurveyConfig = {
     },
     {
       id: 19,
+      backendKey: "link_shortener",
       question: "آیا از کوتاه‌کننده لینک استفاده کرده‌اید؟",
       type: "radio",
       options: ["بله", "خیر"],
     },
     {
       id: 20,
+      backendKey: "has_link_shortener",
       question: "نام ابزار کوتاه‌کننده لینک را بنویسید.",
       type: "url",
       placeholder: "https://example.com",
@@ -204,6 +222,7 @@ export const smsFormSurvey: SurveyConfig = {
     },
     {
       id: 21,
+      backendKey: "max_sms_campaign_volume",
       question: "بیشترین حجم پیامک ارسالی شما در یک ماه چقدر بوده است؟",
       type: "radio",
       options: [
@@ -214,6 +233,7 @@ export const smsFormSurvey: SurveyConfig = {
     },
     {
       id: 22,
+      backendKey: "sent_to_non_customer_database",
       question:
         "آیا تاکنون به دیتابیس‌های غیرمشتری (مثلاً دیتابیس خریداری‌شده) پیامک ارسال کرده‌اید؟",
       type: "radio",
@@ -221,6 +241,7 @@ export const smsFormSurvey: SurveyConfig = {
     },
     {
       id: 23,
+      backendKey: "sms_co_branding_experience",
       question:
         "آیا تا به حال با یک برند، به صورت Co-Branding همکاری داشته‌اید؟",
       type: "radio",
@@ -228,6 +249,7 @@ export const smsFormSurvey: SurveyConfig = {
     },
     {
       id: 24,
+      backendKey: "has_sms_co_branding",
       question: "نام برند را بنویسید.",
       type: "text",
       showIf: {
@@ -238,12 +260,14 @@ export const smsFormSurvey: SurveyConfig = {
     },
     {
       id: 25,
+      backendKey: "sms_tone",
       question: "لحن و سبک محتوایی مدنظر شما برای ارسال چیست؟",
       type: "radio",
       options: [...CHANNEL_TONE_OPTIONS],
     },
     {
       id: 26,
+      backendKey: "sms_event_type",
       question:
         "کدام مناسبت‌های عمومی باید در برنامه‌ریزی و تقویم محتوایی این کانال پوشش داده شوند؟",
       type: "checkbox",
@@ -251,6 +275,7 @@ export const smsFormSurvey: SurveyConfig = {
     },
     {
       id: 27,
+      backendKey: "sms_optimization_priority",
       question:
         "کدام بخش از ارسال پیامک را علاقه دارید بهینه کنید؟ (بعنوان مثال: گزارش‌گیری و آمار تحویل، چون گزارش‌ها دقیق و لحظه‌ای نیستند.)",
       type: "textarea",
@@ -260,6 +285,7 @@ export const smsFormSurvey: SurveyConfig = {
     },
     {
       id: 28,
+      backendKey: "last_sms_sample",
       question:
         "یک نمونه از پیامک‌های ارسالی خود را که هم مورد تأیید شما بوده و هم عملکرد خوبی داشته است، بنویسید.",
       type: "textarea",

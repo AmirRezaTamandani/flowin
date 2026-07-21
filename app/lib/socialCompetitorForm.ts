@@ -99,6 +99,7 @@ export const socialCompetitorFormSurvey: SurveyConfig = {
   steps: [
     {
       id: 1,
+      backendKey: "social_competitor_analyze_goal",
 
       question: "با چه هدفی می‌خواهید تحلیل رقبای شبکه‌های اجتماعی انجام دهید؟",
 
@@ -109,6 +110,7 @@ export const socialCompetitorFormSurvey: SurveyConfig = {
 
     {
       id: 2,
+      backendKey: "social_media_urls",
 
       question:
         "لینک صفحات رسمی و فعال برند خود در شبکه‌های اجتماعی را وارد کنید.",
@@ -120,6 +122,7 @@ export const socialCompetitorFormSurvey: SurveyConfig = {
 
     {
       id: 3,
+      backendKey: "main_social_competitors",
 
       question:
         "مهم‌ترین رقبای شما در شبکه‌های اجتماعی به ترتیب کدام برندها هستند؟ حداقل ۲ و حداکثر ۱۰ مورد وارد کنید و برای هر رقیب، لینک صفحات فعال او را بنویسید.",
@@ -169,6 +172,7 @@ export const socialCompetitorFormSurvey: SurveyConfig = {
 
     {
       id: 4,
+      backendKey: "quality_content_brands",
 
       question:
         "آیا صفحه یا صفحاتی (چه رقیب و چه برند غیر رقیب) وجود دارد که سبک محتوایی آن‌ها را برای برند خود می‌پسندید؟ اگر بله، نام و لینک صفحه را وارد کنید.",
@@ -200,6 +204,7 @@ export const socialCompetitorFormSurvey: SurveyConfig = {
 
     {
       id: 5,
+      backendKey: "competitors_social_lacks",
 
       question:
         "به نظر شما رقبا در شبکه‌های اجتماعی چه ضعف‌ها یا فرصت‌های استفاده‌نشده‌ای دارند که برند شما می‌تواند از آن‌ها برای تمایز استفاده کند؟",
@@ -211,6 +216,7 @@ export const socialCompetitorFormSurvey: SurveyConfig = {
 
     {
       id: 6,
+      backendKey: "competitors_social_feedback",
 
       question: FEEDBACK_QUESTION,
 
@@ -221,6 +227,7 @@ export const socialCompetitorFormSurvey: SurveyConfig = {
 
     {
       id: 7,
+      backendKey: "competitors_social_feedback_sample",
 
       question: FEEDBACK_SAMPLE_QUESTION,
 
@@ -239,6 +246,7 @@ export const socialCompetitorFormSurvey: SurveyConfig = {
 
     {
       id: 8,
+      backendKey: "competitors_social_feedback_sample",
 
       question: FEEDBACK_SAMPLE_QUESTION,
 
@@ -257,6 +265,7 @@ export const socialCompetitorFormSurvey: SurveyConfig = {
 
     {
       id: 9,
+      backendKey: "competitors_social_feedback_sample",
 
       question: FEEDBACK_SAMPLE_QUESTION,
 
@@ -275,6 +284,7 @@ export const socialCompetitorFormSurvey: SurveyConfig = {
 
     {
       id: 10,
+      backendKey: "competitors_engagement_with_users",
 
       question:
         "در مجموع، تعامل رقبای اصلی با مخاطبان را چگونه ارزیابی می‌کنید؟",

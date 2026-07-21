@@ -13,12 +13,14 @@ export const pushFormSurvey: SurveyConfig = {
   steps: [
     {
       id: 1,
+      backendKey: "push_types",
       question: "چه نوع پوش نوتیفیکیشنی ارسال می‌کنید؟",
       type: "radio",
       options: ["پوش نوتیفیکیشن وب", "پوش نوتیفیکیشن اپ", "هر دو"],
     },
     {
       id: 2,
+      backendKey: "web_push_subscribers",
       question: "تعداد مشترکین پوش نوتیفیکیشن وب را وارد کنید.",
       type: "number",
       numberMin: 0,
@@ -29,6 +31,7 @@ export const pushFormSurvey: SurveyConfig = {
     },
     {
       id: 3,
+      backendKey: "app_push_subscribers",
       question: "تعداد مشترکین پوش نوتیفیکیشن اپ را وارد کنید.",
       type: "number",
       numberMin: 0,
@@ -39,6 +42,7 @@ export const pushFormSurvey: SurveyConfig = {
     },
     {
       id: 4,
+      backendKey: "both_web_push_subscribers",
       question: "تعداد مشترکین پوش نوتیفیکیشن وب را وارد کنید.",
       type: "number",
       numberMin: 0,
@@ -49,6 +53,7 @@ export const pushFormSurvey: SurveyConfig = {
     },
     {
       id: 5,
+      backendKey: "both_app_push_subscribers",
       question: "تعداد مشترکین پوش نوتیفیکیشن اپ را وارد کنید.",
       type: "number",
       numberMin: 0,
@@ -59,12 +64,14 @@ export const pushFormSurvey: SurveyConfig = {
     },
     {
       id: 6,
+      backendKey: "push_script",
       question: "آیا اسکریپت روی سایت خود دارید؟",
       type: "radio",
       options: ["بله", "خیر"],
     },
     {
       id: 7,
+      backendKey: "has_push_script",
       question: "آیا در حال حاضر در سایت فعال است؟",
       type: "radio",
       options: ["بله", "خیر"],
@@ -75,6 +82,7 @@ export const pushFormSurvey: SurveyConfig = {
     },
     {
       id: 8,
+      backendKey: "push_service",
       question: "با چه سرویسی ارسال می‌کنید؟",
       type: "checkbox",
       options: ["سرویس های خارجی", "سرویس های ایرانی", "درون سازمانی"],
@@ -95,12 +103,14 @@ export const pushFormSurvey: SurveyConfig = {
     },
     {
       id: 9,
+      backendKey: "targeted_user_segments",
       question: "آیا برای بخش خاصی از کاربران خود ارسال می‌کنید؟",
       type: "radio",
       options: ["بله", "خیر"],
     },
     {
       id: 10,
+      backendKey: "previous_push_notification_panels",
       question: "در گذشته از کدام پنل‌ها جهت ارسال استفاده کرده‌اید؟",
       type: "checkbox",
       otherOption: "سایر",
@@ -117,6 +127,7 @@ export const pushFormSurvey: SurveyConfig = {
     },
     {
       id: 11,
+      backendKey: "push_notification_triggers",
       question: "در چه موقعیت‌هایی پوش نوتیفیکیشن ارسال می‌کنید؟",
       type: "checkbox",
       options: [
@@ -130,18 +141,21 @@ export const pushFormSurvey: SurveyConfig = {
     },
     {
       id: 12,
+      backendKey: "previous_monthly_push_budget",
       question: "در گذشته، میانگین هزینه ماهانه شما چقدر بوده است؟",
       type: "radio",
       options: ["۰", ...MONTHLY_BUDGET_OPTIONS],
     },
     {
       id: 13,
+      backendKey: "push_tone",
       question: "لحن و سبک محتوایی مدنظر شما برای ارسال چیست؟",
       type: "radio",
       options: [...CHANNEL_TONE_OPTIONS],
     },
     {
       id: 14,
+      backendKey: "push_event_type",
       question:
         "کدام مناسبت‌های عمومی باید در برنامه‌ریزی و تقویم محتوایی این کانال پوشش داده شوند؟",
       type: "checkbox",
@@ -149,6 +163,7 @@ export const pushFormSurvey: SurveyConfig = {
     },
     {
       id: 15,
+      backendKey: "push_template",
       question:
         "اگر دیزاین یا تمپلیت یکپارچه و خاص در این کانال دارید، لینک یا توضیح نمونه مورد تأیید خود را بنویسید.",
       type: "fileUpload",

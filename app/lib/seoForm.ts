@@ -14,18 +14,21 @@ export const seoFormSurvey: SurveyConfig = {
   steps: [
     {
       id: 1,
+      backendKey: "website_name",
       question: "نام سایت",
       type: "text",
       placeholder: "اسم سایت",
     },
     {
       id: 2,
+      backendKey: "website_url",
       question: "آدرس وب‌سایت (URL)",
       type: "url",
       placeholder: "https://yoursite.com",
     },
     {
       id: 3,
+      backendKey: "website_type",
       question: "نوع وب‌سایت شما چیست؟",
       type: "select",
       otherOption: "سایر",
@@ -41,6 +44,7 @@ export const seoFormSurvey: SurveyConfig = {
     },
     {
       id: 4,
+      backendKey: "seo_main_goal",
       question: "هدف اصلی شما از کار کردن تخصصی در حوزه سئو چیست؟",
       type: "checkbox",
       options: [
@@ -52,11 +56,13 @@ export const seoFormSurvey: SurveyConfig = {
     },
     {
       id: 5,
+      backendKey: "target_audience_location",
       question: "مخاطب هدف شما در چه منطقه جغرافیایی است؟",
       type: "personaFields",
     },
     {
       id: 6,
+      backendKey: "website_platform",
       question: "وب‌سایت شما با چه سیستمی ساخته شده است؟",
       type: "select",
       isAllowedEmpty: true,
@@ -64,6 +70,7 @@ export const seoFormSurvey: SurveyConfig = {
     },
     {
       id: 7,
+      backendKey: "website_issues",
       question: "به نظر شما کدام بخش از سایت شما مشکل دارد؟",
       type: "checkbox",
       options: [
@@ -83,12 +90,14 @@ export const seoFormSurvey: SurveyConfig = {
     },
     {
       id: 8,
+      backendKey: "fix_actions_taken",
       question: "آیا برای این مشکلات اقدامی کرده‌اید؟ اگر بله توضیح دهید.",
       type: "textarea",
       isAllowedEmpty: true,
     },
     {
       id: 9,
+      backendKey: "main_competitors_link",
       question: "آدرس ۱ تا ۳ رقیب اصلی خود را وارد کنید (اختیاری)",
       type: "textarea",
       placeholder: "هر خط: نام رقیب | https://example.com",
@@ -96,6 +105,7 @@ export const seoFormSurvey: SurveyConfig = {
     },
     {
       id: 10,
+      backendKey: "analytics_and_seo_tools",
       question: "چه ابزارهای تحلیلی و سئو در حال حاضر روی سایت شما فعال است؟",
       type: "checkbox",
       options: [
@@ -111,12 +121,14 @@ export const seoFormSurvey: SurveyConfig = {
     },
     {
       id: 11,
+      backendKey: "google_business_profile",
       question: "آیا پروفایل کسب‌وکار در گوگل مپ دارید؟",
       type: "radio",
       options: ["بله، فعال است", "خیر", "نمی‌دانم"],
     },
     {
       id: 12,
+      backendKey: "ctr_manipulation_policy",
       question:
         "رویکرد شما در مواجهه با ابزارهای بهبود مصنوعی کلیک و ترافیک (CTR Manipulation) چیست؟",
       type: "radio",
@@ -131,6 +143,7 @@ export const seoFormSurvey: SurveyConfig = {
     },
     {
       id: 13,
+      backendKey: "highest_traffic_keywords",
       question: "کلمات کلیدی که برای شما بیشترین ترافیک را دارند نام ببرید.",
       type: "textarea",
       placeholder: "کلمات کلیدی را دقیق بنویسید و با کاما جدا کنید",
@@ -138,6 +151,7 @@ export const seoFormSurvey: SurveyConfig = {
     },
     {
       id: 14,
+      backendKey: "informational_keywords",
       question:
         "کلمات کلیدی informational که کاربر را وارد سایت می‌کنند نام ببرید. (عباراتی با هدف کسب اطلاعات، آموزش یا پاسخ به سؤال؛ نه خرید مستقیم.)",
       type: "textarea",
@@ -146,6 +160,7 @@ export const seoFormSurvey: SurveyConfig = {
     },
     {
       id: 15,
+      backendKey: "top_converting_keywords",
       question:
         "کلمات کلیدی که برای شما بیشترین فروش را در سایت رقم می‌زنند نام ببرید.",
       type: "textarea",
@@ -154,6 +169,7 @@ export const seoFormSurvey: SurveyConfig = {
     },
     {
       id: 16,
+      backendKey: "content_publishing_gaps",
       question:
         "آیا در فرآیند تولید و انتشار محتوای سایت، تا به حال وقفه یا توقف در بازه‌های زمانی مشخص داشته‌اید؟",
       type: "radio",
@@ -161,6 +177,7 @@ export const seoFormSurvey: SurveyConfig = {
     },
     {
       id: 17,
+      backendKey: "monthly_content_count",
       question:
         "شما به صورت ماهانه چه تعداد محتوا در سایت قرار می‌دهید؟ (بدون در نظر گرفتن آپدیت)",
       type: "number",
@@ -169,6 +186,7 @@ export const seoFormSurvey: SurveyConfig = {
     },
     {
       id: 18,
+      backendKey: "link_building_strategy",
       question:
         "آیا برای لینک‌سازی خارجی (External Link Building) سایت خود تاکنون استراتژی یا برنامه مشخصی داشته‌اید؟",
       type: "radio",
@@ -182,6 +200,7 @@ export const seoFormSurvey: SurveyConfig = {
     },
     {
       id: 19,
+      backendKey: "seo_team_size",
       question:
         "در حال حاضر چند نفر به‌صورت مستقیم روی سئو سایت شما فعالیت می‌کنند؟",
       type: "radio",
@@ -197,6 +216,7 @@ export const seoFormSurvey: SurveyConfig = {
     },
     {
       id: 20,
+      backendKey: "ideal_seo_team_size",
       question:
         "به نظر شما برای مدیریت و توسعه سئوی سایت، به چند نفر نیروی متخصص نیاز است؟",
       type: "radio",
@@ -211,6 +231,7 @@ export const seoFormSurvey: SurveyConfig = {
     },
     {
       id: 21,
+      backendKey: "seo_strategy",
       question:
         "آیا برای وب‌سایت خود تا به حال استراتژی سئو داشتید؟ اگر بله، آخرین استراتژی خود را آپلود کنید یا اگر فایل ندارید به صورت مختصر توضیح دهید.",
       type: "fileUpload",
@@ -222,6 +243,7 @@ export const seoFormSurvey: SurveyConfig = {
     },
     {
       id: 22,
+      backendKey: "seo_outsourcing",
       question: "آیا تاکنون سئو سایت خود را برون‌سپاری (Outsource) کرده‌اید؟",
       type: "radio",
       options: [
@@ -233,6 +255,7 @@ export const seoFormSurvey: SurveyConfig = {
     },
     {
       id: 23,
+      backendKey: "ai_content_creation",
       question:
         "آیا در تولید محتوای سایت از ابزارهای هوش مصنوعی استفاده کرده‌اید؟",
       type: "radio",
@@ -246,6 +269,7 @@ export const seoFormSurvey: SurveyConfig = {
     },
     {
       id: 24,
+      backendKey: "crawl_budget_management",
       question:
         "آیا به مدیریت و بهینه‌سازی Crawl Budget سایت خود توجه می‌کنید؟",
       type: "radio",
@@ -258,6 +282,7 @@ export const seoFormSurvey: SurveyConfig = {
     },
     {
       id: 25,
+      backendKey: "google_discover_appearance",
       question:
         "آیا تاکنون محتوای سایت شما در Google Discover نمایش داده شده است؟",
       type: "radio",
@@ -270,6 +295,7 @@ export const seoFormSurvey: SurveyConfig = {
     },
     {
       id: 26,
+      backendKey: "keyword_performance_drop",
       question: KEYWORD_DROP_QUESTION,
       type: "radio",
       options: [
@@ -281,6 +307,7 @@ export const seoFormSurvey: SurveyConfig = {
     },
     {
       id: 27,
+      backendKey: "dropped_keywords",
       question: "کدام کلمات کلیدی افت رتبه داشته‌اند؟ نام ببرید.",
       type: "textarea",
       placeholder: "هر کلمه کلیدی را در یک خط جداگانه بنویسید",
@@ -291,6 +318,7 @@ export const seoFormSurvey: SurveyConfig = {
     },
     {
       id: 28,
+      backendKey: "seo_keyword_focus",
       question:
         "تمرکز استراتژی سئوی شما تاکنون بیشتر روی چه نوع کلمات کلیدی بوده است؟",
       type: "checkbox",
@@ -306,6 +334,7 @@ export const seoFormSurvey: SurveyConfig = {
     },
     {
       id: 29,
+      backendKey: "external_backlinks",
       question:
         "آیا تاکنون برای سایت خود بک‌لینک خارجی (External Backlinks) دریافت یا ایجاد کرده‌اید؟",
       type: "radio",
@@ -320,6 +349,7 @@ export const seoFormSurvey: SurveyConfig = {
     },
     {
       id: 30,
+      backendKey: "main_priority_area",
       question:
         "با توجه به وضعیت فعلی سایت، به نظر شما اولویت اصلی و نیاز مبرم شما در کدام بخش است؟",
       type: "radio",
@@ -336,6 +366,7 @@ export const seoFormSurvey: SurveyConfig = {
     },
     {
       id: 31,
+      backendKey: "ai_optimization",
       question:
         "آیا تاکنون تجربه یا برنامه‌ای برای بهینه‌سازی وب‌سایت خود جهت نمایش در پاسخ‌های هوش مصنوعی (مانند ChatGPT، کلود و Google Gemini) داشته‌اید؟",
       type: "radio",

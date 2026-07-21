@@ -215,10 +215,18 @@ function getAllVisibleSteps(steps: SurveyStep[], values: FormValues): SurveyStep
 function mergeDraftAnswers(
   defaults: FormValues,
   answers: Record<string, string>,
+  steps: SurveyStep[],
 ): FormValues {
   const merged = { ...defaults };
   for (const [key, value] of Object.entries(answers)) {
-    merged[key] = value;
+    if (key.startsWith("step_") || key in merged) {
+      merged[key] = value;
+      continue;
+    }
+    const step = steps.find((item) => item.backendKey === key);
+    if (step) {
+      merged[fieldName(step.id)] = value;
+    }
   }
   return merged;
 }
@@ -1248,10 +1256,13 @@ export default function SurveyStepper({
           if (raw) {
             const parsed = JSON.parse(raw) as { answers?: Record<string, string> };
             if (parsed.answers) {
-              form.reset({
-                ...buildDefaultValues(survey.steps),
-                ...parsed.answers,
-              });
+              form.reset(
+                mergeDraftAnswers(
+                  buildDefaultValues(survey.steps),
+                  parsed.answers,
+                  survey.steps,
+                ),
+              );
             }
           }
         } catch {
@@ -1280,7 +1291,11 @@ export default function SurveyStepper({
 
         if (draft) {
           setDraftSubmissionId(draft.id);
-          const merged = { ...buildDefaultValues(survey.steps), ...draft.answers };
+          const merged = mergeDraftAnswers(
+            buildDefaultValues(survey.steps),
+            draft.answers,
+            survey.steps,
+          );
           form.reset(merged);
         }
       } catch (error) {

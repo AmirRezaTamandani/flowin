@@ -51,6 +51,11 @@ export function isStepVisible(
   return true;
 }
 
+/** Answer key for API / n8n — prefers `backendKey` when set. */
+export function answerKey(step: SurveyStep): string {
+  return step.backendKey ?? fieldName(step.id);
+}
+
 /** Raw answers for API storage — only visible steps, values as strings. */
 export function getVisibleFormAnswers(
   steps: SurveyStep[],
@@ -59,10 +64,12 @@ export function getVisibleFormAnswers(
   const answers: Record<string, string> = {};
   for (const step of steps) {
     if (!isStepVisible(step, steps, values)) continue;
-    const key = fieldName(step.id);
-    const value = values[key];
+    const formKey = fieldName(step.id);
+    const value = values[formKey];
     if (value === undefined) continue;
-    answers[key] = Array.isArray(value) ? JSON.stringify(value) : value;
+    answers[answerKey(step)] = Array.isArray(value)
+      ? JSON.stringify(value)
+      : value;
   }
   return answers;
 }
