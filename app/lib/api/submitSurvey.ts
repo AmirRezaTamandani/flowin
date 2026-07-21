@@ -7,10 +7,8 @@ import type {
   UpdateSubmissionRequest,
 } from "./types";
 import type { NormalizedAnswer } from "./types";
+import { getApiV1Base } from "./basePath";
 import { getSuccessRedirectUrl } from "./redirect";
-
-const APP_BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
-const API_BASE = `${APP_BASE}/api/v1`;
 
 export class SurveyApiError extends Error {
   status: number;
@@ -28,7 +26,7 @@ async function apiFetch<T>(
   token: string,
   init?: RequestInit,
 ): Promise<T> {
-  const response = await fetch(`${API_BASE}${path}`, {
+  const response = await fetch(`${getApiV1Base()}${path}`, {
     ...init,
     headers: {
       "Content-Type": "application/json",
@@ -94,7 +92,7 @@ export async function submitToN8n(options: {
   if (options.orderId) params.set("order_id", options.orderId);
   if (options.orderSku) params.set("order_sku", options.orderSku);
 
-  const response = await fetch(`${API_BASE}/n8n-submit?${params.toString()}`, {
+  const response = await fetch(`${getApiV1Base()}/n8n-submit?${params.toString()}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(options.payload),
@@ -114,8 +112,15 @@ export async function submitToN8n(options: {
 
   let message = messageForN8nSubmitStatus(response.status);
   try {
-    const body = (await response.json()) as { message?: string };
-    if (body.message) message = body.message;
+    const body = (await response.json()) as {
+      message?: string;
+      details?: { upstream?: string };
+    };
+    if (body.details?.upstream) {
+      message = `${message} (${body.details.upstream})`;
+    } else if (body.message) {
+      message = body.message;
+    }
   } catch {
     // keep mapped message
   }

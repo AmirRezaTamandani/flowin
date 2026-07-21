@@ -144,6 +144,12 @@ export async function POST(request: Request) {
     );
   }
 
+  console.error("[n8n-submit] n8n forward failed", {
+    status: result.status,
+    message: result.message,
+    body: result.body,
+  });
+
   if (result.status === 404) {
     return notFound("سفارش پیدا نشد، با پشتیبانی تماس بگیرید");
   }
@@ -157,15 +163,21 @@ export async function POST(request: Request) {
       {
         error: "bad_gateway",
         message: "مشکلی پیش آمد، لطفاً کمی بعد دوباره امتحان کنید",
+        details: { upstream: result.message },
       },
       { status: 502 },
     );
   }
 
+  // Includes n8n 401 Invalid secret and other upstream failures.
   return NextResponse.json(
     {
       error: "internal_error",
       message: "مشکلی پیش آمد، لطفاً کمی بعد دوباره امتحان کنید",
+      details: {
+        upstreamStatus: result.status,
+        upstream: result.message,
+      },
     },
     { status: 500 },
   );

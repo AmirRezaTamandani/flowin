@@ -11,7 +11,12 @@ export type N8nFormSubmitBody = {
 
 export type N8nSubmitResult =
   | { ok: true; status: 202; body: unknown }
-  | { ok: false; status: 404 | 409 | 500 | 502; body: unknown; message: string };
+  | {
+      ok: false;
+      status: 401 | 404 | 409 | 500 | 502;
+      body: unknown;
+      message: string;
+    };
 
 function getN8nConfig(): { url: string; secret: string } | null {
   const url = process.env.N8N_FORM_SUBMIT_URL?.trim();
@@ -20,7 +25,8 @@ function getN8nConfig(): { url: string; secret: string } | null {
   return { url, secret };
 }
 
-function mapN8nStatus(status: number): 404 | 409 | 500 | 502 | null {
+function mapN8nStatus(status: number): 401 | 404 | 409 | 500 | 502 | null {
+  if (status === 401) return 401;
   if (status === 404) return 404;
   if (status === 409) return 409;
   if (status >= 500) return 500;
@@ -97,12 +103,20 @@ export async function submitFormToN8n(
   }
 
   const mapped = mapN8nStatus(response.status);
+  const n8nMessage =
+    responseBody &&
+    typeof responseBody === "object" &&
+    "message" in responseBody &&
+    typeof (responseBody as { message: unknown }).message === "string"
+      ? (responseBody as { message: string }).message
+      : `n8n returned ${response.status}`;
+
   if (mapped) {
     return {
       ok: false,
       status: mapped,
       body: responseBody,
-      message: `n8n returned ${response.status}`,
+      message: n8nMessage,
     };
   }
 
@@ -110,6 +124,6 @@ export async function submitFormToN8n(
     ok: false,
     status: 500,
     body: responseBody,
-    message: `Unexpected n8n status ${response.status}`,
+    message: n8nMessage,
   };
 }

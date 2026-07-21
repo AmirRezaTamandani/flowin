@@ -5,11 +5,13 @@ export const brandFormSurvey: SurveyConfig = {
   label: "افزودن اطلاعات برند",
   title: "افزودن اطلاعات برند",
   description: "",
-
+  orderSku: "branding",
   steps: [
-    { id: 1, question: "نام برند شما چیست؟", type: "text" },
+    { id: 1,
+      backendKey: "brand_name", question: "نام برند شما چیست؟", type: "text" },
     {
       id: 2,
+      backendKey: "website_url",
 
       question: "آدرس سایت خود را وارد کنید.",
       type: "url",
@@ -17,6 +19,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 3,
+      backendKey: "brand_establishment",
 
       question: "شرکت شما در چه تاریخی تاسیس شده‌است؟",
       type: "shamsiDate",
@@ -24,6 +27,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 4,
+      backendKey: "employee_count",
 
       question: "انداز فعلی سازمان/تیم شما چقدر است ؟",
       type: "radio",
@@ -36,6 +40,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 5,
+      backendKey: "business_category",
 
       question: "حوزه اصلی کسب‌وکار شما چیست؟",
       type: "checkbox",
@@ -157,6 +162,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 6,
+      backendKey: "business_communication_model",
 
       question: "مدل ارتباط تجاری کسب‌وکار با مشتریان چیست؟",
       type: "checkbox",
@@ -177,6 +183,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 7,
+      backendKey: "business_revenue_model",
 
       question: "مدل درآمدی کسب‌وکار شما کدام است ؟",
       type: "checkbox",
@@ -206,6 +213,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 8,
+      backendKey: "purchase_channels",
 
       question: "مشتریان از چه طریقی از شما خرید می‌کنند؟",
       type: "radio",
@@ -213,6 +221,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 9,
+      backendKey: "online_purchase_channels",
 
       question: "کدام روش های فروش آنلاین براش شما فعال هستند",
       type: "checkbox",
@@ -224,6 +233,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 10,
+      backendKey: "offline_purchase_channels",
 
       question: "کدام روش های فروش آفلاین براش شما فعال هستند",
       type: "checkbox",
@@ -243,6 +253,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 11,
+      backendKey: "both_purchase_channels",
 
       question: "کدام روش های فروش براش شما فعال هستند",
       type: "checkbox",
@@ -265,6 +276,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 12,
+      backendKey: "top_sales_channel",
 
       question: "در حال حاضر بیشترین فروش از کدام کانال است؟",
       type: "radio",
@@ -282,6 +294,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 13,
+      backendKey: "best_selling_product",
 
       question:
         "پرفروش‌ترین محصول یا خدمت شما کدام است؟ نام ببرید یا لینک محصول را قرار دهید.",
@@ -289,6 +302,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 14,
+      backendKey: "most_profitable_product",
 
       question:
         "سودآورترین محصول یا خدمت شما چیست؟ نام ببرید یا لینک محصول را قرار دهید.",
@@ -296,6 +310,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 15,
+      backendKey: "peak_sales_periods",
 
       question:
         "مهم‌ترین زمان فروش برای کسب‌و‌کار شما در سال کدام یک از موقعیت‌های زیر است؟.",
@@ -321,6 +336,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 16,
+      backendKey: "user_journey",
 
       question:
         "مسیر خرید مشتری شما چیست؟ (معمولاً از چه مسیری با برند شما آشنا می‌شود و به خرید می‌رسد؟)",
@@ -344,6 +360,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 17,
+      backendKey: "business_marketing_channels",
 
       question: "کانال‌های مارکتینگی خود را مشخص کنید.",
       type: "checkbox",
@@ -407,6 +424,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 18,
+      backendKey: "business_problem_solved",
 
       question:
         "جمله زیر را تکمیل کنید: «من با کسب‌وکارم به افراد کمک می‌کنم تا …»",
@@ -414,18 +432,21 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 19,
+      backendKey: "brand_name_philosophy",
 
       question: "دلیل و فلسفه انتخاب نام برند شما چه بوده‌است؟",
       type: "textarea",
     },
     {
       id: 20,
+      backendKey: "brand_story",
 
       question: "داستان شکل‌گیری برند خود را شرح دهید.",
       type: "textarea",
     },
     {
       id: 21,
+      backendKey: "visual_identity",
 
       question:
         "آیا هویت بصری مکتوب شامل لوگو، رنگ‌ها و فونت دارید؟ لطفاً هر یک را به‌صورت جداگانه بارگذاری کنید.",
@@ -433,6 +454,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 22,
+      backendKey: "brand_tagline",
 
       question: "شعار برند خود را در صورت وجود، بنویسید.",
       type: "text",
@@ -440,6 +462,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 23,
+      backendKey: "brand_archetype",
 
       question: "آرکی‌تایپ یا شخصیت اصلی برند شما چیست؟",
       type: "percentageAllocation",
@@ -472,6 +495,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 24,
+      backendKey: "business_redlines",
 
       question:
         "چه موضوعاتی را نمی‌خواهید به هیچ عنوان در محتوای شما، چه متنی و چه تصویری، مطرح شوند؟",
@@ -494,6 +518,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 25,
+      backendKey: "key_brand_events",
 
       question: "رویدادها و مناسبت‌های کلیدی برند شما کدام‌اند؟",
       type: "namedShamsiDates",
@@ -501,6 +526,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 26,
+      backendKey: "target_audience",
 
       question: "مصرف کننده نهایی محصول / خدمت شما چه کسی است؟",
       type: "radio",
@@ -508,6 +534,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 27,
+      backendKey: "end_user_is_buyer",
 
       question: "پرسونای خریدار/مصرف کننده شما چیست؟",
       type: "personaFields",
@@ -518,6 +545,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 28,
+      backendKey: "end_user_is_anotherperson",
 
       question: "پرسونای مخاطب محتوا/تبلیغات شما چیست؟",
       type: "personaFields",
@@ -528,6 +556,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 29,
+      backendKey: "competitive_advantage",
 
       question: "مزیت‌های رقابتی اصلی شما در بازار کدام‌اند؟",
       type: "textarea",
@@ -535,12 +564,14 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 30,
+      backendKey: "brand_competitors",
 
       question: "رقبای اصلی شما کدام برندها هستند؟ لطفاً نام ببرید.",
       type: "textarea",
     },
     {
       id: 31,
+      backendKey: "positive_customer_feedback",
 
       question:
         "در ۶ ماه اخیر، چه بازخوردهای مثبتی درباره‌ی برند، خدمات یا محصولات خود از مشتریان‌تان در پلتفرم‌های مختلف دریافت کرده‌اید؟",
@@ -548,6 +579,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 32,
+      backendKey: "negative_customer_feedback",
 
       question:
         "در ۶ ماه اخیر، چه بازخوردهای منفی درباره‌ی برند، خدمات یا محصولات خود از مشتریان‌تان در پلتفرم‌های مختلف دریافت کرده‌اید؟",
@@ -555,6 +587,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 33,
+      backendKey: "business_market_share",
 
       question:
         "به نظر شما، در حال حاضر چند درصد از سهم بازارِ حوزه‌ی کسب‌وکارتان را در اختیار دارید؟",
@@ -566,6 +599,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 34,
+      backendKey: "business_target_market_share",
 
       question:
         "فکر می‌کنید در آینده چند درصدِ دیگر از سهم بازار را به دست خواهید آورد؟",
@@ -577,6 +611,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 35,
+      backendKey: "business_potential_crisis_solution",
 
       question:
         "مهم‌ترین بحران اجتماعی، سیاسی، حتی درون سازمانی و … که ممکن است بیزینس شما را تحت تاثیر قرار دهد چیست؟ در چنین شرایطی چه راهکاری دارید؟",
@@ -584,6 +619,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 36,
+      backendKey: "main_business_challenge",
 
       question:
         "اصلی‌ترین چالشی که در حال حاضر بیزینس شما با آن دست‌وپنجه نرم می‌کند چیست؟ آیا برای این چالش به راه‌حلی رسیده‌اید؟",
@@ -591,6 +627,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 37,
+      backendKey: "main_business_goal",
 
       question:
         "در حال حاضر، مهم‌ترین هدفی که برای رشد کسب‌وکار خود دارید چیست؟",
@@ -619,6 +656,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 38,
+      backendKey: "business_crm",
 
       question: "آیا از سیستم CRM استفاده می‌کنید؟",
       type: "radio",
@@ -626,6 +664,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 39,
+      backendKey: "business_tools_and_platforms",
 
       question:
         "در حال حاضر از کدام ابزارها و پنل‌ها در کسب‌وکار خود استفاده می‌کنید؟",
@@ -634,6 +673,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 40,
+      backendKey: "business_marketing_tools",
 
       question: "ابزارهای مارکتینگی خود را از لیست انتخاب کنید.",
       type: "checkbox",
@@ -693,6 +733,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 41,
+      backendKey: "business_advertising_tools",
 
       question: "ابزارهای تبلیغاتی خود را از لیست انتخاب کنید.",
       type: "checkbox",
@@ -718,6 +759,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 42,
+      backendKey: "new_business_communication_model",
 
       question: "آیا قصد دارید مدل تجاری جدیدی با مشتریان خود داشته باشید؟",
       type: "radio",
@@ -725,6 +767,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 43,
+      backendKey: "want_new_business_communication_model",
 
       question: "مدل تجاری جدید مدنظر خود را مشخص کنید.",
       type: "checkbox",
@@ -750,6 +793,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 44,
+      backendKey: "expansion_plans",
 
       question: "آیا قصد ورود به حوزه یا حوزه‌های جدید کسب‌وکار را دارید؟",
       type: "radio",
@@ -757,6 +801,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 45,
+      backendKey: "want_expansion_plans",
 
       question: "حوزه یا حوزه‌های مدنظر خود را مشخص کنید.",
       type: "checkbox",
@@ -882,6 +927,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 46,
+      backendKey: "new_sales_methods",
 
       question:
         "آیا قصد دارید از روش جدیدی برای فروش محصول یا خدمات خود استفاده کنید؟",
@@ -890,6 +936,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 47,
+      backendKey: "want_new_sales_methods",
 
       question: "روش‌های فروش مدنظر خود را مشخص کنید.",
       type: "checkbox",
@@ -904,6 +951,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 48,
+      backendKey: "new_payment_methods",
 
       question: "آیا قصد دارید از روش جدیدی برای پرداخت استفاده کنید؟",
       type: "radio",
@@ -911,6 +959,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 49,
+      backendKey: "want_new_payment_methods",
 
       question: "روش‌های پرداخت مدنظر خود را مشخص کنید.",
       type: "checkbox",
@@ -949,6 +998,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 50,
+      backendKey: "new_revenue_model",
 
       question: "آیا قصد اضافه کردن مدل درآمدی جدید دارید؟",
       type: "radio",
@@ -956,6 +1006,7 @@ export const brandFormSurvey: SurveyConfig = {
     },
     {
       id: 51,
+      backendKey: "want_new_revenue_model",
 
       question: "مدل یا مدل‌های درآمدی مدنظر خود را انتخاب کنید.",
       type: "checkbox",

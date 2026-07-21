@@ -89,6 +89,11 @@ export type SurveyStep = {
   /** When true, only one location (no numbered header or add-more control). */
   geoLocationSingle?: boolean;
   showIf?: ShowIfCondition;
+  /**
+   * Backend attribution key for this question (e.g. `brand_name`).
+   * When set, submission `answers` use this key instead of `step_{id}`.
+   */
+  backendKey?: string;
 };
 
 export type SurveyConfig = {
@@ -97,6 +102,8 @@ export type SurveyConfig = {
   title: string;
   description: string;
   steps: SurveyStep[];
+  /** Product / form SKU for order APIs. Defaults to survey `id` when omitted. */
+  orderSku?: string;
 };
 
 export const surveyMap: Record<string, SurveyConfig> = {
