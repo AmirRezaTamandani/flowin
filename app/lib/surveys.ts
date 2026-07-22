@@ -41,6 +41,7 @@ export type SurveyStep = {
     | "shamsiDate"
     | "namedShamsiDates"
     | "number"
+    | "optionDialog"
     | "url";
   /** MIME/extensions for `fileUpload` steps. */
   fileAccept?: string;

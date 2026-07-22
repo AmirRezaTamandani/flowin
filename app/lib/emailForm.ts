@@ -1,10 +1,9 @@
-import type { SurveyConfig } from "./surveys";
 import {
   CHANNEL_EVENT_TYPE_OPTIONS,
   CHANNEL_TONE_OPTIONS,
-  EMAIL_GOAL_OPTIONS,
   MONTHLY_BUDGET_OPTIONS,
 } from "./formShared";
+import type { SurveyConfig } from "./surveys";
 
 export const emailFormSurvey: SurveyConfig = {
   id: "email",
@@ -17,6 +16,12 @@ export const emailFormSurvey: SurveyConfig = {
       question: "آیا تا بحال ایمیل ارسال کرده‌اید؟",
       type: "radio",
       options: ["بله", "خیر"],
+      optionDialog: {
+        option: "خیر",
+        confirmLabel: "تأیید",
+        message:
+          "اولین قدم را با هم شروع کنیم.\n\nاگر لیست ایمیل ندارید یا تا به حال ایمیل مارکتینگ انجام نداده‌اید، جای نگرانی نیست.\n\nفقط کافیست لینک صفحه‌ای را که می‌خواهید پروموت شود وارد کنید. ما صفحه را تحلیل می‌کنیم، مناسب‌ترین گروه مخاطبان را انتخاب می‌کنیم، برنامه ارسال ایمیل را می‌سازیم و کمپین را برای مرتبط‌ترین مخاطبان آغاز می‌کنیم.\n\nاگر آماده هستید، روی «تأیید» کلیک کنید تا شروع کنیم.",
+      },
     },
     {
       id: 2,
@@ -82,6 +87,26 @@ export const emailFormSurvey: SurveyConfig = {
       showIf: {
         parentQuestion: "آیا تا بحال ایمیل ارسال کرده‌اید؟",
         equals: "بله",
+      },
+    },
+    {
+      id: 20,
+      question:
+        "لینک صفحاتی که نیاز دارید برای آنها ایمیل مارکتینگ اجرا شود، وارد کنید.",
+      type: "repeater",
+      repeaterMinRows: 1,
+      repeaterFields: [
+        {
+          key: "url",
+          type: "url",
+          label: "لینک صفحه",
+          placeholder: "https://example.com/page",
+          inputDir: "ltr",
+        },
+      ],
+      showIf: {
+        parentQuestion: "آیا تا بحال ایمیل ارسال کرده‌اید؟",
+        equals: "خیر",
       },
     },
     {
