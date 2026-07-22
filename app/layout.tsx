@@ -13,6 +13,16 @@ const modam = localFont({
       weight: "400",
       style: "normal",
     },
+    {
+      path: "./fonts/modam/Modam-Black-b.woff2",
+      weight: "600",
+      style: "normal",
+    },
+    {
+      path: "./fonts/modam/Modam-Black-b.woff2",
+      weight: "700",
+      style: "normal",
+    },
     // Add the bold/black weights here as well
   ],
   variable: "--font-modam",
