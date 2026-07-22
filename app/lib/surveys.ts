@@ -94,6 +94,15 @@ export type SurveyStep = {
    * When set, submission `answers` use this key instead of `step_{id}`.
    */
   backendKey?: string;
+  /**
+   * When the user selects this radio option, show a confirm dialog before continuing.
+   * After confirm, the stepper advances to the next visible step.
+   */
+  optionDialog?: {
+    option: string;
+    message: string;
+    confirmLabel?: string;
+  };
 };
 
 export type SurveyConfig = {

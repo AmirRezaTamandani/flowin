@@ -1,9 +1,18 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { Loader2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -453,11 +462,13 @@ function StepField({
   steps,
   control,
   validationErrors,
+  onRadioValueChange,
 }: {
   step: SurveyStep;
   steps: SurveyStep[];
   control: ReturnType<typeof useForm<FormValues>>["control"];
   validationErrors?: StepValidationErrors;
+  onRadioValueChange?: (step: SurveyStep, value: string) => void;
 }) {
   const watchedValues = useWatch({ control }) as FormValues;
   const name = fieldName(step.id);
@@ -648,7 +659,10 @@ function StepField({
             <>
               <RadioGroup
                 value={selectedValue}
-                onValueChange={field.onChange}
+                onValueChange={(value) => {
+                  field.onChange(value);
+                  onRadioValueChange?.(step, value);
+                }}
                 className={cn("gap-3", rootError && "rounded-lg border border-destructive p-2")}
               >
                 {radioOptions.map((option) => (
@@ -1176,11 +1190,84 @@ export default function SurveyStepper({
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [handoffGateError, setHandoffGateError] = useState<string | null>(null);
+  const [optionDialog, setOptionDialog] = useState<{
+    stepId: number;
+    option: string;
+    message: string;
+    confirmLabel: string;
+  } | null>(null);
+  const acknowledgedOptionDialogRef = useRef<string | null>(null);
 
   const form = useForm<FormValues>({
     defaultValues: buildDefaultValues(survey.steps),
     mode: "onChange",
   });
+
+  function optionDialogKey(stepId: number, option: string) {
+    return `${stepId}:${option}`;
+  }
+
+  function handleRadioValueChange(step: SurveyStep, value: string) {
+    const dialog = step.optionDialog;
+    if (!dialog) return;
+
+    if (value === dialog.option) {
+      const key = optionDialogKey(step.id, dialog.option);
+      if (acknowledgedOptionDialogRef.current === key) return;
+      setOptionDialog({
+        stepId: step.id,
+        option: dialog.option,
+        message: dialog.message,
+        confirmLabel: dialog.confirmLabel ?? "تأیید",
+      });
+      return;
+    }
+
+    if (acknowledgedOptionDialogRef.current?.startsWith(`${step.id}:`)) {
+      acknowledgedOptionDialogRef.current = null;
+    }
+  }
+
+  function openOptionDialogIfNeeded(step: SurveyStep, values: FormValues): boolean {
+    const dialog = step.optionDialog;
+    if (!dialog) return false;
+    const value = values[fieldName(step.id)];
+    if (value !== dialog.option) return false;
+    const key = optionDialogKey(step.id, dialog.option);
+    if (acknowledgedOptionDialogRef.current === key) return false;
+    setOptionDialog({
+      stepId: step.id,
+      option: dialog.option,
+      message: dialog.message,
+      confirmLabel: dialog.confirmLabel ?? "تأیید",
+    });
+    return true;
+  }
+
+  async function confirmOptionDialog() {
+    if (!optionDialog || !currentStep) {
+      setOptionDialog(null);
+      return;
+    }
+
+    acknowledgedOptionDialogRef.current = optionDialogKey(
+      optionDialog.stepId,
+      optionDialog.option,
+    );
+    setOptionDialog(null);
+
+    const values = form.getValues();
+    if (!validateCurrentStep(values)) return;
+
+    const navigable = getNavigableSteps(survey.steps, values);
+    const index = navigable.findIndex((step) => step.id === currentStep.id);
+    if (index < 0 || index >= navigable.length - 1) return;
+
+    const saved = await persistDraft(values);
+    if (!saved) return;
+    setCurrentStepId(navigable[index + 1].id);
+    setStepValidation(null);
+  }
 
   const watchedValues = useWatch({ control: form.control }) as FormValues;
 
@@ -1226,6 +1313,8 @@ export default function SurveyStepper({
     setDraftSubmissionId(null);
     setSaveError(null);
     setHandoffGateError(null);
+    setOptionDialog(null);
+    acknowledgedOptionDialogRef.current = null;
   }, [survey.id, survey.steps, form]);
 
   useEffect(() => {
@@ -1485,6 +1574,7 @@ export default function SurveyStepper({
     if (!currentStep) return;
     const values = form.getValues();
     if (!validateCurrentStep(values)) return;
+    if (openOptionDialogIfNeeded(currentStep, values)) return;
 
     const index = visibleSteps.findIndex((step) => step.id === currentStep.id);
 
@@ -1562,6 +1652,7 @@ export default function SurveyStepper({
           steps={survey.steps}
           control={form.control}
           validationErrors={getValidationErrorsForStep(currentStep.id)}
+          onRadioValueChange={handleRadioValueChange}
         />
         {getValidationErrorsForStep(currentStep.id)?.stepMessage ? (
           <FieldErrorMessage
@@ -1581,6 +1672,7 @@ export default function SurveyStepper({
               steps={survey.steps}
               control={form.control}
               validationErrors={getValidationErrorsForStep(childStep.id)}
+              onRadioValueChange={handleRadioValueChange}
             />
             {getValidationErrorsForStep(childStep.id)?.stepMessage ? (
               <FieldErrorMessage
@@ -1592,6 +1684,36 @@ export default function SurveyStepper({
           </>
         )}
       </div>
+
+      <AlertDialog
+        open={optionDialog !== null}
+        onOpenChange={(open) => {
+          if (!open) return;
+        }}
+      >
+        <AlertDialogContent
+          className="max-w-[min(100%-2rem,32rem)] gap-5 p-5 sm:max-w-lg"
+          dir="rtl"
+        >
+          <AlertDialogHeader className="place-items-stretch text-right sm:place-items-stretch sm:text-right">
+            <AlertDialogTitle className="sr-only">پیام</AlertDialogTitle>
+            <AlertDialogDescription className="whitespace-pre-line text-right text-sm leading-7 text-foreground">
+              {optionDialog?.message ?? ""}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="sm:justify-start">
+            <AlertDialogAction
+              type="button"
+              className="h-10 min-w-28 rounded-xl font-semibold"
+              onClick={() => {
+                void confirmOptionDialog();
+              }}
+            >
+              {optionDialog?.confirmLabel ?? "تأیید"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {saveError ? (
         <FieldErrorMessage message={saveError} className="mt-4" />
