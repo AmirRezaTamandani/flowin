@@ -34,7 +34,7 @@ function mapN8nStatus(status: number): 401 | 404 | 409 | 500 | 502 | null {
 }
 
 /**
- * Forwards form payload (draft or completed) to n8n with the shared secret header.
+ * Forwards completed form payload to n8n with the shared secret header.
  */
 export async function submitFormToN8n(
   claims: WpHandoffClaims,

@@ -127,7 +127,6 @@ import {
   fetchDraftSubmission,
   saveDraftSubmission,
   submitCompletedToN8n,
-  submitToN8n,
 } from "../lib/api/submitSurvey";
 import { useAuthStore } from "../lib/authStore";
 
@@ -1467,32 +1466,9 @@ export default function SurveyStepper({
   async function persistDraft(values: FormValues): Promise<boolean> {
     backupToLocalStorage(values, "draft");
 
-    if (isHandoffMode && handoffToken) {
-      setIsSaving(true);
-      setSaveError(null);
-      try {
-        const payload = buildSubmissionPayload(survey, values, "draft");
-        await submitToN8n({
-          token: handoffToken,
-          orderId,
-          orderSku,
-          payload: {
-            surveyId: payload.surveyId,
-            status: "draft",
-            answers: payload.answers,
-            normalizedAnswers: payload.normalizedAnswers,
-          },
-        });
-        return true;
-      } catch (error) {
-        setSaveError(
-          error instanceof Error ? error.message : "ذخیره پیش‌نویس ناموفق بود.",
-        );
-        return false;
-      } finally {
-        setIsSaving(false);
-      }
-    }
+    // Handoff/WP mode: only localStorage between steps; n8n gets the full
+    // payload once on survey completion (see completeSurvey).
+    if (isHandoffMode) return true;
 
     if (!token || !brandId) return true;
 

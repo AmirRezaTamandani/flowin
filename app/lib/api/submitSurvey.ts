@@ -80,7 +80,7 @@ export type N8nClientSubmitPayload = {
 
 /**
  * Submit form answers to Next API → n8n.
- * Drafts are sent on each Next; completed triggers a full-page WP redirect on 202.
+ * Called on survey completion; triggers a full-page WP redirect on 202.
  */
 export async function submitToN8n(options: {
   token: string;
