@@ -190,6 +190,8 @@ b {
 .site-logo-icon {
   color: var(--foreground);
   display: flex;
+  width: auto;
+  height: auto;
 }
 
 .site-logo-text {

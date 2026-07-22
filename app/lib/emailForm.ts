@@ -1,7 +1,7 @@
 import {
   CHANNEL_EVENT_TYPE_OPTIONS,
   CHANNEL_TONE_OPTIONS,
-  MONTHLY_BUDGET_OPTIONS
+  MONTHLY_BUDGET_OPTIONS,
 } from "./formShared";
 import type { SurveyConfig } from "./surveys";
 
@@ -93,27 +93,6 @@ export const emailFormSurvey: SurveyConfig = {
       showIf: {
         parentQuestion: "آیا تا بحال ایمیل ارسال کرده‌اید؟",
         equals: "بله",
-      },
-    },
-    {
-      id: 20,
-      backendKey: "email_marketing_page_urls",
-      question:
-        "لینک صفحاتی که نیاز دارید برای آنها ایمیل مارکتینگ اجرا شود، وارد کنید.",
-      type: "repeater",
-      repeaterMinRows: 1,
-      repeaterFields: [
-        {
-          key: "url",
-          type: "url",
-          label: "لینک صفحه",
-          placeholder: "https://example.com/page",
-          inputDir: "ltr",
-        },
-      ],
-      showIf: {
-        parentQuestion: "آیا تا بحال ایمیل ارسال کرده‌اید؟",
-        equals: "خیر",
       },
     },
     {

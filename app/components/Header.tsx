@@ -8,12 +8,14 @@ export default function Header() {
       <div className="site-header-inner">
         <div className="site-header-brand">
           <div className="site-logo">
-            <span className="site-logo-icon" aria-hidden="true">
+            <span aria-hidden="true">
               <Image
                 src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/Felowin-Logo-v3-Hor-Dark-En.svg`}
                 alt="logo"
                 width={200}
                 height={200}
+                style={{ width: "auto", height: "auto" }}
+                loading="eager"
               />
             </span>
           </div>
