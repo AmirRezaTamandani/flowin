@@ -12,7 +12,7 @@ function FormBody({ survey }: { survey: SurveyConfig }) {
   return (
     <main className="main-panel mx-auto w-full max-w-3xl">
       <SurveyStepper survey={survey} requireHandoffToken />
-      {showBrandFooter && <BrandFormFooter />}
+      {/* {showBrandFooter && <BrandFormFooter />} */}
     </main>
   );
 }
@@ -26,7 +26,9 @@ export default function FormClient({ survey }: { survey: SurveyConfig }) {
         <Suspense
           fallback={
             <main className="main-panel mx-auto flex min-h-[40vh] w-full max-w-3xl items-center justify-center">
-              <p className="text-muted-foreground text-sm">در حال بارگذاری فرم...</p>
+              <p className="text-muted-foreground text-sm">
+                در حال بارگذاری فرم...
+              </p>
             </main>
           }
         >
