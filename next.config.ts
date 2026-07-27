@@ -13,6 +13,16 @@ const nextConfig: NextConfig = {
         hostname: "flowin-pi.vercel.app",
         pathname: "**",
       },
+      {
+        protocol: "https",
+        hostname: "stage.felowin.ir",
+        pathname: "**",
+      },
+      {
+        protocol: "https",
+        hostname: "stage.felowin.ir",
+        pathname: "**",
+      },
     ],
   },
 };
