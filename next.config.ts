@@ -15,16 +15,6 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "tachra-dev.aigozaresh.ir",
-        pathname: "**",
-      },
-      {
-        protocol: "https",
-        hostname: "tachra-prod.aigozaresh.ir",
-        pathname: "**",
-      },
-      {
-        protocol: "https",
         hostname: "flowin-pi.vercel.app",
         pathname: "**",
       },
