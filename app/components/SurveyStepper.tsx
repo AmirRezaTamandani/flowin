@@ -583,6 +583,7 @@ function StepField({
               mode={step.shamsiPickerMode ?? "date"}
               placeholder={step.placeholder}
               hasError={Boolean(rootError)}
+              
             />
             <FieldErrorMessage message={rootError} />
           </>
@@ -1062,6 +1063,12 @@ function StepField({
           ? selected.filter((item) => checkboxOptions.includes(item))
           : selected;
         const maxSelections = step.checkboxMaxSelections;
+        const exclusiveOption = step.checkboxExclusiveOption;
+        const exclusiveSelected =
+          Boolean(exclusiveOption) && visibleSelected.includes(exclusiveOption!);
+        const nonExclusiveSelected = exclusiveOption
+          ? visibleSelected.some((item) => item !== exclusiveOption)
+          : false;
         const atSelectionLimit =
           maxSelections !== undefined && visibleSelected.length >= maxSelections;
 
@@ -1109,7 +1116,15 @@ function StepField({
               {checkboxOptions.map((option) => {
                 const checked = visibleSelected.includes(option);
                 const isOtherOption = stepHasOtherOption(step) && option === step.otherOption;
-                const isDisabled = !checked && atSelectionLimit;
+                const isExclusiveOption =
+                  Boolean(exclusiveOption) && option === exclusiveOption;
+                const disabledByExclusive =
+                  Boolean(exclusiveOption) &&
+                  !checked &&
+                  ((isExclusiveOption && nonExclusiveSelected) ||
+                    (!isExclusiveOption && exclusiveSelected));
+                const isDisabled =
+                  disabledByExclusive || (!checked && atSelectionLimit);
 
                 return (
                   <div key={option}>
@@ -1124,10 +1139,22 @@ function StepField({
                         checked={checked}
                         disabled={isDisabled}
                         onCheckedChange={(isChecked) => {
-                          if (isChecked && atSelectionLimit) return;
-                          const next = isChecked
-                            ? [...visibleSelected, option]
-                            : visibleSelected.filter((item) => item !== option);
+                          if (isChecked && (atSelectionLimit || disabledByExclusive)) return;
+                          let next: string[];
+                          if (isChecked) {
+                            if (isExclusiveOption) {
+                              next = [option];
+                            } else if (exclusiveOption) {
+                              next = [
+                                ...visibleSelected.filter((item) => item !== exclusiveOption),
+                                option,
+                              ];
+                            } else {
+                              next = [...visibleSelected, option];
+                            }
+                          } else {
+                            next = visibleSelected.filter((item) => item !== option);
+                          }
                           updateCheckbox(next, isOtherOption && !isChecked ? "" : otherText);
                         }}
                         className="mt-0.5"

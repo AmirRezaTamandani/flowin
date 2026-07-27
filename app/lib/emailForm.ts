@@ -155,6 +155,10 @@ export const emailFormSurvey: SurveyConfig = {
         "سرور داخلی",
         "سایر",
       ],
+      showIf: {
+        parentQuestion: "آیا تا بحال ایمیل ارسال کرده‌اید؟",
+        equals: "خیر",
+      },
     },
     {
       id: 12,
@@ -162,6 +166,10 @@ export const emailFormSurvey: SurveyConfig = {
       question: "میانگین هزینه ماهانه شما برای ایمیل مارکتینگ چقدر بوده است؟",
       type: "radio",
       options: [...MONTHLY_BUDGET_OPTIONS],
+      showIf: {
+        parentQuestion: "آیا تا بحال ایمیل ارسال کرده‌اید؟",
+        equals: "خیر",
+      },
     },
     {
       id: 13,
@@ -212,6 +220,10 @@ export const emailFormSurvey: SurveyConfig = {
       placeholder:
         "بعنوان مثال: نرخ باز شدن نوتیفیکیشن (Open Rate)، چون درصد زیادی از نوتیفیکیشن‌ها باز نمی‌شوند.",
       isAllowedEmpty: true,
+      showIf: {
+        parentQuestion: "آیا تا بحال ایمیل ارسال کرده‌اید؟",
+        equals: "خیر",
+      },
     },
     {
       id: 19,

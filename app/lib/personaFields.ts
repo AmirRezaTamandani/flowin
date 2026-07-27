@@ -13,7 +13,7 @@ export const PERSONA_AGE_OPTIONS = [
   "۵۵ به بالا",
 ] as const;
 
-export const PERSONA_GENDER_OPTIONS = ["زن", "مرد", "ترجیح میدهم نگویم"] as const;
+export const PERSONA_GENDER_OPTIONS = ["زن", "مرد", "آقا و خانم"] as const;
 
 export const PERSONA_JOB_OPTIONS = [
   "جوان جویای کار",
@@ -165,7 +165,9 @@ export function getPersonaFieldsValidationErrors(
     errors.country = PERSONA_EMPTY_FIELD_MESSAGE;
   } else {
     const provinceOptions = getPersonaProvinceOptions(value.country);
-    const province = provinceOptions.includes(value.province) ? value.province : "";
+    const province = provinceOptions.includes(value.province)
+      ? value.province
+      : "";
     if (!province) {
       errors.province = PERSONA_EMPTY_FIELD_MESSAGE;
     } else {

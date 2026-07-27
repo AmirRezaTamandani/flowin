@@ -64,10 +64,6 @@ function formatShamsiValue(
   return `${date.year}/${padDatePart(date.month.number)}/${padDatePart(date.day)}`;
 }
 
-function currentShamsiDate(): DateObject {
-  return new DateObject({ calendar: persian, locale: persian_fa });
-}
-
 export default function ShamsiDateInput({
   value,
   onChange,
@@ -81,7 +77,6 @@ export default function ShamsiDateInput({
   placeholder?: string;
   hasError?: boolean;
 }) {
-  const today = currentShamsiDate();
   const minDate = new DateObject({
     calendar: persian,
     locale: persian_fa,
@@ -109,7 +104,6 @@ export default function ShamsiDateInput({
         onlyYearPicker={mode === "year"}
         format={mode === "year" ? "YYYY" : "YYYY/MM/DD"}
         minDate={minDate}
-        maxDate={today}
         calendarPosition="bottom-right"
         containerClassName="w-full"
         inputClass="hidden"

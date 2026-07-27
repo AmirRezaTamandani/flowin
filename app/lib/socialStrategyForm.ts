@@ -337,7 +337,7 @@ export const socialStrategyFormSurvey: SurveyConfig = {
       id: 9,
       backendKey: "best_posting_times",
       question:
-        "در صورت وجود تجربه قبلی، چه زمان‌هایی بیشترین بازده را برای انتشار محتوا داشته‌اید؟",
+        "در صورت وجود تجربه قبلی، انتشار محتوا در چه زمان‌هایی بیشترین بازدهی را برای شما داشته‌ است؟",
       type: "repeater",
       repeaterFields: [
         {
@@ -482,6 +482,6 @@ export const socialStrategyFormSurvey: SurveyConfig = {
           options: [...CONTENT_PROCESS_ROLE_OPTIONS],
         },
       ],
-    }
+    },
   ],
 };

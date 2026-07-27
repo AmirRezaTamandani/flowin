@@ -14,6 +14,9 @@ export const SOCIAL_COMPETITOR_ANALYZE_GOAL_OPTIONS = [
   "شناسایی محتواهای موفق و علل موفقیت آن‌ها (دلایل افزایش بازدید، جذب فالوئر، ورود به اکسپلور و ...) ",
 ] as const;
 
+export const COMPETITORS_SOCIAL_LACKS_UNKNOWN_OPTION =
+  "نمی‌دانم / نیاز به بررسی شما دارم";
+
 export const COMPETITORS_SOCIAL_LACKS_OPTIONS = [
   "پاسخگویی ضعیف به کامنت‌ها و دایرکت‌ها",
 
@@ -43,7 +46,7 @@ export const COMPETITORS_SOCIAL_LACKS_OPTIONS = [
 
   "عدم حضور مؤثر در برخی شبکه‌های اجتماعی",
 
-  "نمی‌دانم / نیاز به بررسی شما دارم",
+  COMPETITORS_SOCIAL_LACKS_UNKNOWN_OPTION,
 ] as const;
 
 export const COMPETITORS_SOCIAL_FEEDBACK_OPTIONS = [
@@ -207,10 +210,12 @@ export const socialCompetitorFormSurvey: SurveyConfig = {
       backendKey: "competitors_social_lacks",
 
       question:
-        "به نظر شما رقبا در شبکه‌های اجتماعی چه ضعف‌ها یا فرصت‌های استفاده‌نشده‌ای دارند که برند شما می‌تواند از آن‌ها برای تمایز استفاده کند؟",
+        "به نظر شما رقبا در شبکه‌های اجتماعی چه ضعف‌ها یا فرصت‌های استفاده‌نشده‌ای دارند که برند شما می‌تواند از آن‌ها برای تمایز استفاده کند؟ (حداکثر 5 مورد)",
 
       type: "checkbox",
 
+      checkboxMaxSelections: 5,
+      checkboxExclusiveOption: COMPETITORS_SOCIAL_LACKS_UNKNOWN_OPTION,
       options: [...COMPETITORS_SOCIAL_LACKS_OPTIONS],
     },
 

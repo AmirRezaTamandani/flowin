@@ -75,6 +75,11 @@ export type SurveyStep = {
   checkboxSubOptions?: CheckboxSubOptionsConfig | CheckboxSubOptionsConfig[];
   /** Max number of selections for plain `checkbox` steps. */
   checkboxMaxSelections?: number;
+  /**
+   * Checkbox option that cannot be combined with any other selection.
+   * Selecting it disables the rest; selecting anything else disables this option.
+   */
+  checkboxExclusiveOption?: string;
   /** Dynamic options for checkbox, radio, or select based on a parent step answer. */
   optionsFromParent?: {
     parentQuestion: string;
