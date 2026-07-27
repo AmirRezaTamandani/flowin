@@ -10,11 +10,6 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "cdn-images.archybase.com",
-        pathname: "**",
-      },
-      {
-        protocol: "https",
         hostname: "flowin-pi.vercel.app",
         pathname: "**",
       },
