@@ -5,6 +5,31 @@ const nextConfig: NextConfig = {
   env: {
     NEXT_PUBLIC_BASE_PATH: "/form",
   },
+  images: {
+    unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "cdn-images.archybase.com",
+        pathname: "**",
+      },
+      {
+        protocol: "https",
+        hostname: "tachra-dev.aigozaresh.ir",
+        pathname: "**",
+      },
+      {
+        protocol: "https",
+        hostname: "tachra-prod.aigozaresh.ir",
+        pathname: "**",
+      },
+      {
+        protocol: "https",
+        hostname: "flowin-pi.vercel.app",
+        pathname: "**",
+      },
+    ],
+  },
 };
 
 export default nextConfig;
