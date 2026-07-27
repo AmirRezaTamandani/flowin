@@ -121,6 +121,7 @@ import {
   type CheckboxWithSubOptionsValue,
 } from "../lib/checkboxWithSubOptions";
 import { buildSubmissionPayload } from "../lib/api/normalizeSubmission";
+import { getSurveyFormHeading } from "../lib/api/formSlugs";
 import {
   completeSubmission,
   ensureBrand,
@@ -1202,6 +1203,7 @@ export default function SurveyStepper({
   const orderId = searchParams.get("order_id");
   const orderSku = searchParams.get("order_sku");
   const isHandoffMode = Boolean(handoffToken);
+  const formHeading = getSurveyFormHeading(survey, orderSku);
 
   const token = useAuthStore((state) => state.token);
   const [currentStepId, setCurrentStepId] = useState(survey.steps[0]?.id ?? 1);
@@ -1617,7 +1619,7 @@ export default function SurveyStepper({
   if (handoffGateError) {
     return (
       <section className="survey-wrap">
-        <h2 className="survey-section-title">{survey.label}</h2>
+        <h2 className="survey-section-title">{formHeading}</h2>
         <div className="survey-step-panel">
           <FieldErrorMessage message={handoffGateError} />
         </div>
@@ -1627,7 +1629,7 @@ export default function SurveyStepper({
 
   return (
     <section className="survey-wrap" onKeyDown={handleEnterKey}>
-      <h2 className="survey-section-title">{survey.label}</h2>
+      <h2 className="survey-section-title">{formHeading}</h2>
 
       <Progress value={progressValue} className="mb-8">
         <div className="flex w-full items-center justify-between gap-3">

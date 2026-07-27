@@ -10,6 +10,7 @@ export const pushFormSurvey: SurveyConfig = {
   label: "فرم پوش",
   title: "فرم پوش نوتیفیکیشن",
   description: "",
+  orderSku: "push_content_calendar",
   steps: [
     {
       id: 1,

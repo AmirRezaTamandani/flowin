@@ -10,6 +10,7 @@ export const smsFormSurvey: SurveyConfig = {
   label: "فرم پیامک",
   title: "فرم پیامک",
   description: "",
+  orderSku: "sms_content_calendar",
   steps: [
     {
       id: 1,

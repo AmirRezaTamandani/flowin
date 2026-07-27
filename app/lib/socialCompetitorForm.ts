@@ -99,6 +99,8 @@ export const socialCompetitorFormSurvey: SurveyConfig = {
 
   description: "",
 
+  orderSku: "social_competitor_analyse",
+
   steps: [
     {
       id: 1,

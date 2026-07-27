@@ -11,6 +11,7 @@ export const seoFormSurvey: SurveyConfig = {
   label: "فرم سئو",
   title: "فرم سئو",
   description: "",
+  orderSku: "seo_strategy",
   steps: [
     {
       id: 1,

@@ -15,6 +15,7 @@ export const campaignFormSurvey: SurveyConfig = {
   label: "فرم کمپین",
   title: "فرم کمپین",
   description: "",
+  orderSku: "campaign_design",
 
   steps: [
     {

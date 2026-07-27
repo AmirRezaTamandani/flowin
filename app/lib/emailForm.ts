@@ -10,6 +10,7 @@ export const emailFormSurvey: SurveyConfig = {
   label: "فرم ایمیل",
   title: "فرم ایمیل",
   description: "",
+  orderSku: "email_content_calendar",
   steps: [
     {
       id: 1,

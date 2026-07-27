@@ -187,6 +187,7 @@ export const socialStrategyFormSurvey: SurveyConfig = {
   label: "استراتژی و کلندر سوشال",
   title: "استراتژی و تقویم محتوای شبکه‌های اجتماعی",
   description: "",
+  orderSku: "social_content_strategy",
   steps: [
     {
       id: 1,
